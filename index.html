@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Domain AI Judge</title>
+  <style>
+    :root {
+      --bg: #f7f6f2;
+      --surface: #ffffff;
+      --surface-2: #f3f0ec;
+      --text: #28251d;
+      --muted: #6b6a66;
+      --border: #d8d4cd;
+      --primary: #01696f;
+      --primary-hover: #0c4e54;
+      --danger: #a13544;
+      --radius: 14px;
+      --shadow: 0 8px 24px rgba(0,0,0,.06);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                   "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 32px 20px 80px; }
+    .hero { margin-bottom: 24px; }
+    .hero h1 { margin: 0 0 8px; font-size: 36px; line-height: 1.15; }
+    .hero p { margin: 0; color: var(--muted); max-width: 760px; }
+    .grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 20px; align-items: start; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; }
+    .card h2 { margin: 0 0 14px; font-size: 20px; }
+    .field { margin-bottom: 16px; }
+    .field label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
+    .field input, .field textarea {
+      width: 100%; border: 1px solid var(--border); border-radius: 12px;
+      padding: 12px 14px; font-size: 15px; background: #fff; color: var(--text); outline: none;
+    }
+    .field textarea { min-height: 220px; resize: vertical; }
+    .btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+    button { border: 0; border-radius: 12px; padding: 12px 16px; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-secondary { background: var(--surface-2); color: var(--text); }
+    .judge-list { display: grid; gap: 12px; margin-top: 8px; }
+    .judge-item {
+      display: grid; grid-template-columns: 1fr 120px 42px; gap: 10px;
+      align-items: center; padding: 12px; border: 1px solid var(--border);
+      border-radius: 12px; background: #fff;
+    }
+    .judge-item input { margin: 0; }
+    .judge-item .remove { width: 42px; height: 42px; border-radius: 10px; background: #f4dfe3; color: #7e2332; font-weight: 900; padding: 0; }
+    .result-box { background: #f9f8f5; border: 1px dashed var(--border); border-radius: 12px; padding: 14px; white-space: pre-wrap; font-size: 14px; }
+    .score-board { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 14px; }
+    .metric { padding: 14px; border-radius: 12px; background: #f9f8f5; border: 1px solid var(--border); }
+    .metric .label { color: var(--muted); font-size: 13px; margin-bottom: 6px; }
+    .metric .value { font-size: 26px; font-weight: 800; }
+    .tips { margin-top: 16px; color: var(--muted); font-size: 14px; }
+    .prompt-box { min-height: 220px; }
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+      .score-board { grid-template-columns: 1fr; }
+      .judge-item { grid-template-columns: 1fr; }
+      .judge-item .remove { width: 100%; height: 42px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>Domain AI Judge</h1>
+      <p>输入域名、粘贴分析报告、录入多个 AI 的评分结果，系统自动去掉最高分和最低分，输出最终域名估价分数与可复制结果。</p>
+    </section>
+    <section class="grid">
+      <div class="card">
+        <h2>域名与报告</h2>
+        <div class="field">
+          <label for="domain">域名</label>
+          <input id="domain" type="text" placeholder="例如：TEX.COM" />
+        </div>
+        <div class="field">
+          <label for="mdContent">域名分析 MD 内容</label>
+          <textarea id="mdContent" placeholder="把生成好的域名分析 markdown 内容粘贴到这里"></textarea>
+        </div>
+        <div class="field">
+          <label for="promptTemplate">给 AI 的评分提示词</label>
+          <textarea id="promptTemplate" class="prompt-box"></textarea>
+        </div>
+        <div class="btns">
+          <button class="btn-secondary" id="fillPromptBtn">填充默认提示词</button>
+          <button class="btn-primary" id="buildPromptBtn">生成完整投喂内容</button>
+          <button class="btn-secondary" id="copyPromptBtn">复制完整内容</button>
+        </div>
+        <div class="field" style="margin-top:16px;">
+          <label for="fullPayload">完整投喂内容</label>
+          <textarea id="fullPayload" placeholder="点击&ldquo;生成完整投喂内容&rdquo;后会出现在这里"></textarea>
+        </div>
+      </div>
+      <div class="card">
+        <h2>AI 评委打分</h2>
+        <div class="judge-list" id="judgeList"></div>
+        <div class="btns">
+          <button class="btn-secondary" id="addJudgeBtn">新增评委</button>
+          <button class="btn-primary" id="calcBtn">计算结果</button>
+          <button class="btn-secondary" id="demoBtn">填充演示数据</button>
+        </div>
+        <div class="score-board">
+          <div class="metric"><div class="label">参与评分数</div><div class="value" id="judgeCount">0</div></div>
+          <div class="metric"><div class="label">最终均分</div><div class="value" id="finalScore">-</div></div>
+          <div class="metric"><div class="label">最高分</div><div class="value" id="maxScore">-</div></div>
+          <div class="metric"><div class="label">最低分</div><div class="value" id="minScore">-</div></div>
+        </div>
+        <div class="field" style="margin-top:16px;">
+          <label>结果摘要</label>
+          <div class="result-box" id="resultBox">还没有结果</div>
+        </div>
+        <div class="btns">
+          <button class="btn-secondary" id="copyResultBtn">复制结果摘要</button>
+          <button class="btn-secondary" id="downloadJsonBtn">下载 JSON</button>
+        </div>
+        <div class="tips">至少建议 5 个 AI 评分，这样去掉最高分和最低分后，剩余样本更稳。</div>
+      </div>
+    </section>
+  </div>
+  <script>
+    const defaultPrompt = `你是一位专业的域名价值评估师。我将提供一份域名分析报告（MD格式），请你根据以下6个维度对该域名进行评分，每个维度满分100分，最终给出一个综合总分（0-100）。
+
+## 评分维度
+1. 品牌性（Brandability）：域名是否简洁易记、发音顺口、具有商业品牌潜力
+2. 长度与简洁性（Length & Simplicity）：域名字符数，越短越稀有越高分
+3. 关键词价值（Keyword Value）：域名包含的词是否是高搜索量、高商业价值关键词
+4. TLD强度（TLD Strength）：顶级域名后缀的市场认可度
+5. 市场需求（Market Demand）：该域名所对应行业的增长潜力与投资热度
+6. 流通价值（Liquidity）：该域名在二级市场的可转售性与历史成交参考
+
+## 评分规则
+- 请逐一分析上述6个维度，每个维度给出1-100的分数，并附一句理由
+- 最后计算6个维度的加权平均分，作为综合总分
+- 权重参考：品牌性25% + 关键词价值20% + TLD强度20% + 市场需求15% + 长度15% + 流通价值5%
+- 只输出JSON，不要输出其他内容
+
+JSON格式：
+{
+  "domain": "域名",
+  "brandability": {"score": 85, "reason": "理由"},
+  "length": {"score": 90, "reason": "理由"},
+  "keyword_value": {"score": 70, "reason": "理由"},
+  "tld_strength": {"score": 95, "reason": "理由"},
+  "market_demand": {"score": 75, "reason": "理由"},
+  "liquidity": {"score": 80, "reason": "理由"},
+  "final_score": 84
+}`;
+
+    const judgeList = document.getElementById('judgeList');
+    const promptTemplate = document.getElementById('promptTemplate');
+    const fullPayload = document.getElementById('fullPayload');
+    const resultBox = document.getElementById('resultBox');
+    const judgeCountEl = document.getElementById('judgeCount');
+    const finalScoreEl = document.getElementById('finalScore');
+    const maxScoreEl = document.getElementById('maxScore');
+    const minScoreEl = document.getElementById('minScore');
+
+    function createJudge(name='', score='') {
+      const item = document.createElement('div');
+      item.className = 'judge-item';
+      item.innerHTML = `
+        <input type="text" class="judge-name" placeholder="AI名称，例如 ChatGPT / Claude / Gemini" value="${name}">
+        <input type="number" class="judge-score" placeholder="分数" min="0" max="100" step="0.1" value="${score}">
+        <button class="remove" title="删除">&times;</button>
+      `;
+      item.querySelector('.remove').addEventListener('click', () => item.remove());
+      judgeList.appendChild(item);
+    }
+
+    function getJudges() {
+      return [...document.querySelectorAll('.judge-item')].map(item => ({
+        name: item.querySelector('.judge-name').value.trim(),
+        score: parseFloat(item.querySelector('.judge-score').value)
+      })).filter(x => x.name && !Number.isNaN(x.score));
+    }
+
+    function calcScores(judges) {
+      const scores = judges.map(j => j.score).sort((a, b) => a - b);
+      if (scores.length < 3) return { error: '至少需要 3 个有效评分才能去掉最高分和最低分。' };
+      const min = scores[0], max = scores[scores.length - 1];
+      const trimmed = scores.slice(1, -1);
+      const avg = trimmed.reduce((a, b) => a + b, 0) / trimmed.length;
+      return { count: scores.length, min, max, trimmed, avg: Number(avg.toFixed(2)) };
+    }
+
+    function buildPayload() {
+      const domain = document.getElementById('domain').value.trim();
+      const md = document.getElementById('mdContent').value.trim();
+      const prompt = promptTemplate.value.trim();
+      fullPayload.value = `${prompt}\n\n---以下是域名分析报告---\n\n域名：${domain || '未填写'}\n\n${md || '未粘贴MD内容'}`;
+    }
+
+    function copyText(text) {
+      navigator.clipboard.writeText(text)
+        .then(() => alert('已复制'))
+        .catch(() => alert('复制失败，请手动复制'));
+    }
+
+    function renderResult() {
+      const domain = document.getElementById('domain').value.trim();
+      const judges = getJudges();
+      const calc = calcScores(judges);
+      judgeCountEl.textContent = judges.length;
+      if (calc.error) {
+        finalScoreEl.textContent = '-'; maxScoreEl.textContent = '-'; minScoreEl.textContent = '-';
+        resultBox.textContent = calc.error; return;
+      }
+      finalScoreEl.textContent = calc.avg;
+      maxScoreEl.textContent = calc.max;
+      minScoreEl.textContent = calc.min;
+      resultBox.textContent = JSON.stringify({
+        domain: domain || '未填写域名',
+        judge_count: calc.count,
+        highest_score: calc.max,
+        lowest_score: calc.min,
+        kept_scores: calc.trimmed,
+        final_score: calc.avg,
+        judges
+      }, null, 2);
+    }
+
+    function downloadJson() {
+      const text = resultBox.textContent;
+      if (!text || text === '还没有结果' || text.includes('至少需要')) { alert('请先生成有效结果'); return; }
+      const domain = document.getElementById('domain').value.trim() || 'domain';
+      const blob = new Blob([text], { type: 'application/json;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${domain.toLowerCase()}-ai-judge-result.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    document.getElementById('fillPromptBtn').addEventListener('click', () => { promptTemplate.value = defaultPrompt; });
+    document.getElementById('buildPromptBtn').addEventListener('click', buildPayload);
+    document.getElementById('copyPromptBtn').addEventListener('click', () => copyText(fullPayload.value));
+    document.getElementById('addJudgeBtn').addEventListener('click', () => createJudge());
+    document.getElementById('calcBtn').addEventListener('click', renderResult);
+    document.getElementById('copyResultBtn').addEventListener('click', () => copyText(resultBox.textContent));
+    document.getElementById('downloadJsonBtn').addEventListener('click', downloadJson);
+
+    document.getElementById('demoBtn').addEventListener('click', () => {
+      document.getElementById('domain').value = 'TEX.COM';
+      if (!promptTemplate.value.trim()) promptTemplate.value = defaultPrompt;
+      document.getElementById('mdContent').value = '# TEX.COM 域名分析\n\n- 后缀：.com\n- 长度：3字母\n- 优势：极短、稀缺、品牌化潜力高\n- 行业联想：科技、纺织、文本、交易所缩写\n- 备注：适合作为高端品牌域名进行投资评估';
+      judgeList.innerHTML = '';
+      createJudge('ChatGPT', 86); createJudge('Claude', 83); createJudge('Gemini', 88);
+      createJudge('DeepSeek', 79); createJudge('Qwen', 85);
+      buildPayload(); renderResult();
+    });
+
+    promptTemplate.value = defaultPrompt;
+    createJudge('ChatGPT', ''); createJudge('Claude', ''); createJudge('Gemini', '');
+  </script>
+</body>
+</html>
