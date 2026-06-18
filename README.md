@@ -1,81 +1,107 @@
-# Domain AI Judge v5
+# Domain AI Judge v5.1
 
-> **域名价值评估系统** — 6维评分 · 5 AI评委投票 · GPT5.5 结构化Prompt · 实时市场资讯
+> 域名 AI 多评委打分估值工作台 · 资产类别优先 · GPT5.5 热修补丁
 
-🌐 **在线使用**：[https://denyqqcom-cell.github.io/domain](https://denyqqcom-cell.github.io/domain)
+🔗 **在线使用**：https://denyqqcom-cell.github.io/domain/
 
 ---
 
-## 功能概览
+## 功能表
 
 | 功能 | 说明 |
 |------|------|
-| ⚡ 6维评分 | TLD强度 / 终端匹配 / 域名品质 / 市场定价 / 市场热度 / Outbound操作性 |
-| 💰 三档估值 | 批发价（同行）/ 品牌溢价（命名师）/ 终端零售（企业）|
-| 🤖 AI评委面板 | 粘贴各AI返回分数，自动去头尾均分 |
-| 📄 结构化Prompt | 一键生成含6维说明的GPT/Claude/Gemini评委提示词 |
-| 📡 资讯提示 | 自动生成 DNW / NameBio / Crunchbase 监测链接 |
-| 📈 历史记录 | 本地存储，支持CSV导出 |
-| ⚙️ 权重自定义 | 6维权重可调，支持5种预设方案 |
+| 资产类别优先判定 | 先判 LLL_COM / WORD_COM / AI_KEYWORD_TLD 等，再算分 |
+| 六维评分框架 | TLD强度 / 终端匹配 / 域名品质 / 市场定价 / 市场热度 / Outbound操作性 |
+| 分类价格输出 | 普通域名：同行参考价 / 品牌溢价 / 终端零售；**稀缺资产：投资人流通底价 / 品牌资产价 / 终端报价区间** |
+| 成交锚点校准 | 内置 10 条公开成交（cloud.com $11M – MyCar.ai $10K） |
+| AI 评委投票 | 录入多个 AI 的 `final_score`，自动去头尾均分 |
+| 结构化报告生成 | 自动生成 域名.md + AI 评委提示词 |
+| 市场监测链接 | 自动生成 DNW / NameBio / Crunchbase 检索入口 |
+| 历史排名 & CSV 导出 | 本地内存，刷新后清空 |
 
 ---
 
 ## 快速使用
 
+1. 打开在线页面，输入域名（如 `TEX.COM`）
+2. 可选粘贴终端企业 / 融资 / 现用域名等背景信息
+3. 点击《⚡ 评估》，查看资产类别、六维分数、价格区间
+4. 复制『域名.md』 + AI 评委提示词，分别投喂多个 AI
+5. 将各 AI 返回的 `final_score` 填入评委面板，计算去头尾均分
+
+> 建议至少录入 3 个 AI 评委分数以启用自动去头尾均分模式。
+
+---
+
+## 资产类别优先级
+
+| 类别 ID | 示例 | 最低分 | 价格标签 |
+|-----------|------|---------|----------|
+| `LL_COM` | AA.com | 95 | 投资人流通底价 |
+| `LLL_COM` | TEX.com | 88 | 投资人流通底价 |
+| `WORD_COM` | Cloud.com | 82 | 投资人流通底价 |
+| `LLLL_PRONOUNCEABLE_COM` | GOKA.com | 78 | 投资人底价 |
+| `SHORT_NUMERIC_COM` | 12345.com | 75 | 投资人流通底价 |
+| `AI_KEYWORD_TLD` | MyCar.ai | 69 | 投资人流通价 |
+| `GENERIC` | 普通域名 | 0 | 同行参考价 |
+
+---
+
+## 防回归测试样例
+
+| 域名 | 应识别类别 | 应显示价格标签 | 备注 |
+|------|-----------|--------------|------|
+| TEX.COM | `LLL_COM` | 投资人流通底价 | 不得显示普通批发价 |
+| GOKA.com | `LLLL_PRONOUNCEABLE_COM` | 投资人底价 | 参照 $399,995 成交 |
+| Derm.com | `WORD_COM` | 投资人流通底价 | 医疗高价值单词 |
+| Excel.com | `WORD_COM` | 投资人流通底价 | Ultra Premium，需人工复核 |
+| 12345.com | `SHORT_NUMERIC_COM` | 投资人流通底价 | 短数字.COM |
+| MyCar.ai | `AI_KEYWORD_TLD` | 投资人流通价 | 不得重复加权 |
+| Farfield.com | `VERIFIED_HIGH_VALUE_COM` | 投资人底价 | 参照 $15,000 |
+| Travely.com | `VERIFIED_HIGH_VALUE_COM` | 投资人底价 | 参照 $13,000 |
+
+---
+
+## 文件结构
+
 ```
-1. 输入域名，如 TEX.COM
-2. 粘贴 .md 背景文件（终端公司、融资、现用域名、行业）
-3. 点击「评估」→ 复制 AI 评委 Prompt
-4. 发给 GPT-5.5 / Claude / Gemini / DeepSeek / Grok
-5. 将各AI返回的 finalscore 填入评委面板
-6. 系统自动去头尾均分 → 生成最终置信度结果
+domain/
+├── index.html              ← 主工具（v5.1）
+├── README.md               ← 本文件
+├── CORE_RULES_v2.md        ← ✅ 当前核心规则（请使用此版本）
+├── CORE_RULES_v1.md        ← ⚠️ Deprecated（早期草稿，已废弃）
+├── AGENT_PROMPTS.md        ← 5大 AI 评委 System Prompt
+└── OUTBOUND_TEMPLATE.md    ← Outbound 邮件模板
 ```
 
 ---
 
-## 核心规则文件
+## 数据源说明
 
-| 文件 | 内容 |
-|------|------|
-| [CORE_RULES_v1.md](./CORE_RULES_v1.md) | 完整评分规则（TLD/终端/品质/市场/Outbound）|
-| [CORE_RULES_v2.md](./CORE_RULES_v2.md) | v2升级说明（6维框架 + GPT5.5融合思路）|
-| [AGENT_PROMPTS.md](./AGENT_PROMPTS.md) | 各AI评委专属系统提示词 |
-| [OUTBOUND_TEMPLATE.md](./OUTBOUND_TEMPLATE.md) | Outbound外销邮件模板库 |
-
----
-
-## 数据源
-
-| 优先级 | 来源 | 用途 |
-|--------|------|------|
-| P0 | [Domain Name Wire](https://domainnamewire.com/) | 每日成交新闻 |
-| P0 | [Sedo](https://sedo.com) | 市场实价参考 |
-| P0 | [NameBio](https://namebio.com/) | 历史成交库 |
-| P1 | [DomainGang](https://domaingang.com/) | 行业动态 |
-| P1 | [domainclub.org](https://www.domainclub.org) | 经纪人经验 |
-| P2 | [BrandDo](https://www.branddo.com/) | 品牌域名定价 |
-| P2 | [OYZTA](https://www.oyzta.com/) | 精选成交记录 |
-| P2 | [Afternic](https://afternic.com) | Fast Transfer布局 |
-| P2 | [Estibot](https://www.estibot.com/) | 自动估值参考 |
-
----
-
-## 技术栈
-
-- 纯静态 HTML + CSS + JavaScript（无后端）
-- GitHub Pages 部署
-- 本地 localStorage 存储历史记录
+| 来源 | 优先级 | 状态 |
+|------|---------|------|
+| NameBio | P1 | ✅ 可用 |
+| DNW (Domain Name Wire) | P1 | ✅ 可用 |
+| DomainGang | P1 | ✅ 可用 |
+| Sedo | P1 | ✅ 可用 |
+| NamePros / DNForum | P1 | ✅ 可用 |
+| Above.com | P2 | ✅ 可用 |
+| Atom | P2 | ⚠️ 人工校验，自动抓取可能被 CF 拦截 |
+| Estibot | P3 | ⚠️ 历史参考，不作为核心估值依据 |
+| BrandDo | P3 | ⚠️ 历史快照参考，当前可访问性不稳定 |
 
 ---
 
 ## 版本历史
 
-| 版本 | 日期 | 更新内容 |
+| 版本 | 日期 | 主要变动 |
 |------|------|----------|
-| v5.0 | 2026-06-18 | 6维评分 + GPT5.5 Prompt + 价格置信度 + 资讯提示 |
-| v4.0 | 2026-06-18 | 9项功能完整版（雷达图/趋势图/PDF导出）|
-| v1.0 | 2026-06-18 | 初始版本，5 Agent协作设计 |
+| v5.1 | 2026-06-19 | 资产类别优先、价格标签重命名、LLL_COM 最低分 88、成交锚点校准 |
+| v5.0 | 2026-06-18 | 六维评分、多 AI 评委投票、生成域名.md |
+| v4.x | 2026-06-17 | 三维评分初版 |
 
 ---
 
-*由 5-Agent 团队协作设计：Claude · MiMo · OpenCode · Hermes · Grok*
+## 隐私说明
+
+本工具完全在本地浏览器运行，**不联网、不发送任何域名数据**。历史记录仅内存存储，刷新页面后清空。

@@ -1,69 +1,133 @@
-# Domain AI Judge — 核心规则 v2.0
+# CORE_RULES v2 — Domain AI Judge v5.1
 
-> 5-Agent 协作 · GPT5.5 思路融合版
-> 更新：2026-06-18
-
----
-
-## 重大升级：从3维→6维
-
-| 版本 | 维度数 | 新增内容 |
-|------|--------|----------|
-| v1.0 | 3维（TLD/终端/品质） | 基础框架 |
-| v2.0 | 6维 | +市场定价D4 / +市场热度D5 / +Outbound操作性D6 |
+> 当前正式规则文件，v2026-06-19。请始终使用此版本投喂 AI 评委。
 
 ---
 
-## 六维框架
+## 一、核心原则：资产类别优先于一切
 
-| 编号 | 维度 | 默认权重 | 核心判断标准 |
-|------|------|----------|--------------|
-| D1 | TLD后缀强度 | 20% | .COM=100/.AI=69/.IO=64，注册量，行业绑定 |
-| D2 | 终端匹配度 | 25% | 终端数量、规模、现用域名质量、利好消息 |
-| D3 | 域名本身品质 | 20% | 长度、品牌感、关键词、历史状态 |
-| D4 | 市场定价参考 | 20% | 平台上架、近期成交均价、经纪人记录 |
-| D5 | 市场热度 | 10% | 行业景气、后缀热度趋势、媒体曝光 |
-| D6 | Outbound操作性 | 5% | 终端可联系性、Logo方案、分期付款选项 |
+**正确流程：先判资产类别 → 再算六维分数 → 再套对应价格模型 → 输出估值**
+
+不得反过来先按普通域名算价格。
 
 ---
 
-## GPT5.5 融合思路
+## 二、资产类别表
 
-GPT5.5 建议的关键补充（已内嵌进 Prompt 模板）：
+| 类别 ID | 识别规则 | 最低系统分 | 投资人流通底价区间 | 价格标签 |
+|-----------|---------|------------|------------------|----------|
+| `LL_COM` | 2字母 + .com | **95** | $500,000 – $5,000,000+ | 投资人流通底价 |
+| `LLL_COM` | 3字母 + .com | **88** | $100,000 – $800,000 | 投资人流通底价 |
+| `WORD_COM` | 英文单词 + .com | **82** | $15,000 – $500,000+ | 投资人流通底价 |
+| `VERIFIED_HIGH_VALUE_COM` | 已有公开成交记录的 .com | **82** | 对标成交锚点 | 投资人底价 |
+| `LLLL_PRONOUNCEABLE_COM` | 4字母可发音 + .com（包含至少 1 个元音） | **78** | $8,000 – $120,000 | 投资人底价 |
+| `SHORT_NUMERIC_COM` | 2–5位数字 + .com | **75** | $1,000 – $30,000 | 投资人流通底价 |
+| `AI_KEYWORD_TLD` | 任意 SLD + .ai | **69** | $1,000 – $8,000 | 投资人流通价 |
+| `GENERIC` | 其他 | 0 | 按六维分数模型 | 同行参考价 |
 
-1. **结构化 JSON 回复** — 每位 AI 评委必须输出标准 JSON，包含6个分维度分数 + finalscore + 置信度 + 三档价格 + keyreasons + riskflags
-2. **价格置信度分级** — low（背景<150字）/ medium（150-500字）/ high（>500字且分>70）
-3. **去头尾均分** — ≥3位评委时自动去最高/最低分，防止极端评分污染结果
-4. **行业乘数** — AI/科技×1.2，金融×1.3，医疗×1.3，法律×1.4
-5. **利好消息时间权重** — 12个月内融资/上市消息权重最高，超过24个月折半
-6. **后缀动态分** — .AI 2026年因行业景气热度分96（最高），动态更新
+> **关键：** 最低系统分是地板，不是天花板。AI 评委判断结果可以更高，但不得低于此分。
 
 ---
 
-## Prompt 使用流程
+## 三、六维评分框架
 
+| 维度 | 权重 | 评分要点 |
+|------|------|-----------|
+| D1 TLD强度 | 20% | .COM=100分基准；.AI=69；.IO=64；其他后缀按流通性降分 |
+| D2 终端匹配 | 25% | 终端公司数、规模、现用域名质量、融资利好信号、行业付费能力 |
+| D3 域名品质 | 20% | 长度 / 可发音性 / 品牌可塑性 / 关键词质量 / 历史 / 拓展保护 |
+| D4 市场定价 | 20% | 平台布局、对标成交锚点、定价策略合理性 |
+| D5 市场热度 | 10% | 行业当前热度、后缀市场情绪、搜索趋势 |
+| D6 Outbound | 5% | 终端匹配数量、可联系渠道、成交可能性 |
+
+---
+
+## 四、价格标签规则
+
+**稀缺资产**（LL_COM / LLL_COM / WORD_COM / VERIFIED_HIGH_VALUE_COM / LLLL_PRONOUNCEABLE_COM / SHORT_NUMERIC_COM / AI_KEYWORD_TLD）：
+
+- P1 标签：**投资人流通底价**
+- P2 标签：**品牌资产价**
+- P3 标签：**终端报价区间**
+
+**普通域名**（GENERIC）：
+
+- P1 标签：同行参考价
+- P2 标签：品牌命名师价
+- P3 标签：终端零售价
+
+---
+
+## 五、成交锚点（2026 公开数据）
+
+| 域名 | 类型 | 成交价 | 来源 |
+|------|------|---------|------|
+| cloud.com | 单词.COM顶级 | $11,000,000 | 公开拍卖 |
+| zkp.com | 3字母.COM极品 | $5,000,000 | 公开记录 |
+| GOKA.com | 4字母.COM品牌 | $399,995 | DomainGang 报道 |
+| tronscan.com | 品牌.COM | $250,000 | 公开记录 |
+| gunar.com | 5字母可发音 | $175,000 | NameBio |
+| Balaena.com | 7字母工业.COM | $89,000 | NameBio |
+| VJN.com | 3字母.COM | $39,000 | NameBio |
+| Farfield.com | 6字母.COM AI量子 | $15,000 | NameBio |
+| Travely.com | 6字母.COM 旅游 | $13,000 | NameBio |
+| MyCar.ai | AI汽车关键词 | $10,000 | NameBio |
+
+---
+
+## 六、AI 评委 JSON 输出格式
+
+AI 评委必须返回以下标准 JSON：
+
+```json
+{
+  "judge": "你的AI名称",
+  "domain": "",
+  "asset_class": "",
+  "tld_score": 0,
+  "enduser_score": 0,
+  "quality_score": 0,
+  "market_score": 0,
+  "heat_score": 0,
+  "outbound_score": 0,
+  "final_score": 0,
+  "confidence": "low|medium|high",
+  "p1_investor_floor": "",
+  "p2_brand_asset": "",
+  "p3_enduser_range": "",
+  "key_reasons": ["原因1", "原因2", "原因3"],
+  "risk_flags": ["风险1"]
+}
 ```
-1. 输入域名 + 粘贴 .md 背景文件
-2. 系统生成结构化 Prompt（含6维说明 + 系统预评分）
-3. 将 Prompt 发给 GPT-5.5 / Claude Opus 4 / Gemini 2.5 / DeepSeek R2 / Grok 3
-4. 将各 AI 返回的 finalscore 填入评委面板
-5. 系统自动去头尾均分 → 生成最终置信度结果
-```
+
+> 所有分数字段均使用下划线式：`final_score`、`tld_score` 等。不得使用 camelCase（如 `finalScore`）。
 
 ---
 
-## 数据源优先级（P0最高）
+## 七、数据源优先级
 
-| 级别 | 来源 | 用途 |
-|------|------|------|
-| P0 | [Domain Name Wire](https://domainnamewire.com/) | 每日成交新闻 |
-| P0 | [Sedo 成交公告](https://sedo.com) | 市场实价 |
-| P0 | [NameBio](https://namebio.com/) | 历史成交库 |
-| P1 | [domainclub.org](https://www.domainclub.org) | 经纪人经验 |
-| P1 | [DomainGang](https://domaingang.com/) | 行业动态 |
-| P2 | [BrandDo](https://www.branddo.com/) | 品牌域名定价 |
-| P2 | [OYZTA](https://www.oyzta.com/) | 精选成交记录 |
+| 来源 | 优先级 | 状态 |
+|------|---------|------|
+| NameBio | P1 | ✅ 可用 |
+| DNW (Domain Name Wire) | P1 | ✅ 可用 |
+| DomainGang | P1 | ✅ 可用 |
+| Sedo / Afternic | P1 | ✅ 可用 |
+| NamePros / DNForum | P1 | ✅ 可用 |
+| Above.com | P2 | ✅ 可用 |
+| Atom | P2 | ⚠️ 人工校验，自动抓取可能受 CF 拦截 |
+| Estibot | P3 | ⚠️ 历史参考，不作为核心估值依据 |
+| BrandDo | P3 | ⚠️ 历史快照，当前可访问性不稳定 |
 
 ---
 
-*Domain AI Judge v2.0 · 5-Agent协作 · GPT5.5思路融合*
+## 八、不允许事项
+
+1. 不得因没有终端买家资料就把 LLL_COM / WORD_COM 压到普通批发价区间
+2. 不得对高流动性 .com 显示“批发价（同行）”标签
+3. 不得把 `finalscore`（camelCase）写入 JSON，必须为 `final_score`
+4. 不得将 CORE_RULES_v1.md 用于任何 AI 投喂
+5. 不得将“市场资讯检索入口”标注为“实时市场资讯”
+
+---
+
+*CORE_RULES v2 · Domain AI Judge v5.1 · 2026-06-19*
