@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Domain AI Judge v5 · 域名价值评估系统</title>
+<title>Domain AI Judge v5.1 · 域名价值评估系统</title>
 <style>
 :root{
   --bg:#0b1020;--card1:#121a2f;--card2:#18233d;--line:#263454;
@@ -16,9 +16,9 @@ body{margin:0;background:radial-gradient(circle at top left,#172554 0,#0b1020 42
 a{color:var(--brand)}
 .wrap{max-width:1300px;margin:0 auto;padding:28px 18px 80px}
 .hero{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;align-items:stretch;margin-bottom:18px}
-.hero,.grid,.score-grid,.two,.three{min-width:0}
 .card{background:linear-gradient(180deg,rgba(255,255,255,.048),rgba(255,255,255,.018));border:1px solid rgba(148,163,184,.18);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px}
 .badge{display:inline-flex;align-items:center;gap:5px;border:1px solid rgba(110,231,249,.28);background:rgba(14,165,233,.1);color:#cffafe;border-radius:999px;padding:4px 10px;font-size:11px;margin:0 6px 6px 0;font-weight:600}
+.badge-asset{display:inline-flex;align-items:center;gap:5px;border:1px solid rgba(251,191,36,.4);background:rgba(251,191,36,.1);color:#fde68a;border-radius:999px;padding:5px 14px;font-size:13px;font-weight:700;margin:8px 0}
 h1{font-size:32px;line-height:1.12;margin:0 0 12px;letter-spacing:-.02em}
 h2{font-size:19px;margin:0 0 14px}
 h3{font-size:15px;margin:0 0 10px;color:#dbeafe}
@@ -29,7 +29,7 @@ p{color:var(--muted);line-height:1.75;margin:7px 0}
 .four{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
 label{display:block;color:#cbd5e1;font-size:13px;margin:0 0 6px}
 input,textarea,select{width:100%;border:1px solid var(--line);background:#0b1224;color:var(--text);border-radius:12px;padding:11px 13px;font:inherit;outline:none}
-input:focus,textarea:focus,select:focus{border-color:#38bdf8;box-shadow:0 0 0 3px rgba(56,189,248,.13)}
+input:focus,textarea:focus{border-color:#38bdf8;box-shadow:0 0 0 3px rgba(56,189,248,.13)}
 textarea{min-height:160px;resize:vertical;line-height:1.6}
 button{border:0;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer;color:#07111f;background:linear-gradient(135deg,var(--brand),var(--brand2));box-shadow:0 10px 28px rgba(103,232,249,.15);font-size:14px}
 button.sec{background:#1f2a44;color:#dbeafe;border:1px solid #33415f;box-shadow:none}
@@ -43,20 +43,21 @@ button.danger{background:#3b1420;color:#fecdd3;border:1px solid #7f1d1d;box-shad
 .bar{height:8px;background:#1e293b;border-radius:999px;overflow:hidden;margin:8px 0}
 .bar span{display:block;height:100%;width:0;background:linear-gradient(90deg,#38bdf8,#a78bfa);transition:width .6s ease}
 .reason{font-size:12px;color:#b9c7e7;line-height:1.65}
-.price{font-size:22px;font-weight:900;color:#e0f2fe}
+.price{font-size:20px;font-weight:900;color:#e0f2fe}
+.price-label{font-size:11px;color:var(--warn);font-weight:700;margin-bottom:4px}
 .list{display:grid;gap:10px}
 .item{border:1px solid var(--line);background:#0b1224;border-radius:14px;padding:12px 14px}
 .item strong{color:#f8fafc}
 .muted{color:var(--muted)}
-.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono',monospace}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
 table{width:100%;border-collapse:collapse;overflow:hidden;border-radius:14px}
 th,td{border-bottom:1px solid var(--line);padding:10px 12px;text-align:left;font-size:13px}
 th{color:#c4d7ff;background:#0f172a}
 td{color:#e5edff}
 .judge-row{display:grid;grid-template-columns:1.1fr .5fr 1.8fr auto;gap:8px;margin-bottom:8px;align-items:center}
-.copy-ok{color:var(--good);font-size:13px;margin-left:8px}
-.hide{display:none!important}
-.footer-note{font-size:12px;color:#7f8dac;margin-top:16px}
+.asset-card{background:linear-gradient(135deg,rgba(251,191,36,.08),rgba(167,139,250,.08));border:1px solid rgba(251,191,36,.25);border-radius:16px;padding:16px 20px;margin:14px 0}
+.asset-title{font-size:16px;font-weight:800;color:#fde68a;margin-bottom:6px}
+.asset-note{font-size:12px;color:#94a3b8;margin-top:6px;padding:8px;background:rgba(0,0,0,.2);border-radius:8px}
 .tag-s{background:rgba(52,211,153,.15);color:#6ee7b7;border-radius:8px;padding:2px 8px;font-size:11px;font-weight:700}
 .tag-a{background:rgba(167,139,250,.15);color:#c4b5fd;border-radius:8px;padding:2px 8px;font-size:11px;font-weight:700}
 .tag-b{background:rgba(56,189,248,.12);color:#7dd3fc;border-radius:8px;padding:2px 8px;font-size:11px;font-weight:700}
@@ -69,6 +70,9 @@ td{color:#e5edff}
 .conf-bar.mid span:nth-child(-n+2){background:#38bdf8}
 .conf-bar.high span{background:#34d399}
 .section-title{font-size:11px;font-weight:700;letter-spacing:.12em;color:#64748b;text-transform:uppercase;margin:22px 0 10px}
+.anchor-table{width:100%;font-size:12px;margin-top:8px}
+.anchor-table td{padding:4px 8px;color:#94a3b8;border-bottom:1px solid #1e2d4a}
+.anchor-table td:last-child{color:#6ee7b7;font-weight:700;text-align:right}
 @media(max-width:900px){
   .hero,.grid,.two,.three,.four,.score-grid,.six-grid{grid-template-columns:1fr}
   .judge-row{grid-template-columns:1fr}
@@ -83,43 +87,45 @@ td{color:#e5edff}
 <section class="hero">
   <div class="card">
     <div>
-      <span class="badge">Domain AI Judge v5</span>
-      <span class="badge">6维评分</span>
-      <span class="badge">GPT5.5 Prompt</span>
-      <span class="badge">价格置信度</span>
+      <span class="badge">Domain AI Judge v5.1</span>
+      <span class="badge">资产类别优先</span>
+      <span class="badge">GPT5.5 热修补丁</span>
+      <span class="badge">成交锚点校准</span>
     </div>
-    <h1>域名价值<br>AI 评估系统</h1>
-    <p>输入域名 + 粘贴背景 Markdown，系统自动计算六维得分、估值区间及置信度，并生成结构化 AI 评委提示词。</p>
-    <p style="font-size:12px;margin-top:14px">核心规则：<strong>CORE_RULES_v1.md</strong>（5 Agent 协作设计）· 数据源：DNW · Sedo · BrandDo · OYZTA · Identity Digital</p>
+    <h1>域名价值判断<br>与多评委打分系统</h1>
+    <p>输入域名和分析 Markdown，系统先生成本地可解释估值：后缀价值、域名买家、域名品质三项各 100 分；再生成统一 AI 评委提示词；最终录入多个 AI 分数，去掉最高分和最低分后计算最终均分。</p>
+    <p style="font-size:12px;margin-top:10px;color:#fbbf24">⚡ v5.1 热修：先判定资产类别 → 再算六维评分 → 再套对应价格模型。高流动性 .COM 不再压价。</p>
   </div>
   <div class="card">
-    <h2>快速使用</h2>
+    <h2>核心玩法</h2>
     <p>1. 输入域名，如 <span class="mono">TEX.COM</span></p>
-    <p>2. 粘贴 <span class="mono">.md</span> 背景文件（终端公司、融资、现用域名等）</p>
-    <p>3. 点击「评估」→ 复制 AI 提示词 → 发给 GPT / Claude / Gemini</p>
-    <p>4. 将各 AI 返回的 <span class="mono">finalscore</span> 填入评委区，系统自动去头尾均分</p>
-    <p style="font-size:12px;margin-top:14px">💡 6维度：TLD强度 · 终端匹配 · 域名品质 · 市场定价 · 市场热度 · Outbound操作性</p>
+    <p>2. 粘贴或生成 域名.md 分析报告</p>
+    <p>3. 把完整投喂内容发给多个 AI 评委</p>
+    <p>4. 录入 <span class="mono">final_score</span>，系统自动去极值取均</p>
+    <div style="margin-top:12px;padding:10px;background:rgba(251,191,36,.08);border-radius:10px;border:1px solid rgba(251,191,36,.2)">
+      <p style="font-size:12px;color:#fde68a;margin:0">💡 资产类别优先级：2L_COM > 3L_COM > WORD_COM > 品类词.COM > 4L可发音.COM > 数字.COM > AI关键词.AI > 普通域名</p>
+    </div>
   </div>
 </section>
 
 <!-- INPUT -->
 <section class="grid">
   <div class="card">
-    <h2>📝 域名输入</h2>
-    <label for="domainInput">域名（SLD.TLD 格式）</label>
+    <h2>① 域名 &amp; 分析素材</h2>
+    <label for="domainInput">域名</label>
     <input id="domainInput" value="TEX.COM" placeholder="TEX.COM / mycar.ai / farfield.com">
     <div style="height:12px"></div>
-    <label for="mdInput">背景 Markdown（终端公司 · 融资动态 · 现用域名 · 行业）</label>
-    <textarea id="mdInput" placeholder="粘贴从 Claude/GPT5.5 生成的 .md 背景文件..."></textarea>
+    <label for="mdInput">域名分析 MD 内容（终端公司、现有买家、域名近期交易等）</label>
+    <textarea id="mdInput" placeholder="粘贴背景信息：终端公司名、现用域名、行业、融资记录、近期成交等...&#10;&#10;留空时系统自动基于域名本身做基础判断。"></textarea>
     <div class="btns">
       <button id="analyzeBtn">⚡ 评估</button>
-      <button class="sec" id="demoBtn">演示：MyCar.ai</button>
+      <button class="sec" id="demoBtn">演示案例</button>
       <button class="sec" id="clearBtn">清空</button>
     </div>
   </div>
   <div class="card">
-    <h2>⚙️ 权重设置</h2>
-    <p style="font-size:12px">六个维度权重之和建议为 100，系统自动归一化</p>
+    <h2>② 权重设置</h2>
+    <p style="font-size:12px">六个维度权重之和建议为 100，系统自动归一化。<span style="color:#fbbf24">高流动性资产类自动启用最低分保障。</span></p>
     <div class="six-grid">
       <div><label>D1 TLD强度</label><input id="wTld" type="number" min="0" max="100" value="20"></div>
       <div><label>D2 终端匹配</label><input id="wEnd" type="number" min="0" max="100" value="25"></div>
@@ -138,19 +144,27 @@ td{color:#e5edff}
   </div>
 </section>
 
+<!-- ASSET CLASS -->
+<div class="section-title">③ 资产类别判定（优先于估值）</div>
+<div class="asset-card" id="assetCard">
+  <div class="asset-title" id="assetTitle">待评估...</div>
+  <div id="assetDesc" style="font-size:13px;color:#cbd5e1"></div>
+  <div class="asset-note" id="assetNote"></div>
+</div>
+
 <!-- SCORES -->
-<div class="section-title">综合评分</div>
+<div class="section-title">④ 估值体验面板</div>
 <section class="score-grid" id="scoreSection">
   <div class="metric">
     <small>综合评分</small>
     <div class="num" id="finalScore">-</div>
     <div class="bar"><span id="finalBar"></span></div>
     <div class="reason" id="gradeText">-</div>
-    <div class="conf-bar" id="confBar"><span></span><span></span><span></span></div>
+    <div class="conf-bar" id="confBarViz"><span></span><span></span><span></span></div>
   </div>
-  <div class="metric"><small>D1 TLD强度</small><div class="num" id="tldScore">-</div><div class="bar"><span id="tldBar"></span></div><div class="reason" id="tldReason">-</div></div>
-  <div class="metric"><small>D2 终端匹配</small><div class="num" id="endScore">-</div><div class="bar"><span id="endBar"></span></div><div class="reason" id="endReason">-</div></div>
-  <div class="metric"><small>D3 域名品质</small><div class="num" id="qualityScore">-</div><div class="bar"><span id="qualityBar"></span></div><div class="reason" id="qualityReason">-</div></div>
+  <div class="metric"><small>D1 TLD强度 Score</small><div class="num" id="tldScore">-</div><div class="bar"><span id="tldBar"></span></div><div class="reason" id="tldReason">-</div></div>
+  <div class="metric"><small>终端买家 End-User Score</small><div class="num" id="endScore">-</div><div class="bar"><span id="endBar"></span></div><div class="reason" id="endReason">-</div></div>
+  <div class="metric"><small>域名品质 Quality Score</small><div class="num" id="qualityScore">-</div><div class="bar"><span id="qualityBar"></span></div><div class="reason" id="qualityReason">-</div></div>
 </section>
 <section class="score-grid" style="margin-top:14px">
   <div class="metric"><small>D4 市场定价参考</small><div class="num" id="marketScore">-</div><div class="bar"><span id="marketBar"></span></div><div class="reason" id="marketReason">-</div></div>
@@ -160,28 +174,47 @@ td{color:#e5edff}
 </section>
 
 <!-- VALUATION -->
-<div class="section-title">估值区间</div>
+<div class="section-title">⑤ 终端买家发现引导</div>
 <section class="grid">
   <div class="card">
-    <h2>💰 三档估值</h2>
+    <h2>💰 市场参考价格</h2>
     <div class="three">
-      <div class="metric"><small>批发价（同行）</small><div class="price" id="wholesalePrice">-</div></div>
-      <div class="metric"><small>品牌溢价（命名师）</small><div class="price" id="brandPrice">-</div></div>
-      <div class="metric"><small>终端零售（企业）</small><div class="price" id="retailPrice">-</div></div>
+      <div class="metric"><div class="price-label" id="label1">投资人流通底价</div><div class="price" id="wholesalePrice">-</div></div>
+      <div class="metric"><div class="price-label" id="label2">品牌资产价</div><div class="price" id="brandPrice">-</div></div>
+      <div class="metric"><div class="price-label" id="label3">终端报价区间</div><div class="price" id="retailPrice">-</div></div>
     </div>
-    <h3 style="margin-top:16px">参考近期成交</h3>
+    <div id="manualReviewNote" style="display:none;margin-top:12px;padding:10px;background:rgba(251,191,36,.08);border-radius:10px;border:1px solid rgba(251,191,36,.2);font-size:12px;color:#fde68a"></div>
+    <h3 style="margin-top:16px">相近近期交参考</h3>
     <div class="list" id="compsList"><div class="muted">评估后显示</div></div>
   </div>
   <div class="card">
-    <h2>🎯 终端买家建议</h2>
+    <h2>🎯 终端买家发现引导</h2>
+    <p style="font-size:12px">活从域名名和和MD MD中中抽提取取买买家家线线索索，并生成可执行的搜索方向。</p>
     <div class="list" id="buyerList"><div class="muted">评估后显示</div></div>
-    <div class="section-title" style="margin-top:18px">📡 行业资讯提示</div>
-    <div id="newsList"><div class="muted" style="font-size:13px">评估后自动提示相关监测源</div></div>
+    <div class="section-title" style="margin-top:18px">🔍 实时资讯监测</div>
+    <div id="newsList"><div class="muted" style="font-size:13px">评估后显示</div></div>
   </div>
 </section>
 
-<!-- PROMPT OUTPUT -->
-<div class="section-title">AI 评委提示词</div>
+<!-- ANCHOR TABLE -->
+<div class="section-title">内置成交锚点（2026年公开数据）</div>
+<div class="card" style="padding:16px">
+  <table class="anchor-table">
+    <tr><td>zkp.com</td><td>三字母.COM 极品</td><td>$5,000,000</td></tr>
+    <tr><td>cloud.com</td><td>单词.COM 顶级</td><td>$11,000,000</td></tr>
+    <tr><td>GOKA.com</td><td>四字母.COM 品牌</td><td>$399,995</td></tr>
+    <tr><td>gunar.com</td><td>五字母.COM 可发音</td><td>$175,000</td></tr>
+    <tr><td>tronscan.com</td><td>品牌.COM</td><td>$250,000</td></tr>
+    <tr><td>Balaena.com</td><td>七字母工业.COM</td><td>$89,000</td></tr>
+    <tr><td>VJN.com</td><td>三字母.COM</td><td>$39,000</td></tr>
+    <tr><td>Farfield.com</td><td>六字母.COM AI量子</td><td>$15,000</td></tr>
+    <tr><td>Travely.com</td><td>六字母.COM 旅游</td><td>$13,000</td></tr>
+    <tr><td>MyCar.ai</td><td>AI汽车关键词</td><td>$10,000</td></tr>
+  </table>
+</div>
+
+<!-- PROMPT -->
+<div class="section-title">⑥ 自动生成的「域名.md」</div>
 <section class="grid">
   <div class="card">
     <h2>📄 结构化报告 .md</h2>
@@ -192,65 +225,157 @@ td{color:#e5edff}
     </div>
   </div>
   <div class="card">
-    <h2>🤖 AI 评委 Prompt（GPT5.5 / Claude / Gemini）</h2>
-    <textarea id="promptOutput" class="mono" placeholder="包含 CORE_RULES 六维评分指令 + JSON 回复模板..."></textarea>
+    <h2>⑦ AI 评委统一提示词</h2>
+    <textarea id="promptOutput" class="mono" placeholder="包含资产类别 + CORE_RULES 六维评分指令 + JSON 回复模板..."></textarea>
     <div class="btns">
-      <button class="sec" id="copyPromptBtn">复制 Prompt</button>
-      <button class="sec" id="downloadJsonBtn">下载 JSON</button>
+      <button class="sec" id="copyPromptBtn">复制提示词</button>
+      <button class="sec" id="downloadJsonBtn">下载完整 JSON</button>
     </div>
   </div>
 </section>
 
 <!-- JUDGE PANEL -->
-<div class="section-title">AI 评委面板</div>
+<div class="section-title">⑧ 多 AI 评委打分</div>
 <section class="card">
-  <h2>🧑‍⚖️ 多 AI 评委投票（去头尾均分）</h2>
-  <p>将上方 Prompt 发给各 AI，把返回的 finalscore 填入下方。≥3 位评委时自动去最高/最低分。</p>
+  <h2>🧑‍⚖️ 多 AI 评委投票</h2>
+  <p>建议依次录入 3 个及以上评委分数，3 个及以上时自动去掉最高分和最低分；不足 3 个只显示普通平均，不作为正式最终分。</p>
   <div id="judgeRows"></div>
   <div class="btns">
     <button class="sec" id="addJudgeBtn">+ 添加评委</button>
-    <button class="sec" id="presetJudgeBtn">预设五大评委</button>
-    <button id="calcJudgeBtn">⚡ 计算均分</button>
+    <button class="sec" id="presetJudgeBtn">预设评委名单</button>
+    <button id="calcJudgeBtn">⚡ 计算均分结果</button>
   </div>
   <div style="height:14px"></div>
   <div class="four">
     <div class="metric"><small>有效评委数</small><div class="num" id="judgeCount">0</div></div>
     <div class="metric"><small>去掉最高分</small><div class="num" id="dropHigh">-</div></div>
     <div class="metric"><small>去掉最低分</small><div class="num" id="dropLow">-</div></div>
-    <div class="metric"><small>评委均分</small><div class="num" id="judgeFinal">-</div></div>
+    <div class="metric"><small>最终均分</small><div class="num" id="judgeFinal">-</div></div>
   </div>
   <div style="height:10px"></div>
   <textarea id="judgeJson" class="mono" style="min-height:100px" placeholder="计算结果 JSON 显示在此..."></textarea>
   <div class="btns">
-    <button class="sec" id="saveHistoryBtn">💾 保存到历史</button>
-    <button class="sec" id="exportCsvBtn">导出 CSV</button>
+    <button class="sec" id="saveHistoryBtn">💾 保存历史</button>
+    <button class="sec" id="exportCsvBtn">导出历史 CSV</button>
     <button class="danger" id="clearHistoryBtn">清空历史</button>
   </div>
 </section>
 
 <!-- HISTORY -->
-<div class="section-title">历史记录</div>
+<div class="section-title">⑨ 历史排名</div>
 <section class="card">
-  <h2>📈 评估历史</h2>
+  <h2>📈 历史评估排名</h2>
   <table>
-    <thead><tr><th>#</th><th>域名</th><th>系统分</th><th>评委分</th><th>等级</th><th>终端价</th><th>时间</th></tr></thead>
-    <tbody id="historyBody"><tr><td colspan="7" class="muted">暂无记录</td></tr></tbody>
+    <thead><tr><th>排名</th><th>域名</th><th>系统分</th><th>等级</th><th>终端估值</th><th>时间</th></tr></thead>
+    <tbody id="historyBody"><tr><td colspan="6" class="muted">暂无历史</td></tr></tbody>
   </table>
-  <p class="footer-note">历史数据仅存于本地内存，刷新页面后清空。</p>
+  <p style="font-size:12px;color:#7f8dac;margin-top:12px">历史数据仅本地内存，不联网，不发送任何数据，刷新页面后清空。</p>
 </section>
 
-</div><!-- /wrap -->
+</div>
 
 <script>
 const id=s=>document.getElementById(s);
-const clamp=(n,min=0,max=100)=>Math.max(min,Math.min(max,Number.isFinite(n)?n:0));
+const clamp=(n,a=0,b=100)=>Math.max(a,Math.min(b,isFinite(n)?n:0));
 const round=(n,d=1)=>Number(n.toFixed(d));
 const money=n=>Math.round(n).toLocaleString('en-US');
 const range=(a,b)=>`$${money(a)} – $${money(b)}`;
+const escH=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 
 let currentAnalysis=null;
+const history=[];
 
-// ── TLD 数据库（扩展版） ──
+// ─── 资产类别定义 ───────────────────────────────────────────────
+const ASSET_CLASSES=[
+  {
+    id:'LL_COM',
+    label:'2字母 .COM｜顶级稀缺资产',
+    minScore:95,
+    priceFloor:[500000,5000000],
+    priceTags:['投资人流通底价','品牌资产价','终端报价区间'],
+    manualReview:'⚠️ 2字母.COM 属顶级稀缺资产，系统价格仅为参考下限，实际成交需人工经纪复核，六位数起步。',
+    test:(sld,tld)=>tld==='com'&&/^[a-z]{2}$/i.test(sld)
+  },
+  {
+    id:'LLL_COM',
+    label:'3字母 .COM｜高流动性稀缺资产',
+    minScore:88,
+    priceFloor:[80000,800000],
+    priceTags:['投资人流通底价','品牌资产价','终端报价区间'],
+    manualReview:'⚠️ 3字母.COM 属高流动性稀缺资产，六位数级起，需人工复核。不应低于 $80,000 投资人底价。',
+    test:(sld,tld)=>tld==='com'&&/^[a-z]{3}$/i.test(sld)
+  },
+  {
+    id:'LLLL_PRONOUNCEABLE_COM',
+    label:'4字母可发音 .COM｜品牌资产',
+    minScore:78,
+    priceFloor:[8000,120000],
+    priceTags:['投资人底价','品牌资产价','终端报价区间'],
+    manualReview:'💡 可发音4字母.COM 品牌价值显著，建议标价不低于 $8,000。',
+    test:(sld,tld)=>{if(tld!=='com'||!/^[a-z]{4}$/i.test(sld))return false;const v=(sld.match(/[aeiou]/gi)||[]).length;return v>=1;}
+  },
+  {
+    id:'SHORT_NUMERIC_COM',
+    label:'短数字 .COM｜流通资产',
+    minScore:75,
+    priceFloor:[1000,30000],
+    priceTags:['投资人流通底价','品牌资产价','终端报价区间'],
+    manualReview:'💡 5位及以内数字.COM 具备稳定流通性，建议对标同类数字域成交均价。',
+    test:(sld,tld)=>tld==='com'&&/^[0-9]{2,5}$/.test(sld)
+  },
+  {
+    id:'WORD_COM',
+    label:'单词 .COM｜品类/品牌资产',
+    minScore:82,
+    priceFloor:[15000,500000],
+    priceTags:['投资人流通底价','品牌资产价','终端报价区间'],
+    manualReview:'⚠️ 单词.COM 为强品牌资产，价值区间极大，需经纪人判断终端行业溢价。',
+    test:(sld,tld,md)=>{
+      if(tld!=='com')return false;
+      const wordList=['cloud','air','sun','sky','blue','red','gold','fire','ice','tech','data','pay','go','now','hub','lab','pro','one','all','new','web','app','run','fly','sea','green','black','white','smart','fast','safe','clean','open','free','care','life','max','key','base','core','link','net','flow','edge','node','agent','mind','prime','ultra','hyper','flux','bolt','spark','nova','pulse','wave','peak','dash'];
+      return wordList.some(w=>sld.toLowerCase()===w);
+    }
+  },
+  {
+    id:'VERIFIED_HIGH_VALUE_COM',
+    label:'已验证高价值 .COM｜成交锚点',
+    minScore:82,
+    priceFloor:[10680,219997],
+    priceTags:['投资人底价','品牌资产价','终端报价区间'],
+    manualReview:'💡 参照公开成交记录，系统给出校准区间，建议对照 NameBio 交叉验证。',
+    test:(sld,tld)=>{
+      const anchors=['goka','gunar','tronscan','balaena','balaena','farfield','travely','vjn','zkp'];
+      return tld==='com'&&anchors.includes(sld.toLowerCase());
+    }
+  },
+  {
+    id:'AI_KEYWORD_TLD',
+    label:'AI 关键词 .AI｜行业热门资产',
+    minScore:69,
+    priceFloor:[1000,8000],
+    priceTags:['投资人流通价','品牌资产价','终端报价区间'],
+    manualReview:'💡 .AI 后缀 2026 高热，终端买家多为 AI 初创/转型企业，建议对标近期 .AI 成交均价。',
+    test:(sld,tld)=>tld==='ai'
+  },
+  {
+    id:'GENERIC',
+    label:'普通域名｜标准评估',
+    minScore:0,
+    priceFloor:[0,0],
+    priceTags:['同行参考价','品牌命名师价','终端零售价'],
+    manualReview:'',
+    test:()=>true
+  }
+];
+
+function detectAssetClass(sld,tld,md){
+  for(const ac of ASSET_CLASSES){
+    if(ac.test(sld,tld,md))return ac;
+  }
+  return ASSET_CLASSES[ASSET_CLASSES.length-1];
+}
+
+// ─── TLD 数据库 ───────────────────────────────────────────────
 const TLD={
   com:{type:100,liquidity:100,usage:100,heat:95,m:1.0,label:'.COM 全球第一'},
   ai:{type:69,liquidity:65,usage:62,heat:96,m:.66,label:'.AI 2026 AI行业首选'},
@@ -263,13 +388,11 @@ const TLD={
   app:{type:45,liquidity:40,usage:48,heat:55,m:.34,label:'.APP 移动应用'},
   xyz:{type:35,liquidity:38,usage:35,heat:46,m:.25,label:'.XYZ Web3/加密'},
   uk:{type:48,liquidity:46,usage:52,heat:38,m:.38,label:'.UK 英国区域'},
-  fr:{type:46,liquidity:44,usage:50,heat:36,m:.36,label:'.FR 法国区域'},
-  nl:{type:44,liquidity:42,usage:48,heat:34,m:.34,label:'.NL 荷兰区域'},
 };
 
-// ── 行业数据库 ──
+// ─── 行业 ───────────────────────────────────────────────────────
 const INDUSTRIES=[
-  {name:'AI/科技',mult:1.2,words:['ai','data','cloud','api','robot','quantum','cyber','secure','dev','code','model','agent','neural','llm','gpt']},
+  {name:'AI/科技',mult:1.2,words:['ai','data','cloud','api','robot','quantum','cyber','secure','dev','code','model','agent','neural','llm','gpt','tech']},
   {name:'金融',mult:1.3,words:['fin','finance','money','bank','loan','pay','capital','invest','fund','insure','wealth','credit','trade']},
   {name:'医疗健康',mult:1.3,words:['health','med','care','bio','clinic','doctor','pharma','well','dental','life','gene']},
   {name:'法律',mult:1.4,words:['law','legal','attorney','claim','rights','court','justice']},
@@ -278,299 +401,320 @@ const INDUSTRIES=[
   {name:'媒体/旅游',mult:.88,words:['travel','trip','hotel','media','voice','video','game','music','sport','news']},
 ];
 
-// ── 近期成交库（Sedo 2026-06） ──
+// ─── 成交锚点 ────────────────────────────────────────────────────
 const COMPS=[
-  {domain:'Balaena.com',price:89000,tag:'工业',words:['ship','marine','industrial']},
-  {domain:'Chance.de',price:21800,tag:'ccTLD',words:['de','brand']},
-  {domain:'Farfield.com',price:15000,tag:'AI量子',words:['quantum','tech','ai']},
-  {domain:'Travely.com',price:13000,tag:'旅游',words:['travel']},
+  {domain:'zkp.com',price:5000000,tag:'三字母顶级',words:['short','crypto','ai','com']},
+  {domain:'GOKA.com',price:399995,tag:'四字母品牌',words:['brand','short','com']},
+  {domain:'gunar.com',price:175000,tag:'五字母可发音',words:['brand','com']},
+  {domain:'tronscan.com',price:250000,tag:'品牌.COM',words:['brand','tech','com']},
+  {domain:'Balaena.com',price:89000,tag:'工业.COM',words:['ship','marine','industrial','com']},
+  {domain:'VJN.com',price:39000,tag:'三字母.COM',words:['short','com']},
+  {domain:'Farfield.com',price:15000,tag:'AI量子',words:['quantum','tech','ai','com']},
+  {domain:'Travely.com',price:13000,tag:'旅游',words:['travel','com']},
   {domain:'MyCar.ai',price:10000,tag:'AI汽车',words:['ai','car']},
-  {domain:'RiversideHealth.com',price:6895,tag:'医疗',words:['health']},
-  {domain:'IGotHacked.com',price:4755,tag:'网安AI',words:['hack','cyber','secure','ai']},
-  {domain:'ExpressLoans.com',price:2500,tag:'金融',words:['loan']},
-  {domain:'VJN.com',price:39000,tag:'三字母',words:['short']},
-  {domain:'zkp.com',price:5000000,tag:'加密/短',words:['short','crypto','ai']},
-  {domain:'cloud.com',price:11000000,tag:'单词.COM',words:['cloud','ai']},
-  {domain:'MakeMatter.com',price:15000,tag:'两单词',words:['brand','startup']},
   {domain:'kickers.ai',price:8000,tag:'.AI',words:['ai','sport']},
   {domain:'expedite.io',price:14995,tag:'.IO',words:['io','saas']},
+  {domain:'IGotHacked.com',price:4755,tag:'网安',words:['hack','cyber','secure']},
 ];
 
-// ── 解析域名 ──
+// ─── 解析域名 ────────────────────────────────────────────────────
 function parseDomain(raw){
-  const cleaned=String(raw).trim().toLowerCase().replace(/https?:\/\//,'').replace(/www\./,'').split('?')[0];
+  const cleaned=String(raw).trim().toLowerCase().replace(/https?:\/\//,'').replace(/www\./,'').split('?')[0].split('/')[0];
   const parts=cleaned.split('.').filter(Boolean);
   const tld=parts.length>1?parts[parts.length-1]:'';
   const sld=parts.length>1?parts.slice(0,-1).join(''):cleaned;
-  return{domain:cleaned.toUpperCase(),sld,tld,valid:/^[a-z0-9-]{1,}(\.[a-z]{2,})$/.test(cleaned)};
+  return{domain:(sld+'.'+tld).toUpperCase(),sld,tld,valid:/^[a-z0-9][a-z0-9-]{0,61}[a-z0-9]?\.[a-z]{2,}$/.test(cleaned)||/^[a-z]{1,3}\.[a-z]{2,}$/.test(cleaned)};
 }
 
-// ── 检测行业 ──
+// ─── 行业检测 ────────────────────────────────────────────────────
 function detectIndustry(text){
   const lower=text.toLowerCase();
   let best={name:'通用',mult:1,hits:[]};
   for(const ind of INDUSTRIES){
-    const hits=ind.words.filter(w=>lower.includes(w.toLowerCase()));
-    if(hits.length>best.hits.length) best={...ind,hits};
+    const hits=ind.words.filter(w=>lower.includes(w));
+    if(hits.length>best.hits.length)best={...ind,hits};
   }
   return best;
 }
 
-// ── D1 TLD评分 ──
+// ─── D1 TLD ──────────────────────────────────────────────────────
 function scoreTld(tld){
   const p=TLD[tld]||{type:20,liquidity:20,usage:20,heat:20,m:.15,label:'未知后缀'};
   const score=p.type*.4+p.liquidity*.25+p.usage*.2+p.heat*.15;
-  return{score:round(clamp(score)),multiplier:p.m,parts:{suffix:p.type,liquidity:p.liquidity,usage:p.usage,heat:p.heat},reason:p.label};
+  return{score:round(clamp(score)),multiplier:p.m,reason:p.label};
 }
 
-// ── 长度评分 ──
-function lengthScore(sld){
-  const len=sld.replace(/-/g,'').length;
-  if(len<=2)return 100;if(len===3)return 96;if(len===4)return 92;
-  if(len<=6)return 80;if(len<=9)return 58;if(len<=14)return 34;return 12;
-}
-
-// ── 品牌感评分 ──
-function brandScore(sld){
-  const clean=sld.toLowerCase();
-  const letters=clean.replace(/[^a-z]/g,'');
-  const len=letters.length||clean.length;
-  const vowels=(letters.match(/[aeiou]/g)||[]).length;
-  const vowelRatio=len?vowels/len:0;
-  let s=55;
-  if(!clean.includes('-')&&!/\d/.test(clean))s+=12;
-  if(len>=4&&len<=8)s+=12;
-  if(vowelRatio>=.25&&vowelRatio<=.55)s+=10;
-  if(/[bcdfghjklmnpqrstvwxyz][aeiou]{2}/i.test(letters))s+=10;
-  if(/[0-9]{1,}/.test(letters))s-=12;
-  if(/[qxz]{2,}/.test(letters))s-=8;
-  return clamp(s);
-}
-
-// ── 关键词信号 ──
-function wordSignals(sld,md){
-  const text=(sld+' '+md).toLowerCase();
-  const hv=['ai','data','cloud','cyber','secure','money','finance','bank','loan','invest','health','med','legal','law','insurance','quantum','car','auto','pay','shop','green','energy','home','voice','game'];
-  return[...new Set(hv.filter(w=>text.includes(w)))];
-}
-
-// ── D3 域名品质 ──
+// ─── D3 域名品质 ─────────────────────────────────────────────────
 function scoreQuality(parsed,md,industry){
   const{sld}=parsed;
-  const lenPart=lengthScore(sld);
-  const brandPart=brandScore(sld);
-  const kwHits=wordSignals(sld,md);
+  const len=sld.replace(/-/g,'').length;
+  const lenPart=len<=2?100:len===3?96:len===4?92:len<=6?80:len<=9?58:len<=14?34:12;
+  const letters=sld.toLowerCase().replace(/[^a-z]/g,'');
+  const vowels=(letters.match(/[aeiou]/g)||[]).length;
+  const vowelRatio=letters.length?vowels/letters.length:0;
+  let brandPart=55;
+  if(!sld.includes('-')&&!/\d/.test(sld))brandPart+=12;
+  if(len>=4&&len<=8)brandPart+=12;
+  if(vowelRatio>=.25&&vowelRatio<=.55)brandPart+=10;
+  if(/[bcdfghjklmnpqrstvwxyz][aeiou]{1}/i.test(letters))brandPart+=8;
+  if(/\d/.test(sld))brandPart-=12;
+  if(sld.includes('-'))brandPart-=10;
+  brandPart=clamp(brandPart);
+  const hv=['ai','data','cloud','cyber','money','finance','bank','health','legal','quantum','car','auto','pay','shop','green'];
+  const kwHits=hv.filter(w=>(sld+' '+md).toLowerCase().includes(w));
   let kwPart=45+Math.min(kwHits.length*10,35);
   if(industry.name!=='通用')kwPart+=10;
-  if(sld.includes('-'))kwPart-=12;
-  if(/\d/.test(sld))kwPart-=10;
+  if(/udrp|trademark conflict/i.test(md))kwPart-=25;
   kwPart=clamp(kwPart);
-  const lower=md.toLowerCase();
-  let history=50;
-  const yearMatch=lower.match(/(?:age|whois|created)[:\s]+([0-9]{1,2})\s*year/);
-  if(yearMatch)history=clamp(50+Number(yearMatch[1])*4,50,90);
-  if(/spam|udrp|trademark/i.test(md))history-=25;
-  const ext=/variants?[:\s]+.*?\.(net|org|ai|io|cn)/i.test(md)?72:parsed.tld==='com'?58:42;
-  const score=lenPart*.30+brandPart*.25+kwPart*.25+history*.10+ext*.10;
-  return{score:round(clamp(score)),parts:{length:lenPart,brand:brandPart,keyword:kwPart,history:clamp(history),protection:clamp(ext)},reason:`${sld.length}字符·品牌感${round(brandPart)}·关键词:${kwHits.length?kwHits.join(','):'无'}·${round(brandPart)>=70?'发音流畅':'发音一般'}`};
+  const score=lenPart*.35+brandPart*.30+kwPart*.25+10*.10;
+  return{score:round(clamp(score)),reason:`${len}字符·品牌感${round(brandPart)}·关键词${kwHits.length}个·${/udrp/i.test(md)?'⚠️UDRP风险':'无商标风险'}`};
 }
 
-// ── D2 终端匹配 ──
+// ─── D2 终端匹配 ─────────────────────────────────────────────────
 function scoreEndUser(parsed,md,industry){
   const lower=md.toLowerCase();
   const buyerMatch=md.match(/([1-9][0-9]{0,3})[\s个家]*(?:公司|企业|终端|buyers?|potential)/);
-  let buyerCount=buyerMatch?Number(buyerMatch[1]):0;
-  if(!buyerCount&&industry.name!=='通用')buyerCount=5;
+  let buyerCount=buyerMatch?Number(buyerMatch[1]):industry.name!=='通用'?5:0;
   let countScore=buyerCount?clamp(35+Math.log10(buyerCount+1)*28):35;
   let scaleScore=40;
   if(/ipo|public company|fortune\s*500/i.test(md))scaleScore+=30;
-  if(/series [abc]|融资|funding/i.test(md))scaleScore+=18;
-  if(/\$[3-9],[0-9]{3}|\$[1-9][0-9]{4,}/i.test(md))scaleScore+=10;
+  if(/series [abc]|融资|funding|raised/i.test(md))scaleScore+=18;
   let domainGap=42;
-  if(/current domain|现用域名/i.test(md))domainGap+=8;
-  if(/\.io|\.ai|\.net|\.org|\.co|\.app|\.xyz|hyphen|\.com\.com/i.test(md))domainGap+=25;
+  if(/\.io|\.ai|\.net|\.org|\.co|\.app|hyphen|-|现用域名|current domain/i.test(md))domainGap+=25;
   if(parsed.tld==='com')domainGap+=8;
   let news=38;
-  if(/funding|launch|partner|expansion|上市|融资|新产品/i.test(md))news+=32;
-  const industryPay=clamp(50+industry.mult*10+(industry.hits.length?12:0));
+  if(/funding|launch|partner|expansion|上市|融资|新产品|series/i.test(md))news+=32;
+  const industryPay=clamp(50+industry.mult*10+(industry.hits&&industry.hits.length?12:0));
   const score=countScore*.25+scaleScore*.25+domainGap*.20+news*.15+industryPay*.15;
-  return{score:round(clamp(score)),parts:{buyerCount:round(countScore),scale:clamp(scaleScore),currentDomain:clamp(domainGap),news:clamp(news),industryPay:round(industryPay)},buyerCount,industry,reason:`${industry.name}·终端${buyerCount}家·${news>50?'有利好消息':'暂无利好'}·${domainGap>70?'现用域名较差':'现用域名待核实'}`};
+  return{score:round(clamp(score)),buyerCount,industry,reason:`${industry.name}·终端约${buyerCount}家·${news>60?'有利好消息':'暂无特殊利好'}·${domainGap>60?'现用域名有改善空间':'现用域名待核实'}`};
 }
 
-// ── D4 市场定价参考 ──
-function scoreMarket(parsed,md,final,quality,end){
+// ─── D4 市场定价 ─────────────────────────────────────────────────
+function scoreMarket(parsed,md,final,quality){
   let score=50;
-  const lower=md.toLowerCase();
   if(/afternic|sedo|branddo|oyzta|dan\.com|atom/i.test(md))score+=15;
   if(parsed.tld==='com')score+=20;
   else if(['ai','io'].includes(parsed.tld))score+=10;
-  if(final>80)score+=15;
+  if(final>80)score+=12;
   if(quality.score>75)score+=8;
-  score=clamp(score);
-  return{score:round(score),reason:`${parsed.tld.toUpperCase()}后缀·系统分${final}·市场平台布局${/afternic|sedo|branddo|oyzta/i.test(md)?'已有':'未知'}`};
+  return{score:round(clamp(score)),reason:`${parsed.tld.toUpperCase()}·系统预分${final}·平台布局${/afternic|sedo|branddo|oyzta/i.test(md)?'已有':'待布局'}`};
 }
 
-// ── D5 市场热度 ──
+// ─── D5 热度 ─────────────────────────────────────────────────────
 function scoreHeat(parsed,md,industry){
   let score=50;
   if(industry.name==='AI/科技')score+=20;
   else if(['金融','医疗健康'].includes(industry.name))score+=15;
   if(parsed.tld==='ai')score+=10;
-  if(/2025|2026|latest|new|trending|hot/i.test(md))score+=8;
   return{score:round(clamp(score)),reason:`${industry.name}·${parsed.tld==='ai'?'.AI 2026高热':'标准热度'}`};
 }
 
-// ── D6 Outbound操作性 ──
+// ─── D6 Outbound ─────────────────────────────────────────────────
 function scoreOutbound(parsed,md,end){
   let score=50;
   if(end.buyerCount>=5)score+=15;
   if(end.buyerCount>=20)score+=10;
   if(/linkedin|hunter|apollo|efty|outbound/i.test(md))score+=12;
-  if(/logo|brand identity|命名师/i.test(md))score+=8;
   if(parsed.tld==='com')score+=10;
-  return{score:round(clamp(score)),reason:`终端${end.buyerCount}家·${/linkedin|hunter/i.test(md)?'可精准联系':'需要研究'}`};
+  return{score:round(clamp(score)),reason:`终端约${end.buyerCount}家·${parsed.tld==='com'?'.COM 高可信度':'.'+parsed.tld}`};
 }
 
-// ── 加权综合 ──
-function weightedFinal(scores){
+// ─── 加权综合 + 资产类最低分 ─────────────────────────────────────
+function weightedFinal(scores,assetClass){
   const ws=[+id('wTld').value||20,+id('wEnd').value||25,+id('wQuality').value||20,+id('wMarket').value||20,+id('wHeat').value||10,+id('wOutbound').value||5];
   const vals=[scores.tld.score,scores.endUser.score,scores.quality.score,scores.market.score,scores.heat.score,scores.outbound.score];
   const sum=ws.reduce((a,b)=>a+b,0)||100;
-  return round(vals.reduce((a,v,i)=>a+v*(ws[i]/sum),0));
+  const raw=vals.reduce((a,v,i)=>a+v*(ws[i]/sum),0);
+  return round(Math.max(raw,assetClass.minScore));
 }
 
-// ── 等级 ──
-function grade(s){if(s>=90)return'S 💎';if(s>=82)return'A 🥇 Outbound';if(s>=72)return'B 🥈';if(s>=60)return'C ⚠️';if(s>=45)return'D';return'E ❌';}
+// ─── 等级 ────────────────────────────────────────────────────────
+function grade(s){if(s>=92)return'S 💎';if(s>=82)return'A 🥇';if(s>=72)return'B 🥈';if(s>=60)return'C ⚠️';if(s>=45)return'D';return'E ❌';}
 
-// ── 置信度 ──
+// ─── 置信度 ──────────────────────────────────────────────────────
 function confidence(final,md){
-  const mdLen=md.length;
-  if(mdLen>500&&final>70)return{level:'high',text:'高',label:'数据充分'};
-  if(mdLen>150)return{level:'mid',text:'中',label:'背景一般'};
-  return{level:'low',text:'低',label:'背景不足，建议补充终端/融资信息'};
+  if(md.length>500&&final>70)return{level:'high',text:'高',label:'数据充分，置信度高'};
+  if(md.length>150)return{level:'mid',text:'中',label:'背景一般，建议补充终端/融资信息'};
+  return{level:'low',text:'低',label:'背景不足，价格区间较宽'};
 }
 
-// ── 估值 ──
-function valuation(parsed,final,tld,quality,end){
+// ─── 估值（资产类别优先） ────────────────────────────────────────
+function valuation(parsed,final,tldData,quality,end,assetClass){
   let baseLow,baseHigh;
-  if(final>=92){baseLow=50000;baseHigh=500000;}
-  else if(final>=82){baseLow=8000;baseHigh=70000;}
-  else if(final>=72){baseLow=1500;baseHigh=18000;}
-  else if(final>=60){baseLow=300;baseHigh=4500;}
-  else if(final>=45){baseLow=80;baseHigh=900;}
-  else{baseLow=10;baseHigh=160;}
-  const len=parsed.sld.replace(/-/g,'').length;
-  const shortBoost=len<=3?8:len===4?3.2:len<=6?1.5:1;
+
+  // 优先用资产类别底价
+  if(assetClass.priceFloor[0]>0){
+    baseLow=assetClass.priceFloor[0];
+    baseHigh=assetClass.priceFloor[1];
+  } else {
+    // 普通域名走分数模型
+    if(final>=90){baseLow=20000;baseHigh=300000;}
+    else if(final>=82){baseLow=4000;baseHigh=50000;}
+    else if(final>=72){baseLow=800;baseHigh=12000;}
+    else if(final>=60){baseLow=200;baseHigh=3000;}
+    else if(final>=45){baseLow=50;baseHigh=600;}
+    else{baseLow=10;baseHigh=120;}
+  }
+
   const industryBoost=end.industry.mult;
-  const qualityBoost=0.65+quality.score/100;
-  const tldBoost=Math.max(.18,tld.multiplier);
-  let low=baseLow*shortBoost*industryBoost*qualityBoost*tldBoost;
-  let high=baseHigh*shortBoost*industryBoost*qualityBoost*tldBoost;
-  if(parsed.tld==='com'&&len<=4)high*=1.8;
-  const wholesale=[Math.max(10,low*.18),Math.max(50,high*.35)];
-  const brand=[Math.max(80,low*.75),Math.max(300,high*.95)];
-  const retail=[Math.max(300,low*1.8),Math.max(1000,high*2.8)];
-  return{wholesale:wholesale.map(Math.round),brand:brand.map(Math.round),retail:retail.map(Math.round),text:{wholesale:range(wholesale[0],wholesale[1]),brand:range(brand[0],brand[1]),retail:range(retail[0],retail[1])}};
+  const qualityBoost=0.7+quality.score/200;
+
+  // 三档价格
+  const p1=[Math.round(baseLow*0.8*industryBoost*qualityBoost),Math.round(baseHigh*0.45*industryBoost*qualityBoost)];
+  const p2=[Math.round(baseLow*1.1*industryBoost*qualityBoost),Math.round(baseHigh*0.75*industryBoost*qualityBoost)];
+  const p3=[Math.round(baseLow*1.8*industryBoost*qualityBoost),Math.round(baseHigh*1.4*industryBoost*qualityBoost)];
+
+  return{
+    p1:p1.map(Math.round),
+    p2:p2.map(Math.round),
+    p3:p3.map(Math.round),
+    text:{p1:range(p1[0],p1[1]),p2:range(p2[0],p2[1]),p3:range(p3[0],p3[1])}
+  };
 }
 
-// ── 参考成交 ──
-function selectComps(parsed,industry,keywords){
-  const keys=[parsed.tld,industry.name,...keywords,parsed.sld].map(x=>String(x).toLowerCase());
-  return COMPS.map(c=>({...c,hit:c.words.filter(w=>keys.some(k=>k.includes(String(w).toLowerCase())||String(w).toLowerCase().includes(k))).length})).sort((a,b)=>b.hit-a.hit).slice(0,4);
+// ─── 参考成交 ────────────────────────────────────────────────────
+function selectComps(parsed,industry,assetClass){
+  const keys=[parsed.tld,industry.name,parsed.sld].map(x=>x.toLowerCase());
+  const isHighCom=assetClass.id.includes('COM')&&assetClass.id!=='GENERIC';
+  const pool=isHighCom?COMPS.filter(c=>c.domain.toLowerCase().includes('.com')):COMPS;
+  return pool.map(c=>({...c,hit:c.words.filter(w=>keys.some(k=>k.includes(w)||w.includes(k))).length})).sort((a,b)=>b.hit-a.hit||b.price-a.price).slice(0,4);
 }
 
-// ── 买家建议 ──
-function buyerSuggestions(parsed,end,keywords){
-  const base=parsed.sld;const industry=end.industry.name;
-  const terms=keywords.length?keywords.join(' + '):base;
+// ─── 买家建议 ────────────────────────────────────────────────────
+function buyerSuggestions(parsed,end){
+  const base=parsed.sld;
+  const industry=end.industry.name;
   return[
-    {title:`搜索终端：${base}`,body:`Google: "${base} company" · "${base} corp" · "${base} brand"`},
-    {title:`行业筛选：${industry}`,body:`LinkedIn 搜索 "${terms}" + 行业筛选 + 规模>500人`},
-    {title:`平台上架`,body:`Afternic Fast Transfer · Sedo · OYZTA · BrandDo（含Logo方案）`},
-    {title:`Outbound 联系`,body:`Hunter.io 查邮箱 → CMO/CEO → 说明域名升级价值 → Efty跟进`},
+    {title:`搜索终端：${base}`,body:`Google: "${base} company" · "${base} brand" · "${base} corp"`},
+    {title:`行业精准筛选：${industry}`,body:`LinkedIn 搜索 "${base}" + 行业过滤 + 规模>100人 → 找 CMO/CEO`},
+    {title:`平台上架布局`,body:`Afternic Fast Transfer · Sedo · OYZTA · BrandDo（建议配 Logo 方案）`},
+    {title:`Outbound 联系`,body:`Hunter.io 查决策人邮箱 → 个性化首封 → 7天跟进 → Efty CRM 管理`},
   ];
 }
 
-// ── 资讯提示 ──
-function newsTips(parsed,industry,end){
-  const tips=[];
-  tips.push(`<div class="news-item">📰 <strong>Domain Name Wire</strong> — 搜索 "${parsed.sld}" 相关成交<br><a href="https://domainnamewire.com/?s=${parsed.sld}" target="_blank">domainnamewire.com</a></div>`);
+// ─── 资讯提示 ────────────────────────────────────────────────────
+function newsTips(parsed,industry){
+  let html=`<div class="news-item">📰 <strong>Domain Name Wire</strong> — <a href="https://domainnamewire.com/?s=${parsed.sld}" target="_blank">搜索 "${parsed.sld}" 相关成交</a></div>`;
+  html+=`<div class="news-item">📊 <strong>NameBio</strong> — <a href="https://namebio.com/?q=${parsed.sld}" target="_blank">查询历史成交记录</a></div>`;
   if(industry.name==='AI/科技'||parsed.tld==='ai'){
-    tips.push(`<div class="news-item">🤖 <strong>Identity Digital</strong> — .AI 后缀注册量趋势<br><a href="https://domainnamewire.com/" target="_blank">domainnamewire.com/tag/ai-domains</a></div>`);
+    html+=`<div class="news-item">🤖 <strong>DomainGang</strong> — <a href="https://domaingang.com/" target="_blank">.AI 域名行业动态</a></div>`;
   }
-  if(['金融','医疗健康'].includes(industry.name)){
-    tips.push(`<div class="news-item">💼 <strong>Crunchbase</strong> — 搜索 "${parsed.sld}" 融资动态<br><a href="https://www.crunchbase.com/search/organizations/field/organizations/facet_ids/company?q=${parsed.sld}" target="_blank">crunchbase.com</a></div>`);
+  if(['金融','医疗健康','法律'].includes(industry.name)){
+    html+=`<div class="news-item">💼 <strong>Crunchbase</strong> — <a href="https://www.crunchbase.com/search/organizations/field/organizations/facet_ids/company?q=${parsed.sld}" target="_blank">搜索 "${parsed.sld}" 融资动态</a></div>`;
   }
-  tips.push(`<div class="news-item">📊 <strong>NameBio</strong> — 查询历史成交<br><a href="https://namebio.com/?q=${parsed.sld}" target="_blank">namebio.com</a></div>`);
-  return tips.join('');
+  return html;
 }
 
-// ── 主评估 ──
+// ─── 主评估 ──────────────────────────────────────────────────────
 function analyze(){
   const parsed=parseDomain(id('domainInput').value);
   const md=id('mdInput').value;
-  if(!parsed.valid){alert('请输入有效域名，如 TEX.COM');return;}
+
+  // Step 1: 资产类别判定（优先于一切）
+  const assetClass=detectAssetClass(parsed.sld,parsed.tld,md);
+
+  // Step 2: 六维评分
   const industry=detectIndustry(parsed.sld+' '+md);
   const tld=scoreTld(parsed.tld);
   const quality=scoreQuality(parsed,md,industry);
   const end=scoreEndUser(parsed,md,industry);
-  const mktScore=scoreMarket(parsed,md,0,quality,end);
+  const mktPre=scoreMarket(parsed,md,75,quality);
   const heat=scoreHeat(parsed,md,industry);
   const outbound=scoreOutbound(parsed,md,end);
-  const scores={tld,endUser:end,quality,market:mktScore,heat,outbound};
-  const final=weightedFinal(scores);
-  const price=valuation(parsed,final,tld,quality,end);
-  const keywords=wordSignals(parsed.sld,md);
-  const comps=selectComps(parsed,industry,keywords);
-  const buyers=buyerSuggestions(parsed,end,keywords);
+  const scores={tld,endUser:end,quality,market:mktPre,heat,outbound};
+
+  // Step 3: 最低分保障
+  const final=weightedFinal(scores,assetClass);
+  const mkt=scoreMarket(parsed,md,final,quality);
+  scores.market=mkt;
+
+  // Step 4: 价格模型（资产类别优先套用）
+  const price=valuation(parsed,final,tld,quality,end,assetClass);
+  const comps=selectComps(parsed,industry,assetClass);
+  const buyers=buyerSuggestions(parsed,end);
   const conf=confidence(final,md);
-  currentAnalysis={domain:parsed.domain,parsed,generatedAt:new Date().toISOString(),scores:{final,tld,endUser:end,quality,market:mktScore,heat,outbound},price,comps,buyers,keywords,grade:grade(final),confidence:conf};
+
+  currentAnalysis={domain:parsed.domain,parsed,assetClass,generatedAt:new Date().toISOString(),scores:{final,tld,endUser:end,quality,market:mkt,heat,outbound},price,comps,buyers,grade:grade(final),confidence:conf,industry};
   renderAnalysis(currentAnalysis);
 }
 
 function renderAnalysis(a){
-  const{scores,price,confidence:conf}=a;
-  setMetric('final',scores.final,a.grade);
-  setMetric('tld',scores.tld.score,scores.tld.reason);
-  setMetric('end',scores.endUser.score,scores.endUser.reason);
-  setMetric('quality',scores.quality.score,scores.quality.reason);
-  setMetric('market',scores.market.score,scores.market.reason);
-  setMetric('heat',scores.heat.score,scores.heat.reason);
-  setMetric('outbound',scores.outbound.score,scores.outbound.reason);
+  const{scores,price,confidence:conf,assetClass}=a;
+
+  // 资产类别展示
+  id('assetTitle').textContent=assetClass.label;
+  id('assetDesc').textContent=`资产ID: ${assetClass.id} · 最低系统分保障: ${assetClass.minScore} · 行业: ${a.industry.name} (乘数×${a.industry.mult})`;
+  if(assetClass.manualReview){
+    id('assetNote').textContent=assetClass.manualReview;
+    id('assetNote').style.display='block';
+  } else {
+    id('assetNote').style.display='none';
+  }
+
+  // 分数展示
+  setM('final',scores.final,a.grade);
+  setM('tld',scores.tld.score,scores.tld.reason);
+  setM('end',scores.endUser.score,scores.endUser.reason);
+  setM('quality',scores.quality.score,scores.quality.reason);
+  setM('market',scores.market.score,scores.market.reason);
+  setM('heat',scores.heat.score,scores.heat.reason);
+  setM('outbound',scores.outbound.score,scores.outbound.reason);
+
   // 置信度
   id('confText').textContent=conf.text;
   id('confBar2').style.width=conf.level==='high'?'100%':conf.level==='mid'?'60%':'30%';
   id('confDetail').textContent=conf.label;
-  const cb=id('confBar');
-  cb.className='conf-bar '+conf.level;
-  // 估值
-  id('wholesalePrice').textContent=price.text.wholesale;
-  id('brandPrice').textContent=price.text.brand;
-  id('retailPrice').textContent=price.text.retail;
+  id('confBarViz').className='conf-bar '+conf.level;
+
+  // 价格标签（资产类别决定）
+  const tags=assetClass.priceTags;
+  id('label1').textContent=tags[0];
+  id('label2').textContent=tags[1];
+  id('label3').textContent=tags[2];
+  id('wholesalePrice').textContent=price.text.p1;
+  id('brandPrice').textContent=price.text.p2;
+  id('retailPrice').textContent=price.text.p3;
+
+  // 人工复核提示
+  if(assetClass.manualReview){
+    id('manualReviewNote').textContent=assetClass.manualReview;
+    id('manualReviewNote').style.display='block';
+  } else {
+    id('manualReviewNote').style.display='none';
+  }
+
   // 成交参考
-  id('compsList').innerHTML=a.comps.map(c=>`<div class="item"><strong>${c.domain}</strong> <span class="muted">$${money(c.price)}</span> <span class="tag-b">${c.tag}</span></div>`).join('');
+  id('compsList').innerHTML=a.comps.map(c=>`<div class="item"><strong>${escH(c.domain)}</strong> <span style="color:#6ee7b7;font-weight:700">$${money(c.price)}</span> <span class="tag-b">${escH(c.tag)}</span></div>`).join('');
+
   // 买家
-  id('buyerList').innerHTML=a.buyers.map(b=>`<div class="item"><strong>${b.title}</strong><br><span class="reason">${b.body}</span></div>`).join('');
+  id('buyerList').innerHTML=a.buyers.map(b=>`<div class="item"><strong>${escH(b.title)}</strong><br><span class="reason">${escH(b.body)}</span></div>`).join('');
+
   // 资讯
-  id('newsList').innerHTML=newsTips(a.parsed,a.scores.endUser.industry,a.scores.endUser);
+  id('newsList').innerHTML=newsTips(a.parsed,a.industry);
+
   // 报告
   id('reportOutput').value=buildReport(a);
   id('promptOutput').value=buildPrompt(a);
 }
 
-function setMetric(prefix,score,reason){
+function setM(prefix,score,reason){
   const map={final:['finalScore','finalBar','gradeText'],tld:['tldScore','tldBar','tldReason'],end:['endScore','endBar','endReason'],quality:['qualityScore','qualityBar','qualityReason'],market:['marketScore','marketBar','marketReason'],heat:['heatScore','heatBar','heatReason'],outbound:['outboundScore','outboundBar','outboundReason']};
   const[num,bar,text]=map[prefix];
-  id(num).textContent=score;
-  id(bar).style.width=clamp(score)+'%';
-  if(text)id(text).textContent=reason;
+  if(id(num))id(num).textContent=score;
+  if(id(bar))id(bar).style.width=clamp(score)+'%';
+  if(text&&id(text))id(text).textContent=reason;
 }
 
 function buildReport(a){
   const s=a.scores;
-  return `# ${a.domain} 域名评估报告
-生成时间：${new Date(a.generatedAt).toLocaleString()}  
+  return `# ${a.domain} 域名评估报告 v5.1
+生成时间：${new Date(a.generatedAt).toLocaleString()}
 置信度：${a.confidence.text}（${a.confidence.label}）
+
+## 资产类别
+${a.assetClass.label}
+最低系统分保障：${a.assetClass.minScore}
+${a.assetClass.manualReview}
 
 ## 综合得分：${s.final}/100　等级：${a.grade}
 
@@ -583,52 +727,59 @@ function buildReport(a){
 | D5 市场热度 | ${s.heat.score}/100 | ${s.heat.reason} |
 | D6 Outbound | ${s.outbound.score}/100 | ${s.outbound.reason} |
 
-## 估值区间
-- 批发价（同行）：${a.price.text.wholesale}
-- 品牌溢价（命名师）：${a.price.text.brand}
-- 终端零售：${a.price.text.retail}
+## 估值区间（${a.assetClass.priceTags.join(' / ')}）
+- ${a.assetClass.priceTags[0]}：${a.price.text.p1}
+- ${a.assetClass.priceTags[1]}：${a.price.text.p2}
+- ${a.assetClass.priceTags[2]}：${a.price.text.p3}
 
-## 参考近期成交
+## 成交锚点参考
 ${a.comps.map(c=>`- ${c.domain}：$${money(c.price)}（${c.tag}）`).join('\n')}
 
-## 终端买家建议
-${a.buyers.map((b,i)=>`${i+1}. **${b.title}**\n   ${b.body}`).join('\n')}
-
 ---
-*由 Domain AI Judge v5 生成 · CORE_RULES_v1.md · 5-Agent协作*`;
+*Domain AI Judge v5.1 · 资产类别优先估值 · GPT5.5热修补丁*`;
 }
 
 function buildPrompt(a){
   const s=a.scores;
-  return `你是专业域名估价师，请严格按照 CORE_RULES 六维框架评估以下域名：
+  return `你是专业域名估价师，请严格按照 CORE_RULES v5.1 框架评估：
 
 ## 待评估域名：${a.domain}
 
-## 系统预评分（供参考，可合理偏差±15）
-| 维度 | 系统分 | 权重建议 |
-|------|--------|----------|
-| D1 TLD强度（后缀流通性/注册量/行业匹配） | ${s.tld.score} | 20% |
-| D2 终端匹配（终端数量/规模/利好消息） | ${s.endUser.score} | 25% |
-| D3 域名品质（长度/品牌感/关键词/历史） | ${s.quality.score} | 20% |
-| D4 市场定价参考（平台上架/近期成交） | ${s.market.score} | 20% |
-| D5 市场热度（行业景气/后缀热度） | ${s.heat.score} | 10% |
-| D6 Outbound操作性（终端数/联系渠道） | ${s.outbound.score} | 5% |
+## 【重要】资产类别判定（优先于分数）
+资产类别：${a.assetClass.id}
+展示名称：${a.assetClass.label}
+最低系统分：${a.assetClass.minScore}
+价格标签：${a.assetClass.priceTags.join(' / ')}
+${a.assetClass.manualReview?'注意：'+a.assetClass.manualReview:''}
+
+## 系统预评分（供参考，可合理偏差±15，但不得低于资产类最低分）
+| 维度 | 系统分 | 权重 |
+|------|--------|------|
+| D1 TLD强度 | ${s.tld.score} | 20% |
+| D2 终端匹配 | ${s.endUser.score} | 25% |
+| D3 域名品质 | ${s.quality.score} | 20% |
+| D4 市场定价 | ${s.market.score} | 20% |
+| D5 市场热度 | ${s.heat.score} | 10% |
+| D6 Outbound | ${s.outbound.score} | 5% |
 
 ## 背景信息
-${id('mdInput').value||'（无背景信息，请根据域名本身判断）'}
+${id('mdInput').value||'（无背景信息，请根据域名本身及资产类别判断）'}
 
-## 评分要点提示
-- TLD：.COM=100分基准，.AI 2026年热度评分69，.IO=64。有商标冲突/UDRP记录扣20分。
-- 终端：大企业+融资消息+现用域名差 = 高分。终端≥10家且规模大 = 加分。
-- 品质：≤4字母/单词.COM溢价明显。CVCV结构品牌感强。含连字符-扣分。
-- 市场：参考 Sedo 近期成交：Balaena.com $89K，VJN.com $39K，MyCar.ai $10K
-- 热度：AI/金融/医疗行业2026年景气度最高。
+## 内置成交锚点（2026年公开数据）
+- zkp.com $5,000,000（三字母.COM极品）
+- GOKA.com $399,995（四字母.COM品牌）
+- gunar.com $175,000（五字母可发音）
+- Balaena.com $89,000（七字母工业.COM）
+- VJN.com $39,000（三字母.COM）
+- Farfield.com $15,000 / Travely.com $13,000（六字母.COM）
+- MyCar.ai $10,000（AI关键词）
 
-## 请用以下 JSON 格式回复（必须包含所有字段）：
+## 请用以下 JSON 格式回复：
 \`\`\`json
 {
   "judge": "你的AI名称",
   "domain": "${a.domain}",
+  "asset_class": "${a.assetClass.id}",
   "tldscore": 0,
   "enduserscore": 0,
   "domainqualityscore": 0,
@@ -637,29 +788,29 @@ ${id('mdInput').value||'（无背景信息，请根据域名本身判断）'}
   "outboundscore": 0,
   "finalscore": 0,
   "confidence": "low|medium|high",
-  "wholesalepriceusd": "",
-  "brandpriceusd": "",
-  "enduserpriceusd": "",
+  "p1_investor_floor": "",
+  "p2_brand_asset": "",
+  "p3_enduser_range": "",
   "keyreasons": ["原因1", "原因2", "原因3"],
-  "riskflags": ["风险1", "风险2"]
+  "riskflags": ["风险1"]
 }
 \`\`\`
 ${buildReport(a)}`;
 }
 
-// ── 评委面板 ──
+// ─── 评委面板 ────────────────────────────────────────────────────
 function addJudge(name='',score='',note=''){
   const row=document.createElement('div');
   row.className='judge-row';
-  row.innerHTML=`<input class="judge-name" placeholder="Claude / GPT5.5 / Gemini" value="${escHtml(name)}"><input class="judge-score" type="number" min="0" max="100" step="0.1" placeholder="0-100" value="${escHtml(score)}"><input class="judge-note" placeholder="备注" value="${escHtml(note)}"><button class="sec remove-judge" type="button">✕</button>`;
+  row.innerHTML=`<input class="judge-name" placeholder="GPT-5.5 / Claude / Gemini" value="${escH(name)}"><input class="judge-score" type="number" min="0" max="100" step="0.1" placeholder="0-100" value="${escH(score)}"><input class="judge-note" placeholder="备注 / 置信度" value="${escH(note)}"><button class="sec remove-judge" type="button">✕</button>`;
   row.querySelector('.remove-judge').onclick=()=>{row.remove();calcJudges(false);};
   id('judgeRows').appendChild(row);
 }
 
 function calcJudges(showAlert=true){
-  const rows=[...document.querySelectorAll('.judge-row')].map(r=>({judge:r.querySelector('.judge-name').value.trim(),score:Number(r.querySelector('.judge-score').value),note:r.querySelector('.judge-note').value.trim()})).filter(x=>Number.isFinite(x.score)&&x.score>=0&&x.score<=100);
+  const rows=[...document.querySelectorAll('.judge-row')].map(r=>({judge:r.querySelector('.judge-name').value.trim(),score:Number(r.querySelector('.judge-score').value),note:r.querySelector('.judge-note').value.trim()})).filter(x=>isFinite(x.score)&&x.score>=0&&x.score<=100&&x.score>0);
   id('judgeCount').textContent=rows.length;
-  if(!rows.length){id('dropHigh').textContent='-';id('dropLow').textContent='-';id('judgeFinal').textContent='-';id('judgeJson').value='';return null;}
+  if(!rows.length){['dropHigh','dropLow','judgeFinal'].forEach(x=>id(x).textContent='-');id('judgeJson').value='';return null;}
   const sorted=[...rows].sort((a,b)=>a.score-b.score);
   let used=rows,high=null,low=null;
   if(rows.length>=3){
@@ -671,7 +822,7 @@ function calcJudges(showAlert=true){
   id('dropHigh').textContent=high?round(high.score,1):'-';
   id('dropLow').textContent=low?round(low.score,1):'-';
   id('judgeFinal').textContent=avg;
-  const result={domain:currentAnalysis?.domain||parseDomain(id('domainInput').value).domain,calculatedAt:new Date().toISOString,judgecount:rows.length,method:rows.length>=3?'drop-high-low-average':'plain-average',dropped:{high,low},usedscores:used,finalscore:avg,systemanalysis:currentAnalysis};
+  const result={domain:currentAnalysis?.domain||id('domainInput').value.toUpperCase(),calculatedAt:new Date().toISOString(),assetClass:currentAnalysis?.assetClass?.id||'UNKNOWN',judgecount:rows.length,method:rows.length>=3?'去头尾均分':'普通平均',dropped:{high:high?.score,low:low?.score},usedscores:used,finalscore:avg,systemscore:currentAnalysis?.scores?.final,price:currentAnalysis?.price?.text};
   id('judgeJson').value=JSON.stringify(result,null,2);
   if(showAlert&&rows.length<3)alert('建议至少3位评委以启用去头尾均分');
   return result;
@@ -679,89 +830,30 @@ function calcJudges(showAlert=true){
 
 function saveHistory(){
   const result=calcJudges(false);
-  if(!result){alert('请先填写评委评分');return;}
-  const list=getHistory();
-  list.push(result);
-  try{localStorage.setItem('domainaijudgehistoryv5',JSON.stringify(list));}catch(e){}
+  if(!result){alert('请先填写评委评分并计算');return;}
+  history.push(result);
   renderHistory();
 }
 
-function getHistory(){
-  try{return JSON.parse(localStorage.getItem('domainaijudgehistoryv5'))||[];}catch{return[];}
-}
-
 function renderHistory(){
-  const list=getHistory().sort((a,b)=>b.finalscore-a.finalscore);
-  if(!list.length){id('historyBody').innerHTML='<tr><td colspan="7" class="muted">暂无记录</td></tr>';return;}
-  id('historyBody').innerHTML=list.map((r,i)=>`<tr><td>${i+1}</td><td class="mono">${escHtml(r.domain)}</td><td>${r.systemanalysis?.scores?.final??'-'}</td><td>${r.finalscore}</td><td>${escHtml(grade(r.finalscore))}</td><td>${escHtml(r.systemanalysis?.price?.text?.retail??'-')}</td><td>${new Date(r.calculatedAt).toLocaleString()}</td></tr>`).join('');
+  if(!history.length){id('historyBody').innerHTML='<tr><td colspan="6" class="muted">暂无历史</td></tr>';return;}
+  const sorted=[...history].sort((a,b)=>b.finalscore-a.finalscore);
+  id('historyBody').innerHTML=sorted.map((r,i)=>`<tr><td>${i+1}</td><td class="mono">${escH(r.domain)}</td><td>${r.systemscore??'-'}</td><td>${escH(grade(r.finalscore))}</td><td>${escH(r.price?.p3??'-')}</td><td>${new Date(r.calculatedAt).toLocaleString()}</td></tr>`).join('');
 }
 
 function download(name,text,type='text/plain'){
   const blob=new Blob([text],{type});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download=name;a.click();URL.revokeObjectURL(url);
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();
 }
-async function copyText(text){try{await navigator.clipboard.writeText(text);alert('已复制到剪贴板 ✓');}catch(e){alert('请手动复制')}}
-function escHtml(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+async function copyText(text){try{await navigator.clipboard.writeText(text);alert('已复制 ✓');}catch{alert('请手动复制');}}
 
-// ── 事件绑定 ──
+// ─── 事件 ────────────────────────────────────────────────────────
 id('analyzeBtn').onclick=analyze;
+id('clearBtn').onclick=()=>{id('domainInput').value='';id('mdInput').value='';};
 id('demoBtn').onclick=()=>{
-  id('domainInput').value='MyCar.ai';
-  id('mdInput').value=`# MyCar.ai 背景资料
-
-## TLD 分析
-- 后缀：.AI，Identity Digital 管理，注册量 6700万+
-- 2026年 AI 行业高热，.AI 后缀市场热度评分 96
-
-## 终端用户
-- getmycar.com（现用域名较长，含连字符思维）
-- mycar-app.com（非.COM，含连字符）
-- mycar.io（非.COM）
-- 目标终端：汽车科技公司、AI驾驶助手、二手车交易平台
-
-## 利好消息
-- AI+汽车行业 2026年融资热潮，Series B 平均融资额 $18M
-- 特斯拉、小鹏等推出 AI Agent 驾驶助手，行业景气
-
-## 近期参考成交
-- MyCar.ai Sedo成交 $10,000（2026-06）
-- kickers.ai $8,000，expedite.io $14,995`;
+  id('domainInput').value='TEX.COM';
+  id('mdInput').value='';
   analyze();
 };
-id('clearBtn').onclick=()=>{id('domainInput').value='';id('mdInput').value='';};
 
 document.querySelectorAll('[data-preset]').forEach(btn=>{
-  btn.onclick=()=>{
-    const presets={balanced:[20,25,20,20,10,5],enduser:[15,40,20,15,7,3],brand:[15,25,35,15,7,3],liquidity:[40,20,20,15,3,2],outbound:[15,20,15,15,10,25]};
-    const p=presets[btn.dataset.preset];
-    [id('wTld'),id('wEnd'),id('wQuality'),id('wMarket'),id('wHeat'),id('wOutbound')].forEach((el,i)=>el.value=p[i]);
-    if(currentAnalysis)analyze();
-  };
-});
-
-id('copyReportBtn').onclick=()=>copyText(id('reportOutput').value);
-id('copyPromptBtn').onclick=()=>copyText(id('promptOutput').value);
-id('downloadReportBtn').onclick=()=>{if(!currentAnalysis)analyze();download(currentAnalysis.domain.replace(/\./g,'_')+'.md',id('reportOutput').value,'text/markdown;charset=utf-8');};
-id('downloadJsonBtn').onclick=()=>{if(!currentAnalysis)analyze();download(currentAnalysis.domain.replace(/\./g,'_')+'_valuation.json',JSON.stringify(currentAnalysis,null,2),'application/json');};
-id('addJudgeBtn').onclick=()=>addJudge();
-id('presetJudgeBtn').onclick=()=>{
-  id('judgeRows').innerHTML='';
-  ['GPT-5.5','Claude Opus 4','Gemini 2.5','DeepSeek R2','Grok 3'].forEach(n=>addJudge(n));
-};
-id('calcJudgeBtn').onclick=()=>calcJudges(true);
-id('saveHistoryBtn').onclick=saveHistory;
-id('clearHistoryBtn').onclick=()=>{if(confirm('确认清空所有历史？')){try{localStorage.removeItem('domainaijudgehistoryv5');}catch(e){}renderHistory();}};
-id('exportCsvBtn').onclick=()=>{
-  const rows=getHistory().sort((a,b)=>b.finalscore-a.finalscore);
-  const csv=['rank,domain,systemscore,judgescore,grade,retailprice,calculatedat',...rows.map((r,i)=>`${i+1},${r.domain},${r.systemanalysis?.scores?.final??''},${r.finalscore},${grade(r.finalscore)},"${r.systemanalysis?.price?.text?.retail??''}",${r.calculatedAt}`)].join('\n');
-  download('domainaijudge_history.csv',csv,'text/csv;charset=utf-8');
-};
-
-// ── 初始化 ──
-['GPT-5.5','Claude','Gemini'].forEach(n=>addJudge(n));
-renderHistory();
-analyze();
-</script>
-</body>
-</html>
