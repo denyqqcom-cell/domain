@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Domain AI Judge v5.2.1 · 域名价值评估系统</title>
+<title>Domain AI Judge v5.2.2 · 域名价值评估系统</title>
 <style>
 :root{
   --bg:#0b1020;--card1:#121a2f;--card2:#18233d;--line:#263454;
@@ -88,14 +88,14 @@ td{color:#e5edff}
 <section class="hero">
   <div class="card">
     <div>
-      <span class="badge">Domain AI Judge v5.2.1</span>
+      <span class="badge">Domain AI Judge v5.2.2</span>
       <span class="badge">资产类别优先</span>
-      <span class="badge">GPT5.5 热修补丁</span>
-      <span class="badge">成交锚点校准</span>
+      <span class="badge">ULTRA_WORD_COM</span>
+      <span class="badge">v2 Prompt Schema</span>
     </div>
     <h1>域名价值判断<br>与多评委打分系统</h1>
-    <p>输入域名和分析 Markdown，系统先判定资产类别（LLL_COM / WORD_COM / AI_KEYWORD_TLD…），再算六维评分，再套对应价格模型，最后输出估值。</p>
-    <p style="font-size:12px;margin-top:10px;color:#fbbf24">⚡ v5.2.1 收口：页面、README、CORE_RULES_v2 三者口径对齐 · 历史记录改用 localStorage 持久保存 · 市场监测改为链接入口</p>
+    <p>输入域名和分析 Markdown，系统先判定资产类别（ULTRA_WORD_COM / LLL_COM / WORD_COM / AI_KEYWORD_TLD…），再算六维评分，再套对应价格模型，最后输出估值。</p>
+    <p style="font-size:12px;margin-top:10px;color:#fbbf24">⚡ v5.2.2：新增 ULTRA_WORD_COM（cloud/excel/derm 等顶级单词 $500K+ 底价）· Prompt JSON 改为 v2 扁平 schema · 防回归测试：Derm.com / Excel.com 正确识别</p>
   </div>
   <div class="card">
     <h2>核心玩法</h2>
@@ -104,7 +104,7 @@ td{color:#e5edff}
     <p>3. 把完整投喂内容发给多个 AI 评委</p>
     <p>4. 录入 <span class="mono">final_score</span>，系统自动去极值取均</p>
     <div style="margin-top:12px;padding:10px;background:rgba(251,191,36,.08);border-radius:10px;border:1px solid rgba(251,191,36,.2)">
-      <p style="font-size:12px;color:#fde68a;margin:0">💡 资产优先级：2L_COM > 3L_COM > WORD_COM > 4L可发音.COM > 数字.COM > AI关键词.AI > 普通域名</p>
+      <p style="font-size:12px;color:#fde68a;margin:0">💡 资产优先级：2L_COM > 3L_COM > ULTRA_WORD_COM > WORD_COM > 4L可发音.COM > 数字.COM > AI关键词.AI > 普通域名</p>
     </div>
   </div>
 </section>
@@ -114,7 +114,7 @@ td{color:#e5edff}
   <div class="card">
     <h2>① 域名 &amp; 分析素材</h2>
     <label for="domainInput">域名</label>
-    <input id="domainInput" value="TEX.COM" placeholder="TEX.COM / mycar.ai / farfield.com">
+    <input id="domainInput" value="TEX.COM" placeholder="TEX.COM / mycar.ai / derm.com">
     <div style="height:12px"></div>
     <label for="mdInput">域名分析 MD 内容（终端公司、现有买家、近期成交等）</label>
     <textarea id="mdInput" placeholder="粘贴背景信息：终端公司名、现用域名、行业、融资记录、近期成交等...&#10;&#10;留空时系统自动基于域名本身做基础判断。"></textarea>
@@ -122,6 +122,7 @@ td{color:#e5edff}
       <button id="analyzeBtn">⚡ 评估</button>
       <button class="sec" id="demoBtn">演示（TEX.COM）</button>
       <button class="sec" id="demo2Btn">演示（MyCar.ai）</button>
+      <button class="sec" id="demo3Btn">演示（Derm.com）</button>
       <button class="sec" id="clearBtn">清空</button>
     </div>
   </div>
@@ -227,8 +228,8 @@ td{color:#e5edff}
     </div>
   </div>
   <div class="card">
-    <h2>⑦ AI 评委统一提示词</h2>
-    <textarea id="promptOutput" class="mono" placeholder="包含资产类别 + CORE_RULES 六维评分指令 + JSON 回复模板..."></textarea>
+    <h2>⑦ AI 评委统一提示词（v2 schema）</h2>
+    <textarea id="promptOutput" class="mono" placeholder="包含资产类别 + CORE_RULES_v2 六维评分指令 + 扁平 JSON 回复模板..."></textarea>
     <div class="btns">
       <button class="sec" id="copyPromptBtn">复制提示词</button>
       <button class="sec" id="downloadJsonBtn">下载完整 JSON</button>
@@ -299,6 +300,7 @@ function lsSave(arr){
 const history=lsLoad();
 
 // ── 资产类别定义（优先顺序：排列越前优先级越高）─────────────────
+// ⚠️ ULTRA_WORD_COM 必须在 WORD_COM 之前，否则 Derm.com/Excel.com 会被 4L 规则或 WORD_COM 先匹配
 const ASSET_CLASSES=[
   {
     id:'LL_COM',
@@ -327,6 +329,26 @@ const ASSET_CLASSES=[
     manualReview:'💡 5位及以内数字.COM 具备稳定流通性，建议对标同类数字域成交均价。',
     test:(sld,tld)=>tld==='com'&&/^[0-9]{2,5}$/.test(sld)
   },
+  // ── ULTRA_WORD_COM：必须在 WORD_COM 和 LLLL_PRONOUNCEABLE_COM 之前 ──
+  {
+    id:'ULTRA_WORD_COM',
+    label:'顶级单词 .COM｜Ultra Premium 稀缺资产',
+    minScore:92,
+    priceFloor:[500000,5000000],
+    priceTags:['投资人流通底价','品牌资产价','终端报价区间'],
+    manualReview:'⚠️ 顶级单词.COM 为 Ultra Premium 资产，必须人工经纪复核，不得机械给出低价。参考 cloud.com $11M。',
+    test:(sld,tld)=>{
+      if(tld!=='com') return false;
+      const ultraList=[
+        'cloud','excel','derm','finance','health','bank','law','data',
+        'crypto','capital','media','software','network','digital',
+        'robot','drone','space','gene','cell','cure','energy','solar',
+        'market','global','prime','elite','brand','token','chain',
+        'vision','stream','pulse','core','edge','nexus','apex'
+      ];
+      return ultraList.includes(sld.toLowerCase());
+    }
+  },
   {
     id:'WORD_COM',
     label:'单词 .COM｜品类/品牌资产',
@@ -336,7 +358,7 @@ const ASSET_CLASSES=[
     manualReview:'⚠️ 单词.COM 为强品牌资产，价值区间极大，需经纪人判断终端行业溢价，不允许机械给低价。',
     test:(sld,tld)=>{
       if(tld!=='com')return false;
-      const wordList=['cloud','air','sun','sky','blue','red','gold','fire','ice','tech','data','pay','go','now','hub','lab','pro','one','all','new','web','app','run','fly','sea','green','black','white','smart','fast','safe','clean','open','free','care','life','max','key','base','core','link','net','flow','edge','node','agent','mind','prime','ultra','hyper','flux','bolt','spark','nova','pulse','wave','peak','dash','tex','auto','car','fin','health','legal','fund','trade','shop','buy','home','food','style'];
+      const wordList=['air','sun','sky','blue','red','gold','fire','ice','tech','pay','go','now','hub','lab','pro','one','all','new','web','app','run','fly','sea','green','black','white','smart','fast','safe','clean','open','free','care','life','max','key','base','link','net','flow','agent','mind','hyper','flux','bolt','spark','nova','wave','peak','dash','tex','auto','car','fin','legal','fund','trade','shop','buy','home','food','style'];
       return wordList.some(w=>sld.toLowerCase()===w);
     }
   },
@@ -405,7 +427,7 @@ const TLD={
 const INDUSTRIES=[
   {name:'AI/科技',mult:1.2,words:['ai','data','cloud','api','robot','quantum','cyber','secure','dev','code','model','agent','neural','llm','gpt','tech']},
   {name:'金融',mult:1.3,words:['fin','finance','money','bank','loan','pay','capital','invest','fund','insure','wealth','credit','trade']},
-  {name:'医疗健康',mult:1.3,words:['health','med','care','bio','clinic','doctor','pharma','well','dental','life','gene']},
+  {name:'医疗健康',mult:1.3,words:['health','med','care','bio','clinic','doctor','pharma','well','dental','life','gene','derm','cure','cell']},
   {name:'法律',mult:1.4,words:['law','legal','attorney','claim','rights','court','justice']},
   {name:'工业/能源',mult:1.12,words:['car','auto','ev','ship','marine','factory','industrial','energy','solar','green','power']},
   {name:'消费/电商',mult:1.05,words:['shop','mall','buy','deal','brand','beauty','fashion','home','food','style','luxury']},
@@ -414,7 +436,7 @@ const INDUSTRIES=[
 
 // ── 成交锚点 ─────────────────────────────────────────────────
 const COMPS=[
-  {domain:'cloud.com',price:11000000,tag:'单词.COM顶级',words:['short','word','com']},
+  {domain:'cloud.com',price:11000000,tag:'单词.COM顶级',words:['short','word','com','ultra']},
   {domain:'zkp.com',price:5000000,tag:'三字母顶级',words:['short','crypto','ai','com']},
   {domain:'GOKA.com',price:399995,tag:'四字母品牌',words:['brand','short','com']},
   {domain:'tronscan.com',price:250000,tag:'品牌.COM',words:['brand','tech','com']},
@@ -468,7 +490,7 @@ function scoreQuality(parsed,md,industry){
   if(/\d/.test(sld))brandPart-=12;
   if(sld.includes('-'))brandPart-=10;
   brandPart=clamp(brandPart);
-  const hv=['ai','data','cloud','cyber','money','finance','bank','health','legal','quantum','car','auto','pay','shop','green'];
+  const hv=['ai','data','cloud','cyber','money','finance','bank','health','legal','quantum','car','auto','pay','shop','green','derm','gene','cure','excel'];
   const kwHits=hv.filter(w=>(sld+' '+md).toLowerCase().includes(w));
   let kwPart=45+Math.min(kwHits.length*10,35);
   if(industry.name!=='通用')kwPart+=10;
@@ -558,6 +580,7 @@ function getConfidence(final,md,assetClass){
 
 function getComps(parsed,assetClass){
   const keys=[parsed.tld,parsed.sld.length<=3?'short':'brand',assetClass.id.toLowerCase()];
+  if(assetClass.id==='ULTRA_WORD_COM')keys.push('ultra','word');
   return COMPS.filter(c=>c.words.some(w=>keys.includes(w))).sort((a,b)=>b.price-a.price).slice(0,4);
 }
 
@@ -673,11 +696,38 @@ function analyze(){
   id('newsList').innerHTML=newsLinks.map(n=>`<div class="news-item"><a href="${escH(n.url)}" target="_blank" rel="noopener">${escH(n.label)}</a><br><span style="color:var(--muted);font-size:11px">${escH(n.desc)}</span></div>`).join('');
 
   // Report
-  const report=`# ${parsed.domain} 域名分析报告\n\n## 基本信息\n- 域名：${parsed.domain}\n- TLD：.${parsed.tld.toUpperCase()}\n- 资产类别：${assetClass.id}\n- 行业：${industry.name}\n\n## 六维评分（v5.2.1 CORE_RULES_v2）\n| 维度 | 分值 | 说明 |\n|------|------|------|\n| D1 TLD强度 | ${tldS.score} | ${tldS.reason} |\n| D2 终端匹配 | ${endS.score} | ${endS.reason} |\n| D3 域名品质 | ${qualityS.score} | ${qualityS.reason} |\n| D4 市场定价 | ${marketS.score} | ${marketS.reason} |\n| D5 市场热度 | ${heatS.score} | ${heatS.reason} |\n| D6 Outbound | ${outboundS.score} | ${outboundS.reason} |\n| **综合** | **${finalScore}** | 等级 ${grade.tag} |\n\n## 价格参考\n- ${tags[0]}：$${money(prices.wholesale)}\n- ${tags[1]}：$${money(prices.brand)}\n- ${tags[2]}：${range(prices.retail[0],prices.retail[1])}\n\n## 背景素材\n${md||'（无）'}\n`;
+  const report=`# ${parsed.domain} 域名分析报告\n\n## 基本信息\n- 域名：${parsed.domain}\n- TLD：.${parsed.tld.toUpperCase()}\n- 资产类别：${assetClass.id}\n- 行业：${industry.name}\n\n## 六维评分（v5.2.2 CORE_RULES_v2）\n| 维度 | 分值 | 说明 |\n|------|------|------|\n| D1 TLD强度 | ${tldS.score} | ${tldS.reason} |\n| D2 终端匹配 | ${endS.score} | ${endS.reason} |\n| D3 域名品质 | ${qualityS.score} | ${qualityS.reason} |\n| D4 市场定价 | ${marketS.score} | ${marketS.reason} |\n| D5 市场热度 | ${heatS.score} | ${heatS.reason} |\n| D6 Outbound | ${outboundS.score} | ${outboundS.reason} |\n| **综合** | **${finalScore}** | 等级 ${grade.tag} |\n\n## 价格参考\n- ${tags[0]}：$${money(prices.wholesale)}\n- ${tags[1]}：$${money(prices.brand)}\n- ${tags[2]}：${range(prices.retail[0],prices.retail[1])}\n\n## 背景素材\n${md||'（无）'}\n`;
   id('reportOutput').value=report;
 
-  // Prompt
-  const prompt=`你是专业域名价值评估 AI 评委，请严格按照 CORE_RULES_v2 对以下域名进行评分。\n\n【域名】${parsed.domain}\n【资产类别】${assetClass.id} — ${assetClass.label}\n【系统参考分】${finalScore}（供参考，不要照抄）\n【最低保分线】${assetClass.minScore}\n\n【背景素材】\n${md||'无额外背景'}\n\n【评分要求】\n请输出 JSON 格式：\n{\n  "domain": "${parsed.domain}",\n  "asset_class": "${assetClass.id}",\n  "scores": {\n    "D1_tld": <0-100>,\n    "D2_end_user": <0-100>,\n    "D3_quality": <0-100>,\n    "D4_market": <0-100>,\n    "D5_heat": <0-100>,\n    "D6_outbound": <0-100>\n  },\n  "final_score": <加权综合分>,\n  "grade": "<S+/S/A/B/C/D>",\n  "price_floor": <投资人流通底价美元数字>,\n  "reasoning": "<200字以内简要说明>"\n}\n`;
+  // ── Prompt：v2 扁平 schema（对齐 CORE_RULES_v2 / AGENT_PROMPTS.md）──
+  // 注意：字段名与 AGENT_PROMPTS.md 要求的扁平结构完全一致，不使用嵌套 scores{}
+  const prompt=`你是专业域名价值评估 AI 评委，请严格按照 CORE_RULES_v2 对以下域名进行评分。
+
+【域名】${parsed.domain}
+【资产类别】${assetClass.id} — ${assetClass.label}
+【系统参考分】${finalScore}（供参考，不要照抄）
+【最低保分线】${assetClass.minScore}
+
+【背景素材】
+${md||'无额外背景'}
+
+【评分要求（CORE_RULES_v2 v2 schema）】
+请严格输出以下扁平 JSON 格式，字段名不得修改，不得嵌套：
+{
+  "domain": "${parsed.domain}",
+  "asset_class": "${assetClass.id}",
+  "tld_score": <0-100>,
+  "enduser_score": <0-100>,
+  "quality_score": <0-100>,
+  "market_score": <0-100>,
+  "heat_score": <0-100>,
+  "outbound_score": <0-100>,
+  "final_score": <加权综合分，不低于 ${assetClass.minScore}>,
+  "grade": "<S+/S/A/B/C/D>",
+  "price_floor": <投资人流通底价美元数字>,
+  "reasoning": "<200字以内简要说明>"
+}
+`;
   id('promptOutput').value=prompt;
 }
 
@@ -731,6 +781,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   id('analyzeBtn').onclick=analyze;
   id('demoBtn').onclick=()=>{id('domainInput').value='TEX.COM';id('mdInput').value='TEX 是工业/纺织/科技三栖关键词，终端公司包括 Texas Instruments 等大型企业，现有约 50 家潜在终端买家，历史成交参考 VJN.COM $39,000。';analyze();};
   id('demo2Btn').onclick=()=>{id('domainInput').value='MyCar.ai';id('mdInput').value='汽车 AI 助手品类，目标终端为汽车科技初创公司，已有 Series A 融资公司 3 家使用 .io 域名，现用 mycar.io。近期 .AI 域名成交活跃。';analyze();};
+  // v5.2.2 防回归演示：Derm.com 应识别为 ULTRA_WORD_COM，不得落入 LLLL_PRONOUNCEABLE_COM
+  id('demo3Btn').onclick=()=>{id('domainInput').value='Derm.com';id('mdInput').value='皮肤科垂直领域顶级单词域名，潜在终端包括皮肤科诊所连锁、医美品牌、护肤电商，行业溢价显著。';analyze();};
   id('clearBtn').onclick=()=>{id('domainInput').value='';id('mdInput').value='';};
   id('addJudgeBtn').onclick=()=>{judgeList.push({name:'',score:null,note:''});renderJudgeRows();};
   id('presetJudgeBtn').onclick=()=>{judgeList=[{name:'Claude',score:null,note:''},{name:'GPT-4o',score:null,note:''},{name:'Gemini',score:null,note:''},{name:'Hermes',score:null,note:''},{name:'Qwen',score:null,note:''}];renderJudgeRows();};
