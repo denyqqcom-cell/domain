@@ -1,68 +1,60 @@
 # Outbound 外销邮件模板库
 
-> 基于 domainclub.org / efty.com / OYZTA Outbound 经验整理  
-> 适用于主动联系终端企业购买域名
+> **版本：v5.2** | 平台数据源已按 CORE_RULES_v2 优先级更新
 
 ---
 
-## 使用前准备（5步）
+## 平台布局建议
 
-```
-1. Google 搜索 "[domain_keyword] company" → 找出匹配企业列表
-2. 排除已使用该域名的公司
-3. 用 Hunter.io / Apollo 找到 CMO / CEO / Brand Manager 邮箱
-4. 检查该企业最近12个月是否有融资/上市/新产品发布消息
-5. 选择下方对应模板，填入变量后发送
-```
+| 平台 | 定位 | 状态 | 建议用途 |
+|------|------|------|----------|
+| **Afternic** | GoDaddy 分发网络入口 | ✅ 可用 | 提高曝光，适合快速成交 |
+| **Sedo** | 国际买家和经纪渠道 | ✅ 可用 | 高端域名，经纪人谈判 |
+| **Dan.com** | 快速成交平台 | ✅ 可用 | 中低价域名，自助成交 |
+| **NamePros / DNForum** | 投资者社区 | ✅ 可用 | 询价参考，投资者买家 |
+| **Atom** | 精品域名市场 | ⚠️ 人工校验 | 自动访问可能受 Cloudflare 限制，建议人工上架 |
+| **Squadhelp** | 品牌命名平台 | ⚠️ 访问性不稳定 | 创业公司品牌买家，视情况使用 |
+| **BrandDo** | 品牌域名市场 | ⚠️ 历史快照参考 | 当前可访问性不稳定，不作为主力渠道 |
+| **Efty** | 落地页工具 | ✅ 可用 | 自建域名落地页，非上架平台 |
+
+> **注意：** 不建议以「GoDaddy 占 X% 市场份额」等统计数字作为报价依据，市场份额数据更新慢，容易误导买家。
 
 ---
 
-## 模板 A：标准首次联系（通用）
+## 定价层级
 
-**适用场景**：中型企业，现用域名较差，无特殊利好消息
+### 稀缺资产（LLL_COM / WORD_COM / ULTRA_WORD_COM 等）
 
-**主题**：`[Domain] is available — a stronger home for [Company]`
+| 层级 | 标签 | 说明 |
+|------|------|------|
+| P1 | 投资人流通底价 | 同行成交价下限，流动性锚点 |
+| P2 | 品牌资产价 | 命名机构 / 品牌投资方报价区间 |
+| P3 | 终端报价区间 | 企业终端买家的成交预期 |
+
+### 普通域名（GENERIC）
+
+| 层级 | 标签 | 说明 |
+|------|------|------|
+| P1 | 同行参考价 | 域名投资者之间的批发流转价格 |
+| P2 | 品牌命名师价 | 命名师或品牌公司采购价 |
+| P3 | 终端零售价 | 企业终端买家预期 |
+
+---
+
+## A 模板 — 通用冷邮件（适合 WORD_COM / LLLL_COM）
+
+**主题：** `[Domain.com] — Available for Acquisition`
 
 ```
 Hi [First Name],
 
-I noticed [Company] is currently operating on [current-domain.com] — I wanted to reach out because [domain.com] is available and could be a significantly stronger digital address for your brand.
+I noticed [Company] is operating on [currentdomain.com]. I own [Domain.com] — a shorter, more memorable alternative that aligns directly with your brand.
 
-A cleaner, more memorable domain can:
-• Improve brand recall and direct type-in traffic
-• Strengthen trust signals in sales and marketing materials
-• Protect your brand from competitor confusion
+Recent comparable sales for similar assets:
+- [Comparable1.com] — $[Price] ([Source], [Year])
+- [Comparable2.com] — $[Price] ([Source], [Year])
 
-[Domain.com] is a [X]-letter, easy-to-pronounce name that aligns well with [Company]'s positioning in [industry].
-
-Would you be open to a brief conversation? I'm happy to discuss pricing and transfer logistics.
-
-Best regards,
-[Your Name]
-[Contact]
-```
-
----
-
-## 模板 B：利好消息触发版（融资/上市）
-
-**适用场景**：目标企业刚完成融资 / IPO / 新产品发布
-
-**主题**：`Congrats on [funding round] — [Domain] could be your next brand upgrade`
-
-```
-Hi [First Name],
-
-Congratulations on [Company]'s recent [Series B / IPO / product launch] — exciting milestone!
-
-As you scale, I wanted to flag that [domain.com] is currently available. Growing companies often find that upgrading to a shorter, cleaner domain pays dividends in brand credibility and marketing efficiency.
-
-Your current address [current-domain.com] works, but [domain.com] is:
-✓ [X] characters shorter
-✓ Easier to say in podcasts, ads, and investor decks
-✓ The .COM equivalent your brand deserves at this stage
-
-I've helped several [industry] companies make this transition seamlessly. Happy to share details.
+I'd be open to discussing acquisition. Would you be the right person to connect with on this?
 
 Best,
 [Your Name]
@@ -70,112 +62,89 @@ Best,
 
 ---
 
-## 模板 C：.AI 域名专项（AI行业）
+## B 模板 — 融资/IPO 触发邮件
 
-**适用场景**：目标企业为AI/科技公司，现用域名为 .io / .com（非精准匹配）
-
-**主题**：`[Name].ai — the domain that matches your AI-first identity`
+**主题：** `Congrats on [Funding Round] — [Domain.com] could be your next brand move`
 
 ```
 Hi [First Name],
 
-With [Company] building in the AI space, I thought you'd appreciate knowing that [name.ai] is available.
+Congratulations on [Company]'s recent [Series X / IPO]. As you scale, brand clarity becomes critical.
 
-In 2026, .AI has become the de facto TLD for AI-native companies — similar to how .io defined the last generation of dev tools. Early movers on premium .AI names have seen strong brand lift.
+I own [Domain.com] — a premium asset that matches your exact category. Companies in [Industry] have paid $[X]–$[Y] for comparable domains (NameBio / DNW data).
 
-[name.ai] is:
-• Short ([X] characters), pronounceable, and memorable
-• Directly signals your AI-first positioning
-• Available now before the market tightens further
-
-I'd love to discuss. What's the best way to connect?
+Would [Domain.com] fit your brand roadmap?
 
 [Your Name]
 ```
 
 ---
 
-## 模板 D：经纪人介绍版
+## C 模板 — 竞争对手触发邮件
 
-**适用场景**：通过 domainclub.org / NamePros 经纪人转介绍
-
-**主题**：`Domain opportunity referred by [Broker Name] — [domain.com]`
+**主题：** `[Competitor] almost owns your brand — [Domain.com]`
 
 ```
 Hi [First Name],
 
-[Broker Name] suggested I reach out to you regarding [domain.com], which he/she thought could be a strong fit for [Company].
+A quick heads-up: [Domain.com] — a domain closely matching [Company]'s brand — is currently available.
 
-[Domain.com] is a premium [descriptor] domain that aligns with your brand in [industry]. It's currently listed at [$X] and available for immediate transfer via Escrow.com.
+Given how [Competitor] has been expanding into your space, securing this domain proactively may be worth considering.
 
-Key details:
-- Domain age: [X] years (registered [year])
-- No trademark conflicts
-- Afternic / Sedo Fast Transfer eligible
-- Logo concept available upon request
-
-Happy to answer any questions or arrange a call.
-
-[Your Name]
-[Brokerage / Contact]
-```
-
----
-
-## 模板 E：跟进邮件（7天无回复）
-
-**主题**：`Re: [Domain] — still available, wanted to follow up`
-
-```
-Hi [First Name],
-
-Just a quick follow-up on my note about [domain.com].
-
-I understand you're busy — if the timing isn't right, no worries at all. I did want to mention that I've had [1-2 other inquiries] for this domain recently, so I wanted to give [Company] the first opportunity.
-
-If you're interested, I can hold it for [7 days] while we discuss.
-
-Either way, best of luck with [recent news/product]!
+Happy to discuss if timing is right.
 
 [Your Name]
 ```
 
 ---
 
-## 定价谈判参考层级
+## D 模板 — LLL_COM 专用（高价值稀缺资产）
 
-| 层级 | 价格区间 | 适用场景 |
-|------|---------|----------|
-| 自用建站 | $10 – $500 | 个人购买、实验性项目 |
-| 初创品牌 | $200 – $2,000 | 命名师推荐 + Logo |
-| 中型企业品牌升级 | $2,000 – $100,000 | 基本市场，.COM主体 |
-| 大企业 / 全球品牌 | $100K+ | 须经纪谈判 + 法律支持 |
+**主题：** `[XYZ.com] — 3-Letter .COM Available | Investment Grade Asset`
 
----
+```
+Hi [First Name],
 
-## 平台布局建议
+[XYZ.com] is available for acquisition. Three-letter .COM domains are a finite, investment-grade asset class.
 
-| 平台 | 特点 | 优先级 |
-|------|------|--------|
-| [Afternic](https://afternic.com) | Fast Transfer，GoDaddy 65.2% 市场占有率 | ⭐⭐⭐⭐⭐ |
-| [Sedo](https://sedo.com) | 国际买家多，支持经纪 | ⭐⭐⭐⭐⭐ |
-| [OYZTA](https://www.oyzta.com/) | 精品域名，Stripe支付 | ⭐⭐⭐⭐ |
-| [BrandDo](https://www.branddo.com/) | 品牌域名，含Logo方案 | ⭐⭐⭐⭐ |
-| [Efty Investor](https://efty.com/) | Outbound CRM追踪 | ⭐⭐⭐ |
-| [Squadhelp](https://www.squadhelp.com/) | 命名师社区 + 域名市场 | ⭐⭐⭐ |
+Recent 3L .COM sales for reference:
+- VJN.com — $39,000 (NameBio)
+- [Other comps if available]
+
+Let me know if you'd like to discuss.
+
+[Your Name]
+```
 
 ---
 
-## 成功率提升技巧（来自 domainclub.org 经纪人）
+## E 模板 — .AI 域名专用
 
-1. **个性化优于模板** — 在邮件第一句提及对方公司具体情况，回复率提升 3x
-2. **附上 Logo 概念图** — OYZTA 模式，买家更容易「看到」域名价值
-3. **分期付款选项** — Afternic LTO 模式，$500/月 × 24 比 $8,000 一次性更易成交
-4. **时机选择** — 融资新闻发布后 2 周内联系，成交概率最高
-5. **短邮件优于长邮件** — 控制在 150 字以内，移动端友好
-6. **不要急于报价** — 先建立对话，让买家主动问价格
+**主题：** `[Keyword.ai] — Available for Your AI Product`
+
+```
+Hi [First Name],
+
+With [Company]'s focus on AI, [Keyword.ai] is a natural brand fit. The .AI extension is currently at peak demand in 2026.
+
+For reference: MyCar.ai sold for $10,000 (NameBio).
+
+Would this be relevant to your roadmap?
+
+[Your Name]
+```
 
 ---
 
-*Domain AI Judge v5 · Outbound 模板库 · 2026-06-18*  
-*参考来源：domainclub.org · efty.com · OYZTA · James Booth / Arif Sengoren 经验*
+## 成功率提升技巧
+
+1. **个性化主题行** — 提及公司名或融资轮次，开信率提升 2–3×
+2. **附上可比成交** — 使用 NameBio / DNW / DomainGang 公开数据，增强可信度
+3. **控制邮件长度** — 正文不超过 150 字，保持核心信息
+4. **避免附件** — 第一封不附文件，降低过滤风险
+5. **跟进节奏** — 首发后第 5 天跟进一次，不超过 2 次
+6. **不要谈价格底线** — 首封只问兴趣，价格在第 2 轮沟通
+
+---
+
+*Domain AI Judge v5.2 · Outbound Templates · 2026-06-19*

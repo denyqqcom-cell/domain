@@ -1,4 +1,4 @@
-# CORE_RULES v2 — Domain AI Judge v5.1
+# CORE_RULES v2 — Domain AI Judge v5.2
 
 > 当前正式规则文件，v2026-06-19。请始终使用此版本投喂 AI 评委。
 
@@ -15,12 +15,13 @@
 ## 二、资产类别表
 
 | 类别 ID | 识别规则 | 最低系统分 | 投资人流通底价区间 | 价格标签 |
-|-----------|---------|------------|------------------|----------|
+|---------|---------|----------|-----------------|---------|
 | `LL_COM` | 2字母 + .com | **95** | $500,000 – $5,000,000+ | 投资人流通底价 |
 | `LLL_COM` | 3字母 + .com | **88** | $100,000 – $800,000 | 投资人流通底价 |
-| `WORD_COM` | 英文单词 + .com | **82** | $15,000 – $500,000+ | 投资人流通底价 |
+| `ULTRA_WORD_COM` | 顶级单词/强品类词/行业核心词 + .com（cloud, excel, finance, derm 等） | **92** | $500,000+，不机械估值 | 投资人流通底价｜**需人工经纪复核** |
+| `WORD_COM` | 普通英文单词 + .com | **82** | $15,000 – $500,000 | 投资人流通底价 |
 | `VERIFIED_HIGH_VALUE_COM` | 已有公开成交记录的 .com | **82** | 对标成交锚点 | 投资人底价 |
-| `LLLL_PRONOUNCEABLE_COM` | 4字母可发音 + .com（包含至少 1 个元音） | **78** | $8,000 – $120,000 | 投资人底价 |
+| `LLLL_PRONOUNCEABLE_COM` | 4字母可发音 + .com（含≥1元音） | **78** | $8,000 – $120,000 | 投资人底价 |
 | `SHORT_NUMERIC_COM` | 2–5位数字 + .com | **75** | $1,000 – $30,000 | 投资人流通底价 |
 | `AI_KEYWORD_TLD` | 任意 SLD + .ai | **69** | $1,000 – $8,000 | 投资人流通价 |
 | `GENERIC` | 其他 | 0 | 按六维分数模型 | 同行参考价 |
@@ -32,7 +33,7 @@
 ## 三、六维评分框架
 
 | 维度 | 权重 | 评分要点 |
-|------|------|-----------|
+|------|------|---------|
 | D1 TLD强度 | 20% | .COM=100分基准；.AI=69；.IO=64；其他后缀按流通性降分 |
 | D2 终端匹配 | 25% | 终端公司数、规模、现用域名质量、融资利好信号、行业付费能力 |
 | D3 域名品质 | 20% | 长度 / 可发音性 / 品牌可塑性 / 关键词质量 / 历史 / 拓展保护 |
@@ -44,7 +45,7 @@
 
 ## 四、价格标签规则
 
-**稀缺资产**（LL_COM / LLL_COM / WORD_COM / VERIFIED_HIGH_VALUE_COM / LLLL_PRONOUNCEABLE_COM / SHORT_NUMERIC_COM / AI_KEYWORD_TLD）：
+**稀缺资产**（LL_COM / LLL_COM / ULTRA_WORD_COM / WORD_COM / VERIFIED_HIGH_VALUE_COM / LLLL_PRONOUNCEABLE_COM / SHORT_NUMERIC_COM / AI_KEYWORD_TLD）：
 
 - P1 标签：**投资人流通底价**
 - P2 标签：**品牌资产价**
@@ -61,16 +62,16 @@
 ## 五、成交锚点（2026 公开数据）
 
 | 域名 | 类型 | 成交价 | 来源 |
-|------|------|---------|------|
+|------|------|--------|------|
 | cloud.com | 单词.COM顶级 | $11,000,000 | 公开拍卖 |
 | zkp.com | 3字母.COM极品 | $5,000,000 | 公开记录 |
-| GOKA.com | 4字母.COM品牌 | $399,995 | DomainGang 报道 |
+| GOKA.com | 4字母.COM品牌 | $399,995 | DomainGang报道 |
 | tronscan.com | 品牌.COM | $250,000 | 公开记录 |
 | gunar.com | 5字母可发音 | $175,000 | NameBio |
 | Balaena.com | 7字母工业.COM | $89,000 | NameBio |
 | VJN.com | 3字母.COM | $39,000 | NameBio |
 | Farfield.com | 6字母.COM AI量子 | $15,000 | NameBio |
-| Travely.com | 6字母.COM 旅游 | $13,000 | NameBio |
+| Travely.com | 6字母.COM旅游 | $13,000 | NameBio |
 | MyCar.ai | AI汽车关键词 | $10,000 | NameBio |
 
 ---
@@ -100,34 +101,51 @@ AI 评委必须返回以下标准 JSON：
 }
 ```
 
-> 所有分数字段均使用下划线式：`final_score`、`tld_score` 等。不得使用 camelCase（如 `finalScore`）。
+> 所有分数字段均使用下划线命名：`final_score`、`tld_score` 等。不得使用 camelCase（如 `finalScore`）。
 
 ---
 
 ## 七、数据源优先级
 
 | 来源 | 优先级 | 状态 |
-|------|---------|------|
+|------|--------|------|
 | NameBio | P1 | ✅ 可用 |
 | DNW (Domain Name Wire) | P1 | ✅ 可用 |
 | DomainGang | P1 | ✅ 可用 |
 | Sedo / Afternic | P1 | ✅ 可用 |
 | NamePros / DNForum | P1 | ✅ 可用 |
 | Above.com | P2 | ✅ 可用 |
-| Atom | P2 | ⚠️ 人工校验，自动抓取可能受 CF 拦截 |
+| Atom | P2 | ⚠️ 人工校验，自动访问可能受 CF 拦截 |
 | Estibot | P3 | ⚠️ 历史参考，不作为核心估值依据 |
 | BrandDo | P3 | ⚠️ 历史快照，当前可访问性不稳定 |
 
 ---
 
-## 八、不允许事项
+## 八、不允许事项（红线）
 
 1. 不得因没有终端买家资料就把 LLL_COM / WORD_COM 压到普通批发价区间
-2. 不得对高流动性 .com 显示“批发价（同行）”标签
+2. 不得对高流动性 .com 显示「批发价（同行）」标签
 3. 不得把 `finalscore`（camelCase）写入 JSON，必须为 `final_score`
 4. 不得将 CORE_RULES_v1.md 用于任何 AI 投喂
-5. 不得将“市场资讯检索入口”标注为“实时市场资讯”
+5. 不得将「市场资讯检索入口」标注为「实时市场资讯」
+6. ULTRA_WORD_COM 必须标注「需人工经纪复核」，不得机械给出低价
+7. 不得将 Estibot / BrandDo 列为 P1/P2 核心参考来源
 
 ---
 
-*CORE_RULES v2 · Domain AI Judge v5.1 · 2026-06-19*
+## 九、防回归测试样例
+
+| 域名 | 应识别类别 | 价格标签 | 备注 |
+|------|-----------|---------|------|
+| TEX.COM | `LLL_COM` | 投资人流通底价 | 不得显示普通批发价 |
+| GOKA.com | `LLLL_PRONOUNCEABLE_COM` | 投资人底价 | 参照 $399,995 |
+| Derm.com | `ULTRA_WORD_COM` | 投资人流通底价｜需人工复核 | 医疗高价值单词 |
+| Excel.com | `ULTRA_WORD_COM` | 投资人流通底价｜需人工复核 | Ultra Premium |
+| 12345.com | `SHORT_NUMERIC_COM` | 投资人流通底价 | 短数字.COM |
+| MyCar.ai | `AI_KEYWORD_TLD` | 投资人流通价 | 不得重复加权 |
+| Farfield.com | `VERIFIED_HIGH_VALUE_COM` | 投资人底价 | 参照 $15,000 |
+| Travely.com | `VERIFIED_HIGH_VALUE_COM` | 投资人底价 | 参照 $13,000 |
+
+---
+
+*CORE_RULES v2 · Domain AI Judge v5.2 · 2026-06-19*
