@@ -7,18 +7,18 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 :root,[data-theme="light"]{
-  --bg:#f7f6f2;--surface:#fff;--surface-2:#f3f0ec;--surface-3:#edeae5;
-  --text:#28251d;--muted:#6b6a66;--border:#d8d4cd;
-  --primary:#01696f;--primary-hover:#0c4e54;--primary-light:#e0f2f1;
-  --success:#2e7d32;--danger:#a13544;--warn:#b45309;
-  --shadow:0 4px 16px rgba(0,0,0,.07);
+--bg:#f7f6f2;--surface:#fff;--surface-2:#f3f0ec;--surface-3:#edeae5;
+--text:#28251d;--muted:#6b6a66;--border:#d8d4cd;
+--primary:#01696f;--primary-hover:#0c4e54;--primary-light:#e0f2f1;
+--success:#2e7d32;--danger:#a13544;--warn:#b45309;
+--shadow:0 4px 16px rgba(0,0,0,.07);
 }
 [data-theme="dark"]{
-  --bg:#171614;--surface:#1c1b19;--surface-2:#22211f;--surface-3:#2d2c2a;
-  --text:#cdccca;--muted:#797876;--border:#393836;
-  --primary:#4f98a3;--primary-hover:#227f8b;--primary-light:#1a3535;
-  --success:#6daa45;--danger:#dd6974;--warn:#fdab43;
-  --shadow:0 4px 16px rgba(0,0,0,.35);
+--bg:#171614;--surface:#1c1b19;--surface-2:#22211f;--surface-3:#2d2c2a;
+--text:#cdccca;--muted:#797876;--border:#393836;
+--primary:#4f98a3;--primary-hover:#227f8b;--primary-light:#1a3535;
+--success:#6daa45;--danger:#dd6974;--warn:#fdab43;
+--shadow:0 4px 16px rgba(0,0,0,.35);
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.6;transition:background .2s,color .2s;}
@@ -45,7 +45,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hira
 button{border:0;border-radius:9px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;transition:background .15s;}
 .btn-primary{background:var(--primary);color:#fff;}
 .btn-primary:hover{background:var(--primary-hover);}
-.btn-secondary{background:var(--surface-2);color:var(--text);}
+.btn-secondary{background:var(--surface-2);color:var(--text);border:1px solid var(--border);}
 .btn-secondary:hover{background:var(--surface-3);}
 .btn-danger{background:rgba(161,53,68,.12);color:var(--danger);}
 .btn-danger:hover{background:rgba(161,53,68,.22);}
@@ -58,7 +58,7 @@ button{border:0;border-radius:9px;padding:8px 14px;font-size:13px;font-weight:70
 [data-theme="dark"] .badge-ok{background:#14532d;color:#86efac;}
 [data-theme="dark"] .badge-warn{background:#451a03;color:#fde68a;}
 [data-theme="dark"] .badge-blue{background:#1e3a5f;color:#93c5fd;}
-/* grade */
+[data-theme="dark"] .badge-red{background:#450a0a;color:#fca5a5;}
 .grade-tag{display:inline-block;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:800;}
 .g-diamond{background:#f0fdf4;color:#166534;border:1px solid #86efac;}
 .g-gold{background:#fefce8;color:#854d0e;border:1px solid #fde047;}
@@ -70,7 +70,6 @@ button{border:0;border-radius:9px;padding:8px 14px;font-size:13px;font-weight:70
 [data-theme="dark"] .g-silver{background:#1e293b;color:#94a3b8;border-color:#334155;}
 [data-theme="dark"] .g-warn{background:#1c0a00;color:#fb923c;border-color:#9a3412;}
 [data-theme="dark"] .g-bad{background:#1c0000;color:#f87171;border-color:#991b1b;}
-/* judge */
 .judge-list{display:grid;gap:9px;margin-bottom:10px;}
 .judge-item{border:1px solid var(--border);border-radius:12px;padding:11px;background:var(--surface-2);}
 .judge-item.anomaly{border-color:var(--danger);background:rgba(161,53,68,.06);}
@@ -83,19 +82,15 @@ button{border:0;border-radius:9px;padding:8px 14px;font-size:13px;font-weight:70
 .remove-btn{width:32px;height:32px;border-radius:7px;background:rgba(161,53,68,.12);color:var(--danger);font-weight:900;border:none;cursor:pointer;font-size:14px;}
 .score-badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:800;background:rgba(46,125,50,.1);color:var(--success);margin-top:3px;}
 .parse-error{color:var(--danger);font-size:11px;margin-top:3px;}
-.anomaly-flag{color:var(--danger);font-size:11px;font-weight:700;margin-top:3px;}
-/* scoreboard */
 .score-board{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin:9px 0;}
 .metric{padding:11px;border-radius:11px;background:var(--surface-2);border:1px solid var(--border);text-align:center;}
 .metric .lbl{color:var(--muted);font-size:11px;margin-bottom:3px;}
 .metric .val{font-size:22px;font-weight:800;}
 .metric.hi .val{color:var(--primary);}
-/* final */
 .final-big{text-align:center;padding:20px 16px 14px;}
 .final-num{font-size:76px;font-weight:900;color:var(--primary);line-height:1;letter-spacing:-2px;}
 .confidence{font-size:13px;color:var(--muted);margin-top:4px;}
-.valuation{font-size:13px;color:var(--success);font-weight:700;margin-top:4px;}
-/* dim */
+.valuation{font-size:14px;color:var(--success);font-weight:700;margin-top:4px;}
 .dim-table{width:100%;border-collapse:collapse;font-size:13px;}
 .dim-table th{text-align:left;padding:5px 7px;background:var(--surface-2);color:var(--muted);font-size:11px;}
 .dim-table td{padding:6px 7px;border-bottom:1px solid var(--border);vertical-align:middle;}
@@ -103,63 +98,44 @@ button{border:0;border-radius:9px;padding:8px 14px;font-size:13px;font-weight:70
 .dim-score{font-weight:800;color:var(--primary);}
 .dim-bar{height:5px;border-radius:3px;background:var(--border);margin-top:2px;}
 .dim-bar-fill{height:100%;border-radius:3px;background:var(--primary);}
-/* weight slider */
-.weight-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
-.weight-row label{min-width:80px;font-size:12px;color:var(--muted);}
+.weight-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.weight-row label{min-width:90px;font-size:12px;color:var(--muted);}
 .weight-row input[type=range]{flex:1;accent-color:var(--primary);}
-.weight-row span{min-width:34px;text-align:right;font-size:12px;font-weight:700;color:var(--primary);}
-/* result box */
-.result-box{background:var(--surface-2);border:1px dashed var(--border);border-radius:9px;padding:11px;white-space:pre-wrap;font-size:12px;font-family:'SF Mono','Fira Code',monospace;max-height:240px;overflow-y:auto;}
-/* history */
+.weight-row .wval{min-width:34px;text-align:right;font-size:12px;font-weight:700;color:var(--primary);}
+.result-box{background:var(--surface-2);border:1px dashed var(--border);border-radius:9px;padding:11px;white-space:pre-wrap;font-size:12px;font-family:'SF Mono','Fira Code',monospace;max-height:260px;overflow-y:auto;}
 .hist-list{display:grid;gap:9px;}
 .hist-item{border:1px solid var(--border);border-radius:11px;padding:11px 13px;background:var(--surface-2);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;cursor:pointer;transition:box-shadow .15s;}
 .hist-item:hover{box-shadow:0 4px 14px rgba(0,0,0,.12);}
 .hist-domain{font-weight:800;font-size:14px;}
 .hist-score{font-size:20px;font-weight:900;color:var(--primary);}
 .hist-meta{font-size:11px;color:var(--muted);}
-/* batch */
 .batch-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px;}
 .batch-table th{text-align:left;padding:6px 9px;background:var(--surface-2);font-size:11px;color:var(--muted);}
 .batch-table td{padding:7px 9px;border-bottom:1px solid var(--border);}
-.batch-table tr:last-child td{border-bottom:none;}
-/* radar */
-.radar-wrap{position:relative;height:200px;margin-top:8px;}
-/* trend */
+.radar-wrap{position:relative;height:220px;margin-top:10px;}
 .trend-wrap{position:relative;height:180px;margin-top:8px;}
-/* share */
-.share-banner{background:var(--primary-light);border:1px solid var(--primary);border-radius:9px;padding:9px 13px;margin-bottom:13px;font-size:13px;color:var(--primary);}
-/* prompt ver */
-.prompt-ver-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 11px;border:1px solid var(--border);border-radius:9px;background:var(--surface-2);margin-bottom:7px;}
+.prompt-ver-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 11px;border:1px solid var(--border);border-radius:9px;background:var(--surface-2);margin-bottom:7px;}
 .prompt-ver-item.active-ver{border-color:var(--primary);background:var(--primary-light);}
-/* template lib */
-.tpl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:9px;margin-top:8px;}
-.tpl-card{border:1px solid var(--border);border-radius:10px;padding:11px;background:var(--surface-2);cursor:pointer;transition:box-shadow .15s;}
-.tpl-card:hover{box-shadow:0 3px 12px rgba(0,0,0,.1);}
-.tpl-card h4{font-size:13px;margin-bottom:4px;}
-.tpl-card p{font-size:11px;color:var(--muted);}
-/* dark toggle */
 .theme-btn{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:13px;cursor:pointer;color:var(--text);}
-/* mobile */
+.anomaly-notice{display:none;background:rgba(161,53,68,.1);border:1px solid var(--danger);border-radius:9px;padding:8px 12px;font-size:12px;color:var(--danger);font-weight:700;margin-top:8px;}
 @media(max-width:780px){
-  .grid{grid-template-columns:1fr;}
-  .score-board{grid-template-columns:repeat(2,1fr);}
-  .judge-row1{grid-template-columns:1fr 76px 32px;}
-  .judge-row2{grid-template-columns:1fr;}
-  .final-num{font-size:58px;}
-  .tabs{gap:0;}
-  .tab{padding:7px 10px;font-size:12px;}
-  .hero{flex-direction:column;}
-  .tpl-grid{grid-template-columns:repeat(2,1fr);}
+.grid{grid-template-columns:1fr;}
+.score-board{grid-template-columns:repeat(2,1fr);}
+.judge-row1{grid-template-columns:1fr 76px 32px;}
+.judge-row2{grid-template-columns:1fr;}
+.final-num{font-size:54px;}
+.tabs{gap:0;}
+.tab{padding:7px 10px;font-size:12px;}
+.hero{flex-direction:column;}
 }
 </style>
 </head>
 <body>
 <div class="wrap">
-
 <div class="hero">
   <div>
     <h1>🏆 Domain AI Judge <span style="font-size:13px;font-weight:400;color:var(--muted);">v4</span></h1>
-    <p>域名估价多AI评委打分系统 · 生成投喂 → 粘贴JSON → 自动去极值均分 · 含置信区间、估值换算、雷达图</p>
+    <p>域名估价多AI评委打分系统 · 置信区间 · 估值换算 · 异常检测 · 雷达图 · PDF报告</p>
   </div>
   <div class="hero-right">
     <button class="theme-btn" id="themeBtn">🌙 深色</button>
@@ -167,9 +143,7 @@ button{border:0;border-radius:9px;padding:8px 14px;font-size:13px;font-weight:70
     <button class="btn-secondary btn-sm" id="goHistBtn">📋 历史 <span id="histCountBadge" class="badge badge-blue">0</span></button>
   </div>
 </div>
-
-<div id="shareBanner" style="display:none;"></div>
-
+<div id="shareBanner" style="display:none;background:var(--primary-light);border:1px solid var(--primary);border-radius:9px;padding:9px 13px;margin-bottom:12px;font-size:13px;color:var(--primary);"></div>
 <div class="tabs">
   <button class="tab active" data-tab="step1">① 投喂内容</button>
   <button class="tab" data-tab="step2">② 评委打分</button>
@@ -180,17 +154,17 @@ button{border:0;border-radius:9px;padding:8px 14px;font-size:13px;font-weight:70
   <button class="tab" data-tab="prompts">📝 提示词库</button>
 </div>
 
-<!-- STEP 1 -->
+<!-- STEP1 -->
 <div class="tab-panel active" id="tab-step1">
   <div class="grid">
     <div class="card">
       <h2>域名 &amp; 分析报告</h2>
       <div class="field"><label>域名</label><input id="domain" type="text" placeholder="例如：TEX.COM"/></div>
-      <div class="field"><label>域名分析 MD 内容</label><textarea id="mdContent" class="mono" style="min-height:150px;" placeholder="粘贴域名估值系统生成的 Markdown 分析报告"></textarea></div>
+      <div class="field"><label>域名分析 MD 内容</label><textarea id="mdContent" class="mono" style="min-height:160px;" placeholder="粘贴域名估价系统生成的 Markdown 分析报告"></textarea></div>
     </div>
     <div class="card">
       <h2>评分提示词</h2>
-      <div class="field"><label>当前提示词</label><textarea id="promptTemplate" class="mono" style="min-height:220px;"></textarea></div>
+      <div class="field"><label>当前提示词</label><textarea id="promptTemplate" class="mono" style="min-height:230px;"></textarea></div>
       <div class="btns">
         <button class="btn-secondary btn-sm" id="resetPromptBtn">重置默认</button>
         <button class="btn-secondary btn-sm" id="savePromptVerBtn">💾 另存版本</button>
@@ -208,13 +182,13 @@ button{border:0;border-radius:9px;padding:8px 14px;font-size:13px;font-weight:70
   </div>
 </div>
 
-<!-- STEP 2 -->
+<!-- STEP2 -->
 <div class="tab-panel" id="tab-step2">
   <div class="grid">
     <div class="card">
       <h2>AI 评委列表</h2>
-      <div class="field" style="margin-bottom:8px;">
-        <label>评委模板库</label>
+      <div style="margin-bottom:10px;">
+        <div style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">评委模板库</div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;">
           <button class="btn-secondary btn-sm" onclick="loadTemplate('big5')">🌐 五大模型</button>
           <button class="btn-secondary btn-sm" onclick="loadTemplate('cn4')">🇨🇳 国内四大</button>
@@ -223,6 +197,7 @@ button{border:0;border-radius:9px;padding:8px 14px;font-size:13px;font-weight:70
         </div>
       </div>
       <div class="judge-list" id="judgeList"></div>
+      <div class="anomaly-notice" id="anomalyNotice"></div>
       <div class="btns">
         <button class="btn-secondary" id="addJudgeBtn">＋ 新增评委</button>
         <button class="btn-secondary" id="demoBtn">填充演示数据</button>
@@ -236,7 +211,6 @@ button{border:0;border-radius:9px;padding:8px 14px;font-size:13px;font-weight:70
         <div class="metric"><div class="lbl">最高分（去除）</div><div class="val" id="preMaxScore">-</div></div>
         <div class="metric"><div class="lbl">最低分（去除）</div><div class="val" id="preMinScore">-</div></div>
       </div>
-      <div id="anomalyAlert" style="display:none;" class="badge badge-red" style="margin-top:6px;"></div>
       <div class="btns" style="margin-top:12px;">
         <button class="btn-primary" id="goStep3Btn">计算最终结果 →</button>
       </div>
@@ -244,7 +218,7 @@ button{border:0;border-radius:9px;padding:8px 14px;font-size:13px;font-weight:70
   </div>
 </div>
 
-<!-- STEP 3 -->
+<!-- STEP3 -->
 <div class="tab-panel" id="tab-step3">
   <div class="grid">
     <div class="card">
@@ -256,7 +230,7 @@ button{border:0;border-radius:9px;padding:8px 14px;font-size:13px;font-weight:70
         <div class="valuation" id="valuationText"></div>
       </div>
       <div class="score-board">
-        <div class="metric"><div class="lbl">域名</div><div class="val" id="resDomain" style="font-size:14px;">-</div></div>
+        <div class="metric"><div class="lbl">域名</div><div class="val" id="resDomain" style="font-size:13px;">-</div></div>
         <div class="metric"><div class="lbl">参与评委</div><div class="val" id="resCount">-</div></div>
         <div class="metric"><div class="lbl">去除最高分</div><div class="val" id="resMax">-</div></div>
         <div class="metric"><div class="lbl">去除最低分</div><div class="val" id="resMin">-</div></div>
@@ -265,9 +239,9 @@ button{border:0;border-radius:9px;padding:8px 14px;font-size:13px;font-weight:70
         <button class="btn-primary" id="calcBtn">重新计算</button>
         <button class="btn-secondary" id="saveHistBtn">💾 保存历史</button>
         <button class="btn-secondary" id="copyResultBtn">复制 JSON</button>
-        <button class="btn-secondary" id="downloadJsonBtn">下载 JSON</button>
         <button class="btn-secondary" id="downloadCsvBtn">下载 CSV</button>
         <button class="btn-secondary" id="exportPdfBtn">📄 导出 PDF</button>
+        <button class="btn-secondary" id="shareResultBtn">🔗 分享链接</button>
       </div>
     </div>
     <div class="card">
@@ -291,7 +265,7 @@ button{border:0;border-radius:9px;padding:8px 14px;font-size:13px;font-weight:70
     <div class="card">
       <h2>批量域名排名</h2>
       <p style="color:var(--muted);font-size:13px;margin-bottom:10px;">每行：域名 分数（空格分隔）</p>
-      <div class="field"><textarea id="batchInput" class="mono" style="min-height:150px;" placeholder="TEX.COM 86&#10;API.COM 91&#10;FIN.COM 78&#10;AI.IO 72"></textarea></div>
+      <div class="field"><textarea id="batchInput" class="mono" style="min-height:160px;" placeholder="TEX.COM 86&#10;API.COM 91&#10;FIN.COM 78&#10;AI.IO 72"></textarea></div>
       <div class="btns">
         <button class="btn-primary" id="batchCalcBtn">生成排名表</button>
         <button class="btn-secondary" id="batchCsvBtn">下载 CSV</button>
@@ -300,32 +274,30 @@ button{border:0;border-radius:9px;padding:8px 14px;font-size:13px;font-weight:70
     </div>
     <div class="card">
       <h2>多域名雷达对比</h2>
-      <p style="color:var(--muted);font-size:12px;margin-bottom:8px;">从历史记录中选最多3条对比（需含维度数据）</p>
+      <p style="color:var(--muted);font-size:12px;margin-bottom:8px;">从历史记录中选最多3条（需含维度数据）对比</p>
       <div id="compareSelects" style="display:grid;gap:7px;"></div>
-      <div class="btns"><button class="btn-primary" id="compareBtn">对比雷达图</button></div>
+      <div class="btns"><button class="btn-primary" id="compareBtn">生成对比雷达图</button></div>
       <div class="radar-wrap"><canvas id="compareRadar"></canvas></div>
     </div>
   </div>
-  <div class="card" style="margin-top:12px;">
-    <div style="overflow-x:auto;">
-      <table class="batch-table" id="batchTable">
-        <thead><tr><th>排名</th><th>域名</th><th>分数</th><th>等级</th><th>操作</th></tr></thead>
-        <tbody id="batchBody"><tr><td colspan="5" style="color:var(--muted);text-align:center;padding:18px;">请先输入数据</td></tr></tbody>
-      </table>
-    </div>
-  </div>
+  <div class="card" style="margin-top:12px;"><div style="overflow-x:auto;">
+    <table class="batch-table">
+      <thead><tr><th>排名</th><th>域名</th><th>分数</th><th>等级</th><th>参考估值</th></tr></thead>
+      <tbody id="batchBody"><tr><td colspan="5" style="color:var(--muted);text-align:center;padding:18px;">请先输入数据</td></tr></tbody>
+    </table>
+  </div></div>
 </div>
 
 <!-- HISTORY -->
 <div class="tab-panel" id="tab-history">
   <div class="card">
     <h2>历史评估记录 <span id="histTotal" class="badge badge-blue">0</span></h2>
-    <div class="btns" style="margin-bottom:10px;">
+    <div class="btns" style="margin-bottom:12px;">
       <button class="btn-danger btn-sm" id="clearHistBtn">清空历史</button>
       <button class="btn-secondary btn-sm" id="exportHistBtn">导出全部 JSON</button>
     </div>
-    <div class="card" style="padding:12px;margin-bottom:12px;">
-      <h2 style="font-size:14px;margin-bottom:8px;">历史得分趋势</h2>
+    <div class="card" style="padding:12px;margin-bottom:14px;">
+      <h2 style="font-size:14px;margin-bottom:6px;">历史得分趋势</h2>
       <div class="trend-wrap"><canvas id="trendChart"></canvas></div>
     </div>
     <div class="hist-list" id="histList"><div style="color:var(--muted);text-align:center;padding:28px;">暂无历史记录</div></div>
@@ -337,7 +309,7 @@ button{border:0;border-radius:9px;padding:8px 14px;font-size:13px;font-weight:70
   <div class="grid">
     <div class="card">
       <h2>⚙️ 维度权重自定义</h2>
-      <p style="color:var(--muted);font-size:13px;margin-bottom:12px;">拖动滑块调整各维度权重，总权重自动归一化。</p>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:14px;">拖动滑块调整各维度权重，总权重自动归一化。</p>
       <div id="weightSliders"></div>
       <div class="btns">
         <button class="btn-primary" id="saveWeightsBtn">保存权重方案</button>
@@ -371,16 +343,18 @@ button{border:0;border-radius:9px;padding:8px 14px;font-size:13px;font-weight:70
     <div class="card">
       <h2>编辑版本</h2>
       <div class="field"><label>版本名称</label><input id="editVerName" type="text" placeholder="如：保守版 / 激进版"/></div>
-      <div class="field"><label>提示词内容</label><textarea id="editVerContent" class="mono" style="min-height:260px;"></textarea></div>
+      <div class="field"><label>提示词内容</label><textarea id="editVerContent" class="mono" style="min-height:270px;"></textarea></div>
       <div class="btns">
         <button class="btn-primary btn-sm" id="saveVerBtn">保存版本</button>
         <button class="btn-secondary btn-sm" id="useVerBtn">使用此版本</button>
+        <button class="btn-danger btn-sm" id="delVerBtn">删除</button>
       </div>
     </div>
   </div>
 </div>
 
 </div>
+
 <script>
 const DEFAULT_PROMPT=`你是一位专业的域名价值评估师。我将提供一份域名分析报告（MD格式），请你根据以下6个维度对该域名进行评分，每个维度满分100分，最终给出一个综合总分（0-100）。
 
@@ -404,19 +378,19 @@ const DEFAULT_PROMPT=`你是一位专业的域名价值评估师。我将提供�
 `;
 
 const DEFAULT_DIMS=[
-  {key:'brandability', label:'品牌性',     weight:0.25},
-  {key:'length',       label:'长度简洁性', weight:0.15},
-  {key:'keyword_value',label:'关键词价值', weight:0.20},
-  {key:'tld_strength', label:'TLD强度',   weight:0.20},
-  {key:'market_demand',label:'市场需求',   weight:0.15},
-  {key:'liquidity',    label:'流通价值',   weight:0.05},
+  {key:'brandability',  label:'品牌性',     weight:0.25},
+  {key:'length',        label:'长度简洁性', weight:0.15},
+  {key:'keyword_value', label:'关键词价值', weight:0.20},
+  {key:'tld_strength',  label:'TLD强度',   weight:0.20},
+  {key:'market_demand', label:'市场需求',   weight:0.15},
+  {key:'liquidity',     label:'流通价值',   weight:0.05},
 ];
 
 const WEIGHT_PRESETS={
-  default:{brandability:.25,length:.15,keyword_value:.20,tld_strength:.20,market_demand:.15,liquidity:.05},
-  brand:  {brandability:.40,length:.15,keyword_value:.15,tld_strength:.15,market_demand:.10,liquidity:.05},
-  invest: {brandability:.15,length:.15,keyword_value:.15,tld_strength:.20,market_demand:.20,liquidity:.15},
-  seo:    {brandability:.15,length:.10,keyword_value:.40,tld_strength:.20,market_demand:.10,liquidity:.05},
+  default: {brandability:.25,length:.15,keyword_value:.20,tld_strength:.20,market_demand:.15,liquidity:.05},
+  brand:   {brandability:.40,length:.15,keyword_value:.15,tld_strength:.15,market_demand:.10,liquidity:.05},
+  invest:  {brandability:.15,length:.15,keyword_value:.15,tld_strength:.20,market_demand:.20,liquidity:.15},
+  seo:     {brandability:.15,length:.10,keyword_value:.40,tld_strength:.20,market_demand:.10,liquidity:.05},
 };
 
 const JUDGE_TEMPLATES={
@@ -426,7 +400,6 @@ const JUDGE_TEMPLATES={
   pro8:  ['ChatGPT','Claude','Gemini','DeepSeek','Qwen','Kimi','Grok','Copilot'],
 };
 
-// State
 let history=JSON.parse(localStorage.getItem('daj_history')||'[]');
 let promptVersions=JSON.parse(localStorage.getItem('daj_pv')||'null')||[{id:'default',name:'默认版本',content:DEFAULT_PROMPT,createdAt:Date.now()}];
 let customWeights=JSON.parse(localStorage.getItem('daj_weights')||'null')||{...WEIGHT_PRESETS.default};
@@ -438,17 +411,12 @@ let batchData=[];
 function saveHistory(){localStorage.setItem('daj_history',JSON.stringify(history));}
 function savePromptVersions(){localStorage.setItem('daj_pv',JSON.stringify(promptVersions));}
 function saveWeights(){localStorage.setItem('daj_weights',JSON.stringify(customWeights));}
-
 function getDims(){return DEFAULT_DIMS.map(d=>({...d,weight:customWeights[d.key]??d.weight}));}
 
 // Theme
 const themeBtn=document.getElementById('themeBtn');
 let isDark=localStorage.getItem('daj_theme')==='dark';
-function applyTheme(){
-  document.documentElement.setAttribute('data-theme',isDark?'dark':'light');
-  themeBtn.textContent=isDark?'☀️ 浅色':'🌙 深色';
-  localStorage.setItem('daj_theme',isDark?'dark':'light');
-}
+function applyTheme(){document.documentElement.setAttribute('data-theme',isDark?'dark':'light');themeBtn.textContent=isDark?'☀️ 浅色':'🌙 深色';localStorage.setItem('daj_theme',isDark?'dark':'light');}
 applyTheme();
 themeBtn.addEventListener('click',()=>{isDark=!isDark;applyTheme();});
 
@@ -458,36 +426,33 @@ function switchTab(id){
   document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));
   document.querySelectorAll('.tab-panel').forEach(x=>x.classList.toggle('active',x.id==='tab-'+id));
   if(id==='history'){renderHistory();renderTrend();}
-  if(id==='prompts')renderPromptVersions();
-  if(id==='weights')renderWeightSliders();
-  if(id==='batch')renderCompareSelects();
+  if(id==='prompts'){renderPromptVersions();}
+  if(id==='weights'){renderWeightSliders();}
+  if(id==='batch'){renderCompareSelects();}
 }
 document.getElementById('goHistBtn').addEventListener('click',()=>switchTab('history'));
 
-// Grade
 function gradeInfo(s){
   if(s>=90)return{cls:'g-diamond',text:'💎 顶级'};
-  if(s>=80)return{cls:'g-gold',   text:'🥇 优质'};
-  if(s>=70)return{cls:'g-silver', text:'🥈 良好'};
-  if(s>=60)return{cls:'g-warn',   text:'⚠️ 谨慎'};
-  return          {cls:'g-bad',   text:'❌ 低质'};
+  if(s>=80)return{cls:'g-gold',text:'🥇 优质'};
+  if(s>=70)return{cls:'g-silver',text:'🥈 良好'};
+  if(s>=60)return{cls:'g-warn',text:'⚠️ 谨慎'};
+  return{cls:'g-bad',text:'❌ 低质'};
 }
 
-// Valuation
-function valuationRange(score){
-  const map=[[95,'$500K+'],[90,'$200K–$500K'],[85,'$80K–$200K'],[80,'$30K–$80K'],[75,'$10K–$30K'],[70,'$3K–$10K'],[60,'$500–$3K'],[0,'< $500']];
-  for(const[min,r]of map)if(score>=min)return r;
+function valuationRange(s){
+  const m=[[95,'$500K+'],[90,'$200K–$500K'],[85,'$80K–$200K'],[80,'$30K–$80K'],[75,'$10K–$30K'],[70,'$3K–$10K'],[60,'$500–$3K'],[0,'< $500']];
+  for(const[min,r]of m)if(s>=min)return r;
   return '–';
 }
 
-// Confidence interval
-function stdDev(arr){const m=arr.reduce((a,b)=>a+b)/arr.length;return Math.sqrt(arr.reduce((s,x)=>s+(x-m)**2,0)/arr.length);}
+function stdDev(arr){const m=arr.reduce((a,b)=>a+b,0)/arr.length;return Math.sqrt(arr.reduce((s,x)=>s+(x-m)**2,0)/arr.length);}
 
 // Prompt init
 document.getElementById('promptTemplate').value=DEFAULT_PROMPT;
 document.getElementById('resetPromptBtn').addEventListener('click',()=>{document.getElementById('promptTemplate').value=DEFAULT_PROMPT;});
 document.getElementById('savePromptVerBtn').addEventListener('click',()=>{
-  const name=window.prompt('版本名称：');if(!name)return;
+  const name=prompt('版本名称：');if(!name)return;
   promptVersions.push({id:'v'+Date.now(),name,content:document.getElementById('promptTemplate').value,createdAt:Date.now()});
   savePromptVersions();alert('已保存版本：'+name);
 });
@@ -509,14 +474,13 @@ document.getElementById('goStep2Btn').addEventListener('click',()=>switchTab('st
 document.getElementById('goStep3Btn').addEventListener('click',()=>{calcAndRender();switchTab('step3');});
 document.getElementById('calcBtn').addEventListener('click',calcAndRender);
 
-// Judge templates
-window.loadTemplate=function(tplKey){
-  const names=JUDGE_TEMPLATES[tplKey]||[];
+// Templates
+window.loadTemplate=function(k){
   document.getElementById('judgeList').innerHTML='';
-  names.forEach(n=>createJudge(n));
+  (JUDGE_TEMPLATES[k]||[]).forEach(n=>createJudge(n));
 };
 
-// Judges
+// Judge
 const judgeListEl=document.getElementById('judgeList');
 function parseAIJson(raw){
   let s=raw.trim().replace(/^```[a-z]*\s*/i,'').replace(/\s*```\s*$/i,'');
@@ -528,36 +492,34 @@ function parseAIJson(raw){
 function checkAnomalies(judges){
   if(judges.length<3)return[];
   const scores=judges.map(j=>j.score);
-  const mean=scores.reduce((a,b)=>a+b)/scores.length;
+  const mean=scores.reduce((a,b)=>a+b,0)/scores.length;
   const sd=stdDev(scores);
-  return judges.filter(j=>Math.abs(j.score-mean)>Math.max(15,2*sd));
+  return judges.filter(j=>Math.abs(j.score-mean)>Math.max(15,1.8*sd));
 }
 
 function updatePreview(){
   const judges=getJudges();
   document.getElementById('judgeCount').textContent=judges.length;
+  const notice=document.getElementById('anomalyNotice');
   if(judges.length<3){
     ['previewScore','preMaxScore','preMinScore'].forEach(id=>document.getElementById(id).textContent='-');
-    document.getElementById('anomalyAlert').style.display='none';
+    notice.style.display='none';
     return;
   }
   const c=calcScores(judges);
   document.getElementById('previewScore').textContent=c.avg;
   document.getElementById('preMaxScore').textContent=c.max;
   document.getElementById('preMinScore').textContent=c.min;
-  // anomaly
   const anomalies=checkAnomalies(judges);
-  const alertEl=document.getElementById('anomalyAlert');
   if(anomalies.length){
-    alertEl.style.display='inline-block';
-    alertEl.textContent='⚠️ 异常评委：'+anomalies.map(j=>j.name+'('+j.score+')').join('、')+'  偏离均值过大，建议核查';
-    // mark items
+    notice.style.display='block';
+    notice.textContent='⚠️ 异常评委：'+anomalies.map(j=>j.name+'('+j.score+')').join('、')+'  偏离均值过大，建议核查';
     document.querySelectorAll('.judge-item').forEach(item=>{
       const name=item.querySelector('.judge-name').value.trim();
       item.classList.toggle('anomaly',anomalies.some(a=>a.name===name));
     });
   } else {
-    alertEl.style.display='none';
+    notice.style.display='none';
     document.querySelectorAll('.judge-item').forEach(item=>item.classList.remove('anomaly'));
   }
 }
@@ -576,7 +538,7 @@ function createJudge(name='',score='',jsonData=null){
       <button class="parse-btn">解析</button>
     </div>
     <div class="parse-msg"></div>`;
-  if(jsonData)item.querySelector('.judge-json').value=JSON.stringify(jsonData);
+  if(jsonData)item.querySelector('.judge-json').value=JSON.stringify(jsonData,null,2);
   item._jsonData=jsonData;
   item.querySelector('.remove-btn').addEventListener('click',()=>{item.remove();updatePreview();});
   item.querySelector('.judge-score').addEventListener('input',updatePreview);
@@ -595,6 +557,21 @@ function createJudge(name='',score='',jsonData=null){
   updatePreview();
 }
 
+document.getElementById('addJudgeBtn').addEventListener('click',()=>createJudge());
+
+document.getElementById('demoBtn').addEventListener('click',()=>{
+  document.getElementById('domain').value='TEX.COM';
+  document.getElementById('judgeList').innerHTML='';
+  const demos=[
+    {name:'ChatGPT', score:87, json:{domain:'TEX.COM',brandability:{score:90,reason:'短促有力'},length:{score:95,reason:'3字符'},keyword_value:{score:75,reason:'科技词'},tld_strength:{score:95,reason:'.com'},market_demand:{score:80,reason:'科技热'},liquidity:{score:85,reason:'活跃'},final_score:87}},
+    {name:'Claude',  score:83, json:{domain:'TEX.COM',brandability:{score:85,reason:'简洁'},length:{score:95,reason:'3字符'},keyword_value:{score:70,reason:'多义词'},tld_strength:{score:95,reason:'.com'},market_demand:{score:75,reason:'稳定'},liquidity:{score:82,reason:'良好'},final_score:83}},
+    {name:'Gemini',  score:89, json:{domain:'TEX.COM',brandability:{score:92,reason:'品牌感强'},length:{score:95,reason:'极短'},keyword_value:{score:78,reason:'高价值'},tld_strength:{score:95,reason:'顶级'},market_demand:{score:82,reason:'旺盛'},liquidity:{score:88,reason:'高流通'},final_score:89}},
+    {name:'DeepSeek',score:85, json:{domain:'TEX.COM',brandability:{score:88,reason:'简洁'},length:{score:95,reason:'超短'},keyword_value:{score:72,reason:'通用词'},tld_strength:{score:95,reason:'.com'},market_demand:{score:78,reason:'增长'},liquidity:{score:84,reason:'活跃'},final_score:85}},
+    {name:'Qwen',    score:82, json:{domain:'TEX.COM',brandability:{score:84,reason:'够简'},length:{score:95,reason:'3字符'},keyword_value:{score:68,reason:'词义广'},tld_strength:{score:95,reason:'.com最强'},market_demand:{score:74,reason:'平稳'},liquidity:{score:80,reason:'一般'},final_score:82}},
+  ];
+  demos.forEach(d=>createJudge(d.name,d.score,d.json));
+});
+
 function getJudges(){
   return [...document.querySelectorAll('.judge-item')].map(item=>({
     name:item.querySelector('.judge-name').value.trim(),
@@ -606,26 +583,26 @@ function getJudges(){
 function calcScores(judges){
   const sorted=[...judges].sort((a,b)=>a.score-b.score);
   const min=sorted[0].score,max=sorted[sorted.length-1].score;
-  const kept=sorted.slice(1,-1);
+  const kept=sorted.length>2?sorted.slice(1,-1):sorted;
   const avg=kept.reduce((s,j)=>s+j.score,0)/kept.length;
-  const sd=stdDev(kept.map(j=>j.score));
+  const sd=kept.length>1?stdDev(kept.map(j=>j.score)):0;
   return{count:judges.length,min,max,kept,avg:Math.round(avg*10)/10,sd:Math.round(sd*10)/10};
 }
 
 function calcDimAvg(judges){
   const dims=getDims();
   const sorted=[...judges].sort((a,b)=>a.score-b.score);
-  const kept=sorted.slice(1,-1).filter(j=>j.jsonData);
-  if(!kept.length)return null;
+  const kept=sorted.length>2?sorted.slice(1,-1):sorted;
+  const keptWithJson=kept.filter(j=>j.jsonData);
+  if(!keptWithJson.length)return null;
   const res={};
   dims.forEach(d=>{
-    const vals=kept.map(j=>j.jsonData[d.key]?.score).filter(v=>typeof v==='number');
-    res[d.key]=vals.length?Math.round(vals.reduce((a,b)=>a+b)/vals.length):null;
+    const vals=keptWithJson.map(j=>j.jsonData[d.key]?.score).filter(v=>typeof v==='number');
+    res[d.key]=vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length):null;
   });
   return res;
 }
 
-// Animate
 function animateNum(el,target,dur=700){
   const start=performance.now(),from=parseFloat(el.textContent)||0;
   (function step(now){
@@ -635,23 +612,24 @@ function animateNum(el,target,dur=700){
   })(performance.now());
 }
 
-// Radar
-function renderRadar(dimAvg,canvasId='radarChart',extraDatasets=[]){
+function renderRadar(dimAvg,canvasId,extraDatasets=[]){
   const canvas=document.getElementById(canvasId);
+  if(!canvas)return;
   if(canvasId==='radarChart'){if(radarChart){radarChart.destroy();radarChart=null;}}
   else{if(compareRadarChart){compareRadarChart.destroy();compareRadarChart=null;}}
-  if(!dimAvg&&!extraDatasets.length)return;
   const dims=getDims();
   const labels=dims.map(d=>d.label);
-  const data=dims.map(d=>dimAvg?dimAvg[d.key]??0:0);
-  const colors=['rgba(1,105,111,0.15)','rgba(180,83,9,0.15)','rgba(46,125,50,0.15)'];
-  const bcolors=['#01696f','#b45309','#2e7d32'];
-  const datasets=dimAvg?[{label:'当前域名',data,backgroundColor:colors[0],borderColor:bcolors[0],borderWidth:2,pointBackgroundColor:bcolors[0]},...extraDatasets]:extraDatasets;
+  const datasets=[];
+  if(dimAvg){
+    datasets.push({label:'当前域名',data:dims.map(d=>dimAvg[d.key]??0),backgroundColor:'rgba(1,105,111,0.15)',borderColor:'#01696f',borderWidth:2,pointBackgroundColor:'#01696f'});
+  }
+  datasets.push(...extraDatasets);
+  if(!datasets.length)return;
   const inst=new Chart(canvas,{type:'radar',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:100,ticks:{stepSize:25,font:{size:9}},pointLabels:{font:{size:10}}}},plugins:{legend:{display:datasets.length>1,position:'bottom',labels:{font:{size:11}}}}}});
-  if(canvasId==='radarChart')radarChart=inst;else compareRadarChart=inst;
+  if(canvasId==='radarChart')radarChart=inst;
+  else compareRadarChart=inst;
 }
 
-// Calc & render
 function calcAndRender(){
   const domain=document.getElementById('domain').value.trim();
   const judges=getJudges();
@@ -678,29 +656,31 @@ function calcAndRender(){
       const sc=dimAvg[d.key]??0;
       return `<tr><td>${d.label}</td><td>${(d.weight*100).toFixed(0)}%</td><td class="dim-score">${sc||'-'}</td><td><div class="dim-bar"><div class="dim-bar-fill" style="width:${sc}%"></div></div></td></tr>`;
     }).join('');
-  }else{
+    renderRadar(dimAvg,'radarChart');
+  } else {
     tbody.innerHTML='<tr><td colspan="4" style="color:var(--muted);text-align:center;padding:10px;">需粘贴AI返回JSON并解析后才有维度数据</td></tr>';
   }
-  renderRadar(dimAvg);
   const summary={domain:domain||'未填写',final_score:c.avg,grade:gi.text,valuation:valuationRange(c.avg),confidence_interval:`${c.avg}±${c.sd}`,std_dev:c.sd,judge_count:c.count,removed_max:c.max,removed_min:c.min,kept_judges:c.kept.map(j=>({name:j.name,score:j.score})),dim_averages:dimAvg,all_judges:judges.map(j=>({name:j.name,score:j.score})),weights:customWeights,created_at:new Date().toISOString()};
   document.getElementById('resultBox').textContent=JSON.stringify(summary,null,2);
   lastResult=summary;
-  updateHistBadge();
 }
 
-// History
+// Save history
 document.getElementById('saveHistBtn').addEventListener('click',()=>{
   if(!lastResult){alert('请先计算结果');return;}
   history.unshift({...lastResult,savedAt:Date.now()});
   if(history.length>50)history.pop();
   saveHistory();updateHistBadge();alert('已保存到历史记录！');
 });
+
 function updateHistBadge(){
   const n=history.length;
   document.getElementById('histCountBadge').textContent=n;
   document.getElementById('histTotal').textContent=n;
 }
+
 function renderHistory(){
+  updateHistBadge();
   const list=document.getElementById('histList');
   if(!history.length){list.innerHTML='<div style="color:var(--muted);text-align:center;padding:28px;">暂无历史记录</div>';return;}
   list.innerHTML=history.map((h,i)=>{
@@ -710,11 +690,9 @@ function renderHistory(){
       <div style="text-align:right;"><div class="hist-score">${h.final_score}</div><div style="font-size:11px;color:var(--muted);">${h.valuation||''}</div><button class="btn-danger btn-sm" style="margin-top:5px;" onclick="deleteHist(${i});event.stopPropagation();">删除</button></div>
     </div>`;
   }).join('');
-  list.querySelectorAll('.hist-item').forEach(el=>el.addEventListener('click',()=>{
-    const h=history[parseInt(el.dataset.i)];
-    loadHistoryItem(h);
-  }));
+  list.querySelectorAll('.hist-item').forEach(el=>el.addEventListener('click',()=>loadHistoryItem(history[parseInt(el.dataset.i)])));
 }
+
 function loadHistoryItem(h){
   document.getElementById('resultBox').textContent=JSON.stringify(h,null,2);
   animateNum(document.getElementById('finalScore'),h.final_score);
@@ -724,21 +702,312 @@ function loadHistoryItem(h){
   document.getElementById('resMin').textContent=h.removed_min;
   const gi=gradeInfo(h.final_score);
   document.getElementById('gradeTag').innerHTML=`<span class="grade-tag ${gi.cls}">${gi.text}</span>`;
-  document.getElementById('confidenceText').textContent=h.confidence_interval?`置信区间：${h.confidence_interval}`:""
-  document.getElementById('valuationText').textContent=h.valuation?`参考估值区间：${h.valuation}`:""
+  document.getElementById('confidenceText').textContent=h.confidence_interval?`置信区间：${h.confidence_interval}`:''
+  document.getElementById('valuationText').textContent=h.valuation?`参考估值区间：${h.valuation}`:''
   if(h.dim_averages){
     const dims=getDims();
     document.getElementById('dimBody').innerHTML=dims.map(d=>{
       const sc=h.dim_averages[d.key]??0;
       return `<tr><td>${d.label}</td><td>${(d.weight*100).toFixed(0)}%</td><td class="dim-score">${sc||'-'}</td><td><div class="dim-bar"><div class="dim-bar-fill" style="width:${sc}%"></div></div></td></tr>`;
     }).join('');
-    renderRadar(h.dim_averages);
+    renderRadar(h.dim_averages,'radarChart');
   }
+  lastResult=h;
   switchTab('step3');
 }
-window.deleteHist=function(i){history.splice(i,1);saveHistory();updateHistBadge();renderHistory();renderTrend();};
+
+window.deleteHist=function(i){history.splice(i,1);saveHistory();renderHistory();renderTrend();};
 document.getElementById('clearHistBtn').addEventListener('click',()=>{
   if(!confirm('确定清空全部历史记录？'))return;
-  history=[];saveHistory();updateHistBadge();renderHistory();renderTrend();
+  history=[];saveHistory();renderHistory();renderTrend();
 });
 document.getElementById('exportHistBtn').addEventListener('click',()=>{
+  const a=document.createElement('a');
+  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(history,null,2));
+  a.download='domain_history.json';a.click();
+});
+
+// Trend
+function renderTrend(){
+  const canvas=document.getElementById('trendChart');
+  if(trendChartInst){trendChartInst.destroy();trendChartInst=null;}
+  if(!history.length)return;
+  const items=[...history].reverse();
+  trendChartInst=new Chart(canvas,{type:'line',data:{
+    labels:items.map(h=>h.domain),
+    datasets:[{label:'最终得分',data:items.map(h=>h.final_score),borderColor:'#01696f',backgroundColor:'rgba(1,105,111,0.1)',fill:true,tension:0.4,pointRadius:4}]
+  },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100},x:{ticks:{font:{size:10}}}}}});
+}
+
+// Copy result
+document.getElementById('copyResultBtn').addEventListener('click',()=>{
+  const txt=document.getElementById('resultBox').textContent;
+  navigator.clipboard.writeText(txt).then(()=>alert('已复制 JSON！')).catch(()=>alert('复制失败'));
+});
+
+// Download CSV
+document.getElementById('downloadCsvBtn').addEventListener('click',()=>{
+  if(!lastResult){alert('请先计算结果');return;}
+  const dims=getDims();
+  let csv='域名,最终得分,等级,参考估值,标准差,评委数';
+  dims.forEach(d=>csv+=','+d.label);
+  csv+='\n';
+  csv+=`${lastResult.domain},${lastResult.final_score},${lastResult.grade||''},${lastResult.valuation||''},${lastResult.std_dev||''},${lastResult.judge_count||''}`;
+  dims.forEach(d=>csv+=','+(lastResult.dim_averages?lastResult.dim_averages[d.key]??'':''));
+  csv+='\n';
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download=(lastResult.domain||'domain')+'_result.csv';a.click();
+});
+
+// Share
+function shareResult(){
+  if(!lastResult){alert('请先计算结果');return;}
+  const hash=btoa(encodeURIComponent(JSON.stringify(lastResult))).replace(/=/g,'');
+  const url=location.href.split('#')[0]+'#r='+hash;
+  navigator.clipboard.writeText(url).then(()=>{
+    const b=document.getElementById('shareBanner');
+    b.style.display='block';
+    b.textContent='🔗 分享链接已复制到剪贴板！对方打开链接即可查看评估结果。';
+    setTimeout(()=>b.style.display='none',4000);
+  }).catch(()=>alert('复制失败，请手动复制地址栏链接'));
+}
+document.getElementById('shareBtn').addEventListener('click',shareResult);
+document.getElementById('shareResultBtn').addEventListener('click',shareResult);
+
+// Load from hash
+function loadFromHash(){
+  const hash=location.hash;
+  if(!hash.startsWith('#r='))return;
+  try{
+    const data=JSON.parse(decodeURIComponent(atob(hash.slice(3))));
+    if(data&&data.final_score){
+      lastResult=data;
+      const b=document.getElementById('shareBanner');
+      b.style.display='block';
+      b.textContent='📊 正在查看分享的评估结果：'+data.domain+' → '+data.final_score+'分';
+      loadHistoryItem(data);
+    }
+  }catch(e){}
+}
+loadFromHash();
+
+// PDF export
+document.getElementById('exportPdfBtn').addEventListener('click',()=>{
+  if(!lastResult){alert('请先计算结果');return;}
+  const dims=getDims();
+  const gi=gradeInfo(lastResult.final_score);
+  const dimRows=lastResult.dim_averages?dims.map(d=>`<tr><td>${d.label}</td><td>${(d.weight*100).toFixed(0)}%</td><td style="font-weight:800;color:#01696f;">${lastResult.dim_averages[d.key]??'-'}</td></tr>`).join(''):'';
+  const judgeRows=(lastResult.all_judges||[]).map(j=>`<tr><td>${j.name}</td><td>${j.score}</td></tr>`).join('');
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>域名评估报告 - ${lastResult.domain}</title>
+<style>body{font-family:-apple-system,sans-serif;max-width:800px;margin:40px auto;padding:0 24px;color:#28251d;}
+h1{font-size:28px;margin-bottom:4px;}h2{font-size:16px;margin:20px 0 8px;border-bottom:2px solid #e5e5e5;padding-bottom:4px;}
+.score-big{font-size:80px;font-weight:900;color:#01696f;line-height:1;}.meta{color:#888;font-size:13px;margin-bottom:8px;}
+table{width:100%;border-collapse:collapse;font-size:14px;}th{text-align:left;padding:6px 8px;background:#f3f0ec;font-size:12px;}
+td{padding:6px 8px;border-bottom:1px solid #e5e5e5;}.badge{display:inline-block;padding:3px 12px;border-radius:20px;font-size:13px;font-weight:800;}
+@media print{body{margin:0;}}</style></head><body>
+<h1>📊 域名评估报告</h1>
+<div class="meta">生成时间：${new Date(lastResult.created_at||Date.now()).toLocaleString()}</div>
+<div class="score-big">${lastResult.final_score}</div>
+<div style="margin:8px 0;"><span class="badge" style="background:#f0fdf4;color:#166534;border:1px solid #86efac;">${lastResult.grade||''}</span></div>
+<h2>基本信息</h2>
+<table><tr><th>域名</th><td><b>${lastResult.domain}</b></td></tr>
+<tr><th>参与评委</th><td>${lastResult.judge_count}位</td></tr>
+<tr><th>参考估值</th><td>${lastResult.valuation||'-'}</td></tr>
+<tr><th>置信区间</th><td>${lastResult.confidence_interval||'-'}</td></tr>
+<tr><th>去除最高分</th><td>${lastResult.removed_max}</td></tr>
+<tr><th>去除最低分</th><td>${lastResult.removed_min}</td></tr></table>
+${dimRows?`<h2>维度得分</h2><table><thead><tr><th>维度</th><th>权重</th><th>均分</th></tr></thead><tbody>${dimRows}</tbody></table>`:''}
+<h2>评委明细</h2><table><thead><tr><th>评委</th><th>评分</th></tr></thead><tbody>${judgeRows}</tbody></table>
+<div style="margin-top:24px;font-size:11px;color:#aaa;">由 Domain AI Judge v4 生成 · domainaiman.github.io/domain</div>
+</body></html>`;
+  const w=window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+  w.onload=()=>w.print();
+});
+
+// Batch
+document.getElementById('batchCalcBtn').addEventListener('click',()=>{
+  const lines=document.getElementById('batchInput').value.trim().split('\n').filter(l=>l.trim());
+  batchData=lines.map(l=>{
+    const parts=l.trim().split(/\s+/);
+    return{domain:parts[0],score:parseFloat(parts[1])};
+  }).filter(x=>x.domain&&!isNaN(x.score)).sort((a,b)=>b.score-a.score);
+  renderBatchTable();
+});
+
+function renderBatchTable(){
+  const tbody=document.getElementById('batchBody');
+  if(!batchData.length){tbody.innerHTML='<tr><td colspan="5" style="color:var(--muted);text-align:center;padding:18px;">暂无数据</td></tr>';return;}
+  tbody.innerHTML=batchData.map((item,i)=>{
+    const gi=gradeInfo(item.score);
+    const medals=['🥇','🥈','🥉'];
+    const medal=i<3?medals[i]:i+1;
+    return `<tr><td>${medal}</td><td style="font-weight:700;">${item.domain}</td><td style="font-weight:900;color:var(--primary);">${item.score}</td><td><span class="grade-tag ${gi.cls}">${gi.text}</span></td><td>${valuationRange(item.score)}</td></tr>`;
+  }).join('');
+}
+
+document.getElementById('batchCsvBtn').addEventListener('click',()=>{
+  if(!batchData.length){alert('请先生成排名');return;}
+  let csv='排名,域名,分数,等级,参考估值\n';
+  batchData.forEach((item,i)=>csv+=`${i+1},${item.domain},${item.score},${gradeInfo(item.score).text},${valuationRange(item.score)}\n`);
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download='batch_ranking.csv';a.click();
+});
+
+document.getElementById('importCurrentBtn').addEventListener('click',()=>{
+  if(!lastResult){alert('请先计算结果');return;}
+  const cur=document.getElementById('batchInput').value.trim();
+  const line=lastResult.domain+' '+lastResult.final_score;
+  document.getElementById('batchInput').value=cur?(cur+'\n'+line):line;
+});
+
+// Compare radar
+function renderCompareSelects(){
+  const wrap=document.getElementById('compareSelects');
+  const withDims=history.filter(h=>h.dim_averages);
+  if(!withDims.length){wrap.innerHTML='<div style="color:var(--muted);font-size:12px;">暂无含维度数据的历史记录</div>';return;}
+  wrap.innerHTML=[0,1,2].map(i=>`<select id="cmpSel${i}" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:7px 10px;font-size:13px;background:var(--surface);color:var(--text);">
+    <option value="">不选（第${i+1}条）</option>
+    ${withDims.map((h,j)=>`<option value="${j}">${h.domain} (${h.final_score}分)</option>`).join('')}
+  </select>`).join('');
+}
+
+document.getElementById('compareBtn').addEventListener('click',()=>{
+  const withDims=history.filter(h=>h.dim_averages);
+  const colors=[['rgba(1,105,111,0.15)','#01696f'],['rgba(180,83,9,0.15)','#b45309'],['rgba(46,125,50,0.15)','#2e7d32']];
+  const datasets=[];
+  [0,1,2].forEach(i=>{
+    const sel=document.getElementById('cmpSel'+i);
+    if(!sel||sel.value==='')return;
+    const h=withDims[parseInt(sel.value)];
+    if(!h||!h.dim_averages)return;
+    const dims=getDims();
+    datasets.push({label:h.domain+'('+h.final_score+')',data:dims.map(d=>h.dim_averages[d.key]??0),backgroundColor:colors[i][0],borderColor:colors[i][1],borderWidth:2,pointBackgroundColor:colors[i][1]});
+  });
+  if(!datasets.length){alert('请至少选一条记录');return;}
+  renderRadar(null,'compareRadar',datasets);
+});
+
+// Weights
+function renderWeightSliders(){
+  const dims=getDims();
+  const total=dims.reduce((s,d)=>s+d.weight,0);
+  document.getElementById('weightSliders').innerHTML=dims.map(d=>{
+    const pct=Math.round(d.weight/total*100);
+    return `<div class="weight-row">
+      <label>${d.label}</label>
+      <input type="range" min="1" max="60" value="${pct}" data-key="${d.key}" onchange="updateWeightDisplay()" oninput="updateWeightDisplay()">
+      <span class="wval" id="wv_${d.key}">${pct}%</span>
+    </div>`;
+  }).join('');
+  updateWeightDisplay();
+}
+
+function updateWeightDisplay(){
+  const inputs=[...document.querySelectorAll('#weightSliders input[type=range]')];
+  const total=inputs.reduce((s,el)=>s+parseInt(el.value),0);
+  inputs.forEach(el=>{
+    const pct=Math.round(parseInt(el.value)/total*100);
+    const span=document.getElementById('wv_'+el.dataset.key);
+    if(span)span.textContent=pct+'%';
+  });
+  document.getElementById('currentWeightDisplay').innerHTML=inputs.map(el=>{
+    const pct=Math.round(parseInt(el.value)/total*100);
+    return `<span style="margin-right:8px;"><b>${el.dataset.key.replace('_',' ')}</b>: ${pct}%</span>`;
+  }).join('');
+}
+
+document.getElementById('saveWeightsBtn').addEventListener('click',()=>{
+  const inputs=[...document.querySelectorAll('#weightSliders input[type=range]')];
+  const total=inputs.reduce((s,el)=>s+parseInt(el.value),0);
+  inputs.forEach(el=>customWeights[el.dataset.key]=parseInt(el.value)/total);
+  saveWeights();alert('权重方案已保存！下次计算将使用新权重。');
+});
+
+document.getElementById('resetWeightsBtn').addEventListener('click',()=>{
+  customWeights={...WEIGHT_PRESETS.default};
+  saveWeights();renderWeightSliders();
+});
+
+window.applyWeightPreset=function(key){
+  const preset=WEIGHT_PRESETS[key];
+  if(!preset)return;
+  customWeights={...preset};
+  saveWeights();renderWeightSliders();alert('已应用预设方案！');
+};
+
+// Prompt versions
+function renderPromptVersions(){
+  const list=document.getElementById('promptVerList');
+  list.innerHTML=promptVersions.map((v,i)=>{
+    const isActive=document.getElementById('promptTemplate').value===v.content;
+    return `<div class="prompt-ver-item ${isActive?'active-ver':''}" id="pv_${v.id}">
+      <div>
+        <div style="font-weight:700;font-size:13px;">${v.name}</div>
+        <div style="font-size:11px;color:var(--muted);">${new Date(v.createdAt).toLocaleDateString()}</div>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <button class="btn-secondary btn-sm" onclick="editPromptVer('${v.id}')">编辑</button>
+        ${v.id!=='default'?`<button class="btn-danger btn-sm" onclick="delPromptVer('${v.id}')">删除</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.editPromptVer=function(id){
+  editingVerId=id;
+  const v=promptVersions.find(x=>x.id===id);
+  if(!v)return;
+  document.getElementById('editVerName').value=v.name;
+  document.getElementById('editVerContent').value=v.content;
+};
+
+window.delPromptVer=function(id){
+  if(!confirm('确定删除此版本？'))return;
+  promptVersions=promptVersions.filter(x=>x.id!==id);
+  savePromptVersions();renderPromptVersions();
+  if(editingVerId===id)editingVerId=null;
+};
+
+document.getElementById('newPromptVerBtn').addEventListener('click',()=>{
+  editingVerId=null;
+  document.getElementById('editVerName').value='';
+  document.getElementById('editVerContent').value=DEFAULT_PROMPT;
+});
+
+document.getElementById('saveVerBtn').addEventListener('click',()=>{
+  const name=document.getElementById('editVerName').value.trim();
+  const content=document.getElementById('editVerContent').value.trim();
+  if(!name||!content){alert('请填写版本名称和内容');return;}
+  if(editingVerId){
+    const v=promptVersions.find(x=>x.id===editingVerId);
+    if(v){v.name=name;v.content=content;}
+  } else {
+    promptVersions.push({id:'v'+Date.now(),name,content,createdAt:Date.now()});
+  }
+  savePromptVersions();renderPromptVersions();alert('版本已保存！');
+});
+
+document.getElementById('useVerBtn').addEventListener('click',()=>{
+  const content=document.getElementById('editVerContent').value.trim();
+  if(!content){alert('内容为空');return;}
+  document.getElementById('promptTemplate').value=content;
+  switchTab('step1');
+  alert('已应用此提示词版本！');
+});
+
+document.getElementById('delVerBtn').addEventListener('click',()=>{
+  if(!editingVerId||editingVerId==='default'){alert('无法删除默认版本');return;}
+  if(!confirm('确定删除？'))return;
+  promptVersions=promptVersions.filter(x=>x.id!==editingVerId);
+  savePromptVersions();renderPromptVersions();editingVerId=null;
+});
+
+// Init
+updateHistBadge();
+</script>
+</body>
+</html>
