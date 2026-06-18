@@ -6,260 +6,422 @@
   <title>Domain AI Judge</title>
   <style>
     :root {
-      --bg: #f7f6f2;
-      --surface: #ffffff;
-      --surface-2: #f3f0ec;
-      --text: #28251d;
-      --muted: #6b6a66;
-      --border: #d8d4cd;
-      --primary: #01696f;
-      --primary-hover: #0c4e54;
-      --danger: #a13544;
-      --radius: 14px;
-      --shadow: 0 8px 24px rgba(0,0,0,.06);
+      --bg:#f7f6f2;--surface:#fff;--surface-2:#f3f0ec;
+      --text:#28251d;--muted:#6b6a66;--border:#d8d4cd;
+      --primary:#01696f;--primary-hover:#0c4e54;
+      --success:#2e7d32;--danger:#a13544;
+      --radius:14px;--shadow:0 8px 24px rgba(0,0,0,.06);
     }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
-                   "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-    }
-    .wrap { max-width: 1100px; margin: 0 auto; padding: 32px 20px 80px; }
-    .hero { margin-bottom: 24px; }
-    .hero h1 { margin: 0 0 8px; font-size: 36px; line-height: 1.15; }
-    .hero p { margin: 0; color: var(--muted); max-width: 760px; }
-    .grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 20px; align-items: start; }
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; }
-    .card h2 { margin: 0 0 14px; font-size: 20px; }
-    .field { margin-bottom: 16px; }
-    .field label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
-    .field input, .field textarea {
-      width: 100%; border: 1px solid var(--border); border-radius: 12px;
-      padding: 12px 14px; font-size: 15px; background: #fff; color: var(--text); outline: none;
-    }
-    .field textarea { min-height: 220px; resize: vertical; }
-    .btns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
-    button { border: 0; border-radius: 12px; padding: 12px 16px; font-size: 14px; font-weight: 700; cursor: pointer; }
-    .btn-primary { background: var(--primary); color: #fff; }
-    .btn-primary:hover { background: var(--primary-hover); }
-    .btn-secondary { background: var(--surface-2); color: var(--text); }
-    .judge-list { display: grid; gap: 12px; margin-top: 8px; }
-    .judge-item {
-      display: grid; grid-template-columns: 1fr 120px 42px; gap: 10px;
-      align-items: center; padding: 12px; border: 1px solid var(--border);
-      border-radius: 12px; background: #fff;
-    }
-    .judge-item input { margin: 0; }
-    .judge-item .remove { width: 42px; height: 42px; border-radius: 10px; background: #f4dfe3; color: #7e2332; font-weight: 900; padding: 0; }
-    .result-box { background: #f9f8f5; border: 1px dashed var(--border); border-radius: 12px; padding: 14px; white-space: pre-wrap; font-size: 14px; }
-    .score-board { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 14px; }
-    .metric { padding: 14px; border-radius: 12px; background: #f9f8f5; border: 1px solid var(--border); }
-    .metric .label { color: var(--muted); font-size: 13px; margin-bottom: 6px; }
-    .metric .value { font-size: 26px; font-weight: 800; }
-    .tips { margin-top: 16px; color: var(--muted); font-size: 14px; }
-    .prompt-box { min-height: 220px; }
-    @media (max-width: 900px) {
-      .grid { grid-template-columns: 1fr; }
-      .score-board { grid-template-columns: 1fr; }
-      .judge-item { grid-template-columns: 1fr; }
-      .judge-item .remove { width: 100%; height: 42px; }
+    *{box-sizing:border-box;}
+    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.6;}
+    .wrap{max-width:1200px;margin:0 auto;padding:32px 20px 80px;}
+    .hero{margin-bottom:24px;}
+    .hero h1{margin:0 0 6px;font-size:32px;line-height:1.2;}
+    .hero p{margin:0;color:var(--muted);font-size:15px;max-width:800px;}
+    .tabs{display:flex;gap:4px;border-bottom:2px solid var(--border);margin-bottom:20px;}
+    .tab{padding:10px 22px;font-size:14px;font-weight:700;cursor:pointer;border:none;background:none;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px;border-radius:8px 8px 0 0;}
+    .tab.active{color:var(--primary);border-bottom-color:var(--primary);background:#f0fdf9;}
+    .tab-panel{display:none;}
+    .tab-panel.active{display:block;}
+    .grid{display:grid;grid-template-columns:1.1fr 0.9fr;gap:18px;align-items:start;}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;}
+    .card h2{margin:0 0 12px;font-size:18px;font-weight:700;}
+    .field{margin-bottom:14px;}
+    .field label{display:block;margin-bottom:6px;font-weight:600;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
+    .field input,.field textarea{width:100%;border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:14px;background:#fff;color:var(--text);outline:none;transition:border-color .15s;font-family:inherit;}
+    .field input:focus,.field textarea:focus{border-color:var(--primary);}
+    .field textarea{min-height:160px;resize:vertical;}
+    .mono{font-family:'SF Mono','Fira Code','Consolas',monospace!important;font-size:13px!important;}
+    .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+    button{border:0;border-radius:10px;padding:10px 16px;font-size:13px;font-weight:700;cursor:pointer;transition:background .15s;}
+    .btn-primary{background:var(--primary);color:#fff;}
+    .btn-primary:hover{background:var(--primary-hover);}
+    .btn-secondary{background:var(--surface-2);color:var(--text);}
+    .btn-secondary:hover{background:#e8e4de;}
+    .badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;}
+    .badge-ok{background:#dcfce7;color:#166534;}
+    .badge-warn{background:#fef3c7;color:#92400e;}
+    /* judge */
+    .judge-list{display:grid;gap:10px;margin-bottom:12px;}
+    .judge-item{border:1px solid var(--border);border-radius:12px;padding:12px;background:#fafaf8;}
+    .judge-row1{display:grid;grid-template-columns:1fr 90px 36px;gap:8px;align-items:center;margin-bottom:8px;}
+    .judge-row2{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:start;}
+    .judge-item textarea{width:100%;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;font-family:'SF Mono','Fira Code',monospace;min-height:68px;resize:vertical;color:var(--text);background:#fff;outline:none;}
+    .judge-item textarea:focus{border-color:var(--primary);}
+    .parse-btn{padding:8px 12px;font-size:12px;font-weight:700;border-radius:8px;background:#e8f5e9;color:var(--success);border:none;cursor:pointer;white-space:nowrap;}
+    .parse-btn:hover{background:#c8e6c9;}
+    .remove-btn{width:36px;height:36px;border-radius:8px;background:#fce8ec;color:#7e2332;font-weight:900;padding:0;font-size:16px;}
+    .score-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:800;background:#f0fdf4;color:var(--success);border:1px solid #a7f3d0;margin-top:6px;}
+    .parse-error{color:var(--danger);font-size:12px;margin-top:4px;}
+    /* scoreboard */
+    .score-board{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:12px 0;}
+    .metric{padding:14px;border-radius:12px;background:#f9f8f5;border:1px solid var(--border);text-align:center;}
+    .metric .lbl{color:var(--muted);font-size:12px;margin-bottom:4px;}
+    .metric .val{font-size:26px;font-weight:800;}
+    .metric.hi .val{color:var(--primary);}
+    /* dim table */
+    .dim-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px;}
+    .dim-table th{text-align:left;padding:6px 8px;background:var(--surface-2);color:var(--muted);font-size:12px;}
+    .dim-table td{padding:7px 8px;border-bottom:1px solid var(--border);}
+    .dim-table tr:last-child td{border-bottom:none;}
+    .dim-score{font-weight:800;color:var(--primary);}
+    .result-box{background:#f9f8f5;border:1px dashed var(--border);border-radius:10px;padding:12px;white-space:pre-wrap;font-size:12px;font-family:'SF Mono','Fira Code',monospace;max-height:300px;overflow-y:auto;}
+    .tips{color:var(--muted);font-size:13px;margin-top:12px;line-height:1.6;}
+    @media(max-width:900px){
+      .grid{grid-template-columns:1fr;}
+      .score-board{grid-template-columns:repeat(2,1fr);}
+      .judge-row1{grid-template-columns:1fr 80px 36px;}
+      .judge-row2{grid-template-columns:1fr;}
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <section class="hero">
-      <h1>Domain AI Judge</h1>
-      <p>输入域名、粘贴分析报告、录入多个 AI 的评分结果，系统自动去掉最高分和最低分，输出最终域名估价分数与可复制结果。</p>
-    </section>
-    <section class="grid">
+<div class="wrap">
+  <section class="hero">
+    <h1>🏆 Domain AI Judge</h1>
+    <p>域名估价多AI评委打分系统 · 输入域名 → 生成投喂内容 → 粘贴各AI返回JSON → 自动去极值取均分</p>
+  </section>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="step1">① 生成投喂内容</button>
+    <button class="tab" data-tab="step2">② AI评委打分</button>
+    <button class="tab" data-tab="step3">③ 最终结果</button>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="tab-panel active" id="tab-step1">
+    <div class="grid">
       <div class="card">
-        <h2>域名与报告</h2>
+        <h2>域名 &amp; 分析报告</h2>
         <div class="field">
-          <label for="domain">域名</label>
+          <label>域名</label>
           <input id="domain" type="text" placeholder="例如：TEX.COM" />
         </div>
         <div class="field">
-          <label for="mdContent">域名分析 MD 内容</label>
-          <textarea id="mdContent" placeholder="把生成好的域名分析 markdown 内容粘贴到这里"></textarea>
-        </div>
-        <div class="field">
-          <label for="promptTemplate">给 AI 的评分提示词</label>
-          <textarea id="promptTemplate" class="prompt-box"></textarea>
-        </div>
-        <div class="btns">
-          <button class="btn-secondary" id="fillPromptBtn">填充默认提示词</button>
-          <button class="btn-primary" id="buildPromptBtn">生成完整投喂内容</button>
-          <button class="btn-secondary" id="copyPromptBtn">复制完整内容</button>
-        </div>
-        <div class="field" style="margin-top:16px;">
-          <label for="fullPayload">完整投喂内容</label>
-          <textarea id="fullPayload" placeholder="点击&ldquo;生成完整投喂内容&rdquo;后会出现在这里"></textarea>
+          <label>域名分析 MD 内容</label>
+          <textarea id="mdContent" class="mono" placeholder="把你的域名估值系统生成的 Markdown 分析报告粘贴到这里&#10;&#10;建议包含：注册年份、历史流量、同类成交案例、行业关键词等"></textarea>
         </div>
       </div>
       <div class="card">
-        <h2>AI 评委打分</h2>
+        <h2>评分提示词</h2>
+        <div class="field">
+          <label>提示词（可自定义）</label>
+          <textarea id="promptTemplate" class="mono" style="min-height:260px;"></textarea>
+        </div>
+        <div class="btns">
+          <button class="btn-secondary" id="resetPromptBtn">重置默认提示词</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px;">
+      <h2>完整投喂内容 <span class="badge badge-warn" id="payloadBadge">未生成</span></h2>
+      <p class="tips" style="margin:0 0 10px;">点击生成后，复制内容分别发给 ChatGPT / Claude / Gemini / DeepSeek / Qwen 等 AI，要求它们只返回 JSON。</p>
+      <div class="field">
+        <textarea id="fullPayload" class="mono" style="min-height:140px;" placeholder="点击下方按钮生成" readonly></textarea>
+      </div>
+      <div class="btns">
+        <button class="btn-primary" id="buildPromptBtn">▶ 生成完整投喂内容</button>
+        <button class="btn-secondary" id="copyPayloadBtn">复制全部内容</button>
+        <button class="btn-secondary" id="goStep2Btn">下一步：录入AI评分 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="tab-panel" id="tab-step2">
+    <div class="grid">
+      <div class="card">
+        <h2>AI 评委列表</h2>
+        <p class="tips" style="margin:0 0 12px;">把每个 AI 返回的 JSON 粘贴到对应输入框，点「解析」自动提取 final_score；也可直接手动填写分数。</p>
         <div class="judge-list" id="judgeList"></div>
         <div class="btns">
-          <button class="btn-secondary" id="addJudgeBtn">新增评委</button>
-          <button class="btn-primary" id="calcBtn">计算结果</button>
+          <button class="btn-secondary" id="addJudgeBtn">＋ 新增评委</button>
           <button class="btn-secondary" id="demoBtn">填充演示数据</button>
         </div>
+      </div>
+      <div class="card">
+        <h2>实时预览</h2>
         <div class="score-board">
-          <div class="metric"><div class="label">参与评分数</div><div class="value" id="judgeCount">0</div></div>
-          <div class="metric"><div class="label">最终均分</div><div class="value" id="finalScore">-</div></div>
-          <div class="metric"><div class="label">最高分</div><div class="value" id="maxScore">-</div></div>
-          <div class="metric"><div class="label">最低分</div><div class="value" id="minScore">-</div></div>
+          <div class="metric hi"><div class="lbl">有效评分数</div><div class="val" id="judgeCount">0</div></div>
+          <div class="metric hi"><div class="lbl">预估最终均分</div><div class="val" id="previewScore">-</div></div>
+          <div class="metric"><div class="lbl">最高分（将去除）</div><div class="val" id="preMaxScore">-</div></div>
+          <div class="metric"><div class="lbl">最低分（将去除）</div><div class="val" id="preMinScore">-</div></div>
         </div>
-        <div class="field" style="margin-top:16px;">
-          <label>结果摘要</label>
-          <div class="result-box" id="resultBox">还没有结果</div>
+        <div class="tips">
+          建议 <strong>5个以上</strong> AI 参与，去掉最高最低后样本更稳。<br>
+          当前已录入：<span id="judgeStatus" class="badge badge-warn">0 个</span>
         </div>
-        <div class="btns">
-          <button class="btn-secondary" id="copyResultBtn">复制结果摘要</button>
+        <div class="btns" style="margin-top:16px;">
+          <button class="btn-primary" id="goStep3Btn">计算最终结果 →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="tab-panel" id="tab-step3">
+    <div class="grid">
+      <div class="card">
+        <h2>🎯 最终得分</h2>
+        <div class="score-board">
+          <div class="metric hi" style="grid-column:span 2;">
+            <div class="lbl">综合最终得分（去极值后均分）</div>
+            <div class="val" id="finalScore" style="font-size:56px;">-</div>
+          </div>
+          <div class="metric"><div class="lbl">域名</div><div class="val" id="resDomain" style="font-size:18px;">-</div></div>
+          <div class="metric"><div class="lbl">参与评委数</div><div class="val" id="resCount">-</div></div>
+          <div class="metric"><div class="lbl">去除最高分</div><div class="val" id="resMax">-</div></div>
+          <div class="metric"><div class="lbl">去除最低分</div><div class="val" id="resMin">-</div></div>
+        </div>
+        <div class="btns" style="margin-top:8px;">
+          <button class="btn-primary" id="calcBtn">重新计算</button>
+          <button class="btn-secondary" id="copyResultBtn">复制结果 JSON</button>
           <button class="btn-secondary" id="downloadJsonBtn">下载 JSON</button>
         </div>
-        <div class="tips">至少建议 5 个 AI 评分，这样去掉最高分和最低分后，剩余样本更稳。</div>
       </div>
-    </section>
+      <div class="card">
+        <h2>各维度平均分</h2>
+        <table class="dim-table">
+          <thead><tr><th>维度</th><th>权重</th><th>均分（去极值后）</th></tr></thead>
+          <tbody id="dimBody"><tr><td colspan="3" style="color:var(--muted);text-align:center;padding:20px;">请先完成评分</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px;">
+      <h2>结果 JSON</h2>
+      <div class="result-box" id="resultBox">还没有结果，请先在第②步录入AI评分</div>
+    </div>
   </div>
-  <script>
-    const defaultPrompt = `你是一位专业的域名价值评估师。我将提供一份域名分析报告（MD格式），请你根据以下6个维度对该域名进行评分，每个维度满分100分，最终给出一个综合总分（0-100）。
+</div>
+
+<script>
+const PROMPT = `你是一位专业的域名价值评估师。我将提供一份域名分析报告（MD格式），请你根据以下6个维度对该域名进行评分，每个维度满分100分，最终给出一个综合总分（0-100）。
 
 ## 评分维度
-1. 品牌性（Brandability）：域名是否简洁易记、发音顺口、具有商业品牌潜力
-2. 长度与简洁性（Length & Simplicity）：域名字符数，越短越稀有越高分
-3. 关键词价值（Keyword Value）：域名包含的词是否是高搜索量、高商业价值关键词
-4. TLD强度（TLD Strength）：顶级域名后缀的市场认可度
-5. 市场需求（Market Demand）：该域名所对应行业的增长潜力与投资热度
-6. 流通价值（Liquidity）：该域名在二级市场的可转售性与历史成交参考
+1. **品牌性（Brandability）**：域名是否简洁易记、发音顺口、具有商业品牌潜力
+2. **长度与简洁性（Length & Simplicity）**：域名字符数，越短越稀有越高分
+3. **关键词价值（Keyword Value）**：域名包含的词是否是高搜索量、高商业价值关键词
+4. **TLD强度（TLD Strength）**：顶级域名后缀的市场认可度（.com > .net > .io 等）
+5. **市场需求（Market Demand）**：该域名所对应行业的增长潜力与投资热度
+6. **流通价值（Liquidity）**：该域名在二级市场的可转售性与历史成交参考
 
-## 评分规则
-- 请逐一分析上述6个维度，每个维度给出1-100的分数，并附一句理由
-- 最后计算6个维度的加权平均分，作为综合总分
-- 权重参考：品牌性25% + 关键词价值20% + TLD强度20% + 市场需求15% + 长度15% + 流通价值5%
-- 只输出JSON，不要输出其他内容
+## 权重
+品牌性25% + 关键词价值20% + TLD强度20% + 市场需求15% + 长度15% + 流通价值5%
 
-JSON格式：
-{
-  "domain": "域名",
-  "brandability": {"score": 85, "reason": "理由"},
-  "length": {"score": 90, "reason": "理由"},
-  "keyword_value": {"score": 70, "reason": "理由"},
-  "tld_strength": {"score": 95, "reason": "理由"},
-  "market_demand": {"score": 75, "reason": "理由"},
-  "liquidity": {"score": 80, "reason": "理由"},
-  "final_score": 84
-}`;
+## 输出要求
+- 只输出合法JSON，不得包含任何其他文字、注释、Markdown代码块标记
+- final_score为按权重计算的加权平均分，取整数
+- 所有score字段为1-100的整数
 
-    const judgeList = document.getElementById('judgeList');
-    const promptTemplate = document.getElementById('promptTemplate');
-    const fullPayload = document.getElementById('fullPayload');
-    const resultBox = document.getElementById('resultBox');
-    const judgeCountEl = document.getElementById('judgeCount');
-    const finalScoreEl = document.getElementById('finalScore');
-    const maxScoreEl = document.getElementById('maxScore');
-    const minScoreEl = document.getElementById('minScore');
+## 输出格式
+{"domain":"域名","brandability":{"score":85,"reason":"简短有力，适合科技品牌"},"length":{"score":90,"reason":"4个字符，极短优质"},"keyword_value":{"score":70,"reason":"tex为常见技术词汇"},"tld_strength":{"score":95,"reason":".com为最强TLD"},"market_demand":{"score":75,"reason":"科技域名需求持续旺盛"},"liquidity":{"score":80,"reason":"短.com历史成交活跃"},"final_score":84}
 
-    function createJudge(name='', score='') {
-      const item = document.createElement('div');
-      item.className = 'judge-item';
-      item.innerHTML = `
-        <input type="text" class="judge-name" placeholder="AI名称，例如 ChatGPT / Claude / Gemini" value="${name}">
-        <input type="number" class="judge-score" placeholder="分数" min="0" max="100" step="0.1" value="${score}">
-        <button class="remove" title="删除">&times;</button>
-      `;
-      item.querySelector('.remove').addEventListener('click', () => item.remove());
-      judgeList.appendChild(item);
-    }
+---以下是域名分析报告---
+`;
 
-    function getJudges() {
-      return [...document.querySelectorAll('.judge-item')].map(item => ({
-        name: item.querySelector('.judge-name').value.trim(),
-        score: parseFloat(item.querySelector('.judge-score').value)
-      })).filter(x => x.name && !Number.isNaN(x.score));
-    }
+const DIMS=[
+  {key:'brandability', label:'品牌性',     weight:0.25},
+  {key:'length',       label:'长度简洁性', weight:0.15},
+  {key:'keyword_value',label:'关键词价值', weight:0.20},
+  {key:'tld_strength', label:'TLD强度',   weight:0.20},
+  {key:'market_demand',label:'市场需求',   weight:0.15},
+  {key:'liquidity',    label:'流通价值',   weight:0.05},
+];
 
-    function calcScores(judges) {
-      const scores = judges.map(j => j.score).sort((a, b) => a - b);
-      if (scores.length < 3) return { error: '至少需要 3 个有效评分才能去掉最高分和最低分。' };
-      const min = scores[0], max = scores[scores.length - 1];
-      const trimmed = scores.slice(1, -1);
-      const avg = trimmed.reduce((a, b) => a + b, 0) / trimmed.length;
-      return { count: scores.length, min, max, trimmed, avg: Number(avg.toFixed(2)) };
-    }
+// Tabs
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click',()=>switchTab(t.dataset.tab));
+});
+function switchTab(id){
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));
+  document.querySelectorAll('.tab-panel').forEach(x=>x.classList.toggle('active',x.id==='tab-'+id));
+}
 
-    function buildPayload() {
-      const domain = document.getElementById('domain').value.trim();
-      const md = document.getElementById('mdContent').value.trim();
-      const prompt = promptTemplate.value.trim();
-      fullPayload.value = `${prompt}\n\n---以下是域名分析报告---\n\n域名：${domain || '未填写'}\n\n${md || '未粘贴MD内容'}`;
-    }
+// Prompt init
+document.getElementById('promptTemplate').value=PROMPT;
+document.getElementById('resetPromptBtn').addEventListener('click',()=>{
+  document.getElementById('promptTemplate').value=PROMPT;
+});
 
-    function copyText(text) {
-      navigator.clipboard.writeText(text)
-        .then(() => alert('已复制'))
-        .catch(() => alert('复制失败，请手动复制'));
-    }
+// Build payload
+document.getElementById('buildPromptBtn').addEventListener('click',()=>{
+  const domain=document.getElementById('domain').value.trim();
+  const md=document.getElementById('mdContent').value.trim();
+  const prompt=document.getElementById('promptTemplate').value.trim();
+  const payload=prompt+'\n\n域名：'+(domain||'未填写')+'\n\n'+(md||'（暂无MD报告内容）');
+  document.getElementById('fullPayload').value=payload;
+  const b=document.getElementById('payloadBadge');
+  b.textContent='已生成';b.className='badge badge-ok';
+});
+document.getElementById('copyPayloadBtn').addEventListener('click',()=>{
+  const v=document.getElementById('fullPayload').value;
+  if(!v){alert('请先生成投喂内容');return;}
+  navigator.clipboard.writeText(v).then(()=>alert('已复制，请粘贴给各 AI')).catch(()=>alert('复制失败，请手动选中复制'));
+});
+document.getElementById('goStep2Btn').addEventListener('click',()=>switchTab('step2'));
+document.getElementById('goStep3Btn').addEventListener('click',()=>{calcAndRender();switchTab('step3');});
+document.getElementById('calcBtn').addEventListener('click',calcAndRender);
 
-    function renderResult() {
-      const domain = document.getElementById('domain').value.trim();
-      const judges = getJudges();
-      const calc = calcScores(judges);
-      judgeCountEl.textContent = judges.length;
-      if (calc.error) {
-        finalScoreEl.textContent = '-'; maxScoreEl.textContent = '-'; minScoreEl.textContent = '-';
-        resultBox.textContent = calc.error; return;
-      }
-      finalScoreEl.textContent = calc.avg;
-      maxScoreEl.textContent = calc.max;
-      minScoreEl.textContent = calc.min;
-      resultBox.textContent = JSON.stringify({
-        domain: domain || '未填写域名',
-        judge_count: calc.count,
-        highest_score: calc.max,
-        lowest_score: calc.min,
-        kept_scores: calc.trimmed,
-        final_score: calc.avg,
-        judges
-      }, null, 2);
-    }
+// Judges
+const judgeList=document.getElementById('judgeList');
 
-    function downloadJson() {
-      const text = resultBox.textContent;
-      if (!text || text === '还没有结果' || text.includes('至少需要')) { alert('请先生成有效结果'); return; }
-      const domain = document.getElementById('domain').value.trim() || 'domain';
-      const blob = new Blob([text], { type: 'application/json;charset=utf-8' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `${domain.toLowerCase()}-ai-judge-result.json`;
-      a.click();
-      URL.revokeObjectURL(a.href);
-    }
+function parseAIJson(raw){
+  let s=raw.trim();
+  s=s.replace(/^```[a-z]*\s*/i,'').replace(/\s*```\s*$/i,'');
+  const m=s.match(/\{[\s\S]*\}/);
+  if(!m)return null;
+  try{return JSON.parse(m[0]);}catch(e){return null;}
+}
 
-    document.getElementById('fillPromptBtn').addEventListener('click', () => { promptTemplate.value = defaultPrompt; });
-    document.getElementById('buildPromptBtn').addEventListener('click', buildPayload);
-    document.getElementById('copyPromptBtn').addEventListener('click', () => copyText(fullPayload.value));
-    document.getElementById('addJudgeBtn').addEventListener('click', () => createJudge());
-    document.getElementById('calcBtn').addEventListener('click', renderResult);
-    document.getElementById('copyResultBtn').addEventListener('click', () => copyText(resultBox.textContent));
-    document.getElementById('downloadJsonBtn').addEventListener('click', downloadJson);
+function updatePreview(){
+  const judges=getJudges();
+  document.getElementById('judgeCount').textContent=judges.length;
+  const s=document.getElementById('judgeStatus');
+  s.textContent=judges.length+' 个';
+  s.className='badge '+(judges.length>=5?'badge-ok':'badge-warn');
+  if(judges.length<3){
+    ['previewScore','preMaxScore','preMinScore'].forEach(id=>document.getElementById(id).textContent='-');
+    return;
+  }
+  const c=calcScores(judges);
+  document.getElementById('previewScore').textContent=c.avg;
+  document.getElementById('preMaxScore').textContent=c.max;
+  document.getElementById('preMinScore').textContent=c.min;
+}
 
-    document.getElementById('demoBtn').addEventListener('click', () => {
-      document.getElementById('domain').value = 'TEX.COM';
-      if (!promptTemplate.value.trim()) promptTemplate.value = defaultPrompt;
-      document.getElementById('mdContent').value = '# TEX.COM 域名分析\n\n- 后缀：.com\n- 长度：3字母\n- 优势：极短、稀缺、品牌化潜力高\n- 行业联想：科技、纺织、文本、交易所缩写\n- 备注：适合作为高端品牌域名进行投资评估';
-      judgeList.innerHTML = '';
-      createJudge('ChatGPT', 86); createJudge('Claude', 83); createJudge('Gemini', 88);
-      createJudge('DeepSeek', 79); createJudge('Qwen', 85);
-      buildPayload(); renderResult();
-    });
+function createJudge(name='',score='',jsonData=null){
+  const item=document.createElement('div');
+  item.className='judge-item';
+  item.innerHTML=`
+    <div class="judge-row1">
+      <input type="text" class="judge-name" placeholder="AI名称，如 ChatGPT" value="${name}">
+      <input type="number" class="judge-score" placeholder="分数" min="0" max="100" step="1" value="${score}">
+      <button class="remove-btn" title="删除">&times;</button>
+    </div>
+    <div class="judge-row2">
+      <textarea class="judge-json" placeholder="把 AI 返回的完整 JSON 粘贴到这里，点「解析」自动提取 final_score"></textarea>
+      <button class="parse-btn">解析 JSON</button>
+    </div>
+    <div class="parse-msg"></div>
+  `;
+  if(jsonData) item.querySelector('.judge-json').value=JSON.stringify(jsonData);
+  item._jsonData=jsonData;
+  item.querySelector('.remove-btn').addEventListener('click',()=>{item.remove();updatePreview();});
+  item.querySelector('.judge-score').addEventListener('input',updatePreview);
+  item.querySelector('.parse-btn').addEventListener('click',()=>{
+    const raw=item.querySelector('.judge-json').value;
+    const msg=item.querySelector('.parse-msg');
+    const parsed=parseAIJson(raw);
+    if(!parsed){msg.innerHTML='<span class="parse-error">❌ 解析失败，请检查JSON格式</span>';return;}
+    const sc=parsed.final_score;
+    if(typeof sc!=='number'){msg.innerHTML='<span class="parse-error">❌ 未找到 final_score 字段</span>';return;}
+    item.querySelector('.judge-score').value=sc;
+    item._jsonData=parsed;
+    msg.innerHTML=`<span class="score-badge">✅ 解析成功 · final_score = ${sc}</span>`;
+    updatePreview();
+  });
+  judgeList.appendChild(item);
+  updatePreview();
+}
 
-    promptTemplate.value = defaultPrompt;
-    createJudge('ChatGPT', ''); createJudge('Claude', ''); createJudge('Gemini', '');
-  </script>
+function getJudges(){
+  return [...document.querySelectorAll('.judge-item')].map(item=>({
+    name:item.querySelector('.judge-name').value.trim(),
+    score:parseFloat(item.querySelector('.judge-score').value),
+    jsonData:item._jsonData||null
+  })).filter(x=>x.name&&!Number.isNaN(x.score));
+}
+
+function calcScores(judges){
+  const sorted=[...judges].sort((a,b)=>a.score-b.score);
+  const min=sorted[0].score,max=sorted[sorted.length-1].score;
+  const kept=sorted.slice(1,-1);
+  const avg=kept.reduce((s,j)=>s+j.score,0)/kept.length;
+  return{count:judges.length,min,max,kept,avg:Math.round(avg*100)/100};
+}
+
+function calcDimAvg(judges){
+  const sorted=[...judges].sort((a,b)=>a.score-b.score);
+  const kept=sorted.slice(1,-1).filter(j=>j.jsonData);
+  if(!kept.length)return null;
+  const res={};
+  DIMS.forEach(d=>{
+    const vals=kept.map(j=>j.jsonData[d.key]?.score).filter(v=>typeof v==='number');
+    res[d.key]=vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length):null;
+  });
+  return res;
+}
+
+function calcAndRender(){
+  const domain=document.getElementById('domain').value.trim();
+  const judges=getJudges();
+  if(judges.length<3){
+    document.getElementById('finalScore').textContent='-';
+    document.getElementById('resultBox').textContent='至少需要 3 个有效评分才能计算。';
+    return;
+  }
+  const c=calcScores(judges);
+  const dimAvg=calcDimAvg(judges);
+  document.getElementById('finalScore').textContent=c.avg;
+  document.getElementById('resDomain').textContent=domain||'未填写';
+  document.getElementById('resCount').textContent=c.count;
+  document.getElementById('resMax').textContent=c.max;
+  document.getElementById('resMin').textContent=c.min;
+  // dim table
+  const tbody=document.getElementById('dimBody');
+  if(dimAvg){
+    tbody.innerHTML=DIMS.map(d=>`<tr><td>${d.label}</td><td>${(d.weight*100).toFixed(0)}%</td><td class="dim-score">${dimAvg[d.key]??'-'}</td></tr>`).join('');
+  } else {
+    tbody.innerHTML='<tr><td colspan="3" style="color:var(--muted);text-align:center;padding:12px;">需粘贴AI返回JSON并解析后才有维度数据</td></tr>';
+  }
+  const summary={
+    domain:domain||'未填写',
+    judge_count:c.count,
+    removed_max:c.max,
+    removed_min:c.min,
+    kept_judges:c.kept.map(j=>({name:j.name,score:j.score})),
+    final_score:c.avg,
+    dim_averages:dimAvg,
+    all_judges:judges.map(j=>({name:j.name,score:j.score}))
+  };
+  document.getElementById('resultBox').textContent=JSON.stringify(summary,null,2);
+}
+
+document.getElementById('addJudgeBtn').addEventListener('click',()=>createJudge());
+document.getElementById('copyResultBtn').addEventListener('click',()=>{
+  navigator.clipboard.writeText(document.getElementById('resultBox').textContent)
+    .then(()=>alert('已复制')).catch(()=>alert('复制失败'));
+});
+document.getElementById('downloadJsonBtn').addEventListener('click',()=>{
+  const text=document.getElementById('resultBox').textContent;
+  if(text.includes('还没有结果')||text.includes('至少需要')){alert('请先计算结果');return;}
+  const domain=document.getElementById('domain').value.trim()||'domain';
+  const blob=new Blob([text],{type:'application/json;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download=domain.toLowerCase()+'-ai-judge.json';a.click();
+  URL.revokeObjectURL(a.href);
+});
+
+document.getElementById('demoBtn').addEventListener('click',()=>{
+  document.getElementById('domain').value='TEX.COM';
+  document.getElementById('mdContent').value=`# TEX.COM 域名分析报告\n\n## 基本信息\n- 域名：TEX.COM\n- 后缀：.com（最强TLD）\n- 字符长度：3字母，极短稀缺\n- 注册年份：1995年（超过30年老域名）\n\n## 行业分析\n- 联想词：Technology / Textile / Text / Texas / Exchange\n- 适用行业：科技、纺织、文本处理、金融交易所\n- 高价值方向：科技品牌、AI产品命名\n\n## 市场参考\n- 同类3字母.com均价：$50,000 - $500,000\n- 近年成交案例：API.com $2.5M / FIN.com $1.8M\n- 投资热度：高`;
+  judgeList.innerHTML='';
+  const demos=[
+    ['ChatGPT',86,{domain:'TEX.COM',brandability:{score:88,reason:'极短三字母，发音清晰，科技感强'},length:{score:95,reason:'3字符，顶级稀缺长度'},keyword_value:{score:72,reason:'TEX可联想技术/文本等多个高价值词汇'},tld_strength:{score:98,reason:'.com为全球最认可TLD'},market_demand:{score:78,reason:'科技域名市场需求持续旺盛'},liquidity:{score:82,reason:'3字母.com流通性极高，买家多'},final_score:86}],
+    ['Claude', 83,{domain:'TEX.COM',brandability:{score:85,reason:'简洁有力，国际化强'},length:{score:95,reason:'3字母短域名，市场稀缺'},keyword_value:{score:68,reason:'词义偏专业，通用性略低'},tld_strength:{score:97,reason:'.com无可争议的最强后缀'},market_demand:{score:75,reason:'需求稳定但赛道竞争激烈'},liquidity:{score:80,reason:'短域名变现渠道成熟'},final_score:83}],
+    ['Gemini', 88,{domain:'TEX.COM',brandability:{score:90,reason:'三字母音节感好，适合打造品牌'},length:{score:95,reason:'最短级别，市场溢价高'},keyword_value:{score:75,reason:'关键词联想丰富，跨行业适用'},tld_strength:{score:98,reason:'.com是全球最高流通性后缀'},market_demand:{score:80,reason:'AI和科技赛道持续火热'},liquidity:{score:85,reason:'历史成交记录证明高需求'},final_score:88}],
+    ['DeepSeek',79,{domain:'TEX.COM',brandability:{score:82,reason:'简洁但语义偏模糊'},length:{score:95,reason:'3字母短域名，非常稀缺'},keyword_value:{score:62,reason:'TEX本身商业关键词价值中等'},tld_strength:{score:96,reason:'.com权威性最高'},market_demand:{score:72,reason:'市场需求存在但不算爆发期'},liquidity:{score:75,reason:'中高流通性，需要精准买家'},final_score:79}],
+    ['Qwen',   85,{domain:'TEX.COM',brandability:{score:87,reason:'短促有力，国际化程度高'},length:{score:95,reason:'3字符稀缺域名'},keyword_value:{score:70,reason:'关键词覆盖面广但不够精准'},tld_strength:{score:97,reason:'.com全球认可度第一'},market_demand:{score:78,reason:'科技域名长期高需求'},liquidity:{score:83,reason:'短.com是最受欢迎的投资标的'},final_score:85}],
+  ];
+  demos.forEach(([name,score,json])=>createJudge(name,score,json));
+  document.getElementById('buildPromptBtn').click();
+  updatePreview();
+});
+
+// Init
+createJudge('ChatGPT');
+createJudge('Claude');
+createJudge('Gemini');
+</script>
 </body>
 </html>
