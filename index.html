@@ -1,11 +1,11 @@
-&lt;!DOCTYPE html&gt;
-&lt;html lang="zh-CN" data-theme="dark"&gt;
-&lt;head&gt;
-&lt;meta charset="UTF-8"&gt;
-&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
-&lt;title&gt;域名估值物料包生成器 v6.0&lt;/title&gt;
-&lt;link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&amp;display=swap" rel="stylesheet"&gt;
-&lt;style&gt;
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>域名估值物料包生成器 v6.0.1</title>
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+<style>
 /* ── TOKENS ── */
 :root {
   --font-body: 'Satoshi', 'Inter', sans-serif;
@@ -215,6 +215,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
 }
 .copy-btn:hover { opacity: 0.85; }
 .copy-btn.copied { background: var(--green); }
+.copy-btn.failed { background: var(--red); }
 .pack-body {
   padding: var(--space-6);
   font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
@@ -288,131 +289,131 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   40% { transform: scale(1); opacity: 1; }
 }
 .loader-text { margin-top: var(--space-4); color: var(--muted); font-size: var(--text-sm); }
-&lt;/style&gt;
-&lt;/head&gt;
-&lt;body&gt;
+</style>
+</head>
+<body>
 
-&lt;div class="app"&gt;
+<div class="app">
 
-  &lt;!-- HEADER --&gt;
-  &lt;header class="header"&gt;
-    &lt;div class="logo"&gt;
-      &lt;svg class="logo-mark" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="域名估值"&gt;
-        &lt;rect width="36" height="36" rx="10" fill="var(--accent)"/&gt;
-        &lt;text x="18" y="24" text-anchor="middle" font-size="18" font-weight="700" fill="white" font-family="Satoshi,sans-serif"&gt;D&lt;/text&gt;
-        &lt;circle cx="27" cy="10" r="4" fill="var(--gold)"/&gt;
-      &lt;/svg&gt;
-      &lt;span class="logo-text"&gt;域名估值&lt;/span&gt;
-      &lt;span class="logo-version"&gt;v6.0 Simple&lt;/span&gt;
-    &lt;/div&gt;
-    &lt;button class="theme-btn" data-theme-toggle aria-label="切换主题"&gt;
-      &lt;svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"&gt;
-        &lt;path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/&gt;
-      &lt;/svg&gt;
-    &lt;/button&gt;
-  &lt;/header&gt;
+  <!-- HEADER -->
+  <header class="header">
+    <div class="logo">
+      <svg class="logo-mark" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="域名估值">
+        <rect width="36" height="36" rx="10" fill="var(--accent)"/>
+        <text x="18" y="24" text-anchor="middle" font-size="18" font-weight="700" fill="white" font-family="Satoshi,sans-serif">D</text>
+        <circle cx="27" cy="10" r="4" fill="var(--gold)"/>
+      </svg>
+      <span class="logo-text">域名估值</span>
+      <span class="logo-version">v6.0.1</span>
+    </div>
+    <button class="theme-btn" data-theme-toggle aria-label="切换主题">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+    </button>
+  </header>
 
-  &lt;!-- INPUT --&gt;
-  &lt;div class="input-card"&gt;
-    &lt;div class="input-label"&gt;
-      &lt;svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"&gt;
-        &lt;circle cx="11" cy="11" r="8"/&gt;&lt;path d="m21 21-4.35-4.35"/&gt;
-      &lt;/svg&gt;
+  <!-- INPUT -->
+  <div class="input-card">
+    <div class="input-label">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
       输入域名，生成可转发给 AI 的估值物料包
-    &lt;/div&gt;
-    &lt;div class="input-row"&gt;
-      &lt;input
+    </div>
+    <div class="input-row">
+      <input
         class="domain-input" id="domainInput"
         type="text" placeholder="例如：TEXT.COM"
         autocomplete="off" autocapitalize="off" spellcheck="false"
-      /&gt;
-      &lt;button class="analyze-btn" id="analyzeBtn" onclick="analyze()"&gt;生成估值包&lt;/button&gt;
-    &lt;/div&gt;
-    &lt;div class="examples"&gt;
-      &lt;span class="examples-label"&gt;快速测试：&lt;/span&gt;
-      &lt;span class="example-chip" onclick="fillExample('TEXT.COM')"&gt;TEXT.COM&lt;/span&gt;
-      &lt;span class="example-chip" onclick="fillExample('Derm.com')"&gt;Derm.com&lt;/span&gt;
-      &lt;span class="example-chip" onclick="fillExample('Excel.com')"&gt;Excel.com&lt;/span&gt;
-      &lt;span class="example-chip" onclick="fillExample('GOKA.com')"&gt;GOKA.com&lt;/span&gt;
-      &lt;span class="example-chip" onclick="fillExample('TEX.COM')"&gt;TEX.COM&lt;/span&gt;
-      &lt;span class="example-chip" onclick="fillExample('MyCar.ai')"&gt;MyCar.ai&lt;/span&gt;
-    &lt;/div&gt;
-  &lt;/div&gt;
+      />
+      <button class="analyze-btn" id="analyzeBtn" onclick="analyze()">生成估值包</button>
+    </div>
+    <div class="examples">
+      <span class="examples-label">快速测试：</span>
+      <span class="example-chip" onclick="fillExample('TEXT.COM')">TEXT.COM</span>
+      <span class="example-chip" onclick="fillExample('Derm.com')">Derm.com</span>
+      <span class="example-chip" onclick="fillExample('Excel.com')">Excel.com</span>
+      <span class="example-chip" onclick="fillExample('GOKA.com')">GOKA.com</span>
+      <span class="example-chip" onclick="fillExample('TEX.COM')">TEX.COM</span>
+      <span class="example-chip" onclick="fillExample('MyCar.ai')">MyCar.ai</span>
+    </div>
+  </div>
 
-  &lt;!-- LOADER --&gt;
-  &lt;div class="loader" id="loader"&gt;
-    &lt;div class="loader-dots"&gt;&lt;span&gt;&lt;/span&gt;&lt;span&gt;&lt;/span&gt;&lt;span&gt;&lt;/span&gt;&lt;/div&gt;
-    &lt;div class="loader-text"&gt;正在分析域名结构与市场数据…&lt;/div&gt;
-  &lt;/div&gt;
+  <!-- LOADER -->
+  <div class="loader" id="loader">
+    <div class="loader-dots"><span></span><span></span><span></span></div>
+    <div class="loader-text">正在分析域名结构与市场数据…</div>
+  </div>
 
-  &lt;!-- RESULTS --&gt;
-  &lt;div id="results"&gt;
+  <!-- RESULTS -->
+  <div id="results">
 
-    &lt;div class="cards-grid"&gt;
-      &lt;div class="result-card"&gt;
-        &lt;div class="card-label"&gt;资产类别&lt;/div&gt;
-        &lt;div class="asset-badge" id="cardAssetClass"&gt;—&lt;/div&gt;
-        &lt;div class="card-sub" id="cardAssetDesc"&gt;—&lt;/div&gt;
-      &lt;/div&gt;
-      &lt;div class="result-card"&gt;
-        &lt;div class="card-label"&gt;综合评分&lt;/div&gt;
-        &lt;div class="score-ring"&gt;
-          &lt;span class="score-big" id="cardScore"&gt;—&lt;/span&gt;
-          &lt;span class="score-max"&gt;/ 100&lt;/span&gt;
-        &lt;/div&gt;
-        &lt;div class="card-sub" id="cardScoreLabel"&gt;—&lt;/div&gt;
-      &lt;/div&gt;
-      &lt;div class="result-card"&gt;
-        &lt;div class="card-label"&gt;三层估值&lt;/div&gt;
-        &lt;div class="price-tier" id="cardPriceTier"&gt;—&lt;/div&gt;
-      &lt;/div&gt;
-      &lt;div class="result-card"&gt;
-        &lt;div class="card-label"&gt;置信度&lt;/div&gt;
-        &lt;div class="card-value" id="cardConf"&gt;—&lt;/div&gt;
-        &lt;div class="conf-bar-wrap"&gt;&lt;div class="conf-bar" id="confBar" style="width:0%"&gt;&lt;/div&gt;&lt;/div&gt;
-        &lt;div class="card-sub" id="cardConfNote"&gt;—&lt;/div&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;
+    <div class="cards-grid">
+      <div class="result-card">
+        <div class="card-label">资产类别</div>
+        <div class="asset-badge" id="cardAssetClass">—</div>
+        <div class="card-sub" id="cardAssetDesc">—</div>
+      </div>
+      <div class="result-card">
+        <div class="card-label">综合评分</div>
+        <div class="score-ring">
+          <span class="score-big" id="cardScore">—</span>
+          <span class="score-max">/ 100</span>
+        </div>
+        <div class="card-sub" id="cardScoreLabel">—</div>
+      </div>
+      <div class="result-card">
+        <div class="card-label">三层估值</div>
+        <div class="price-tier" id="cardPriceTier">—</div>
+      </div>
+      <div class="result-card">
+        <div class="card-label">置信度</div>
+        <div class="card-value" id="cardConf">—</div>
+        <div class="conf-bar-wrap"><div class="conf-bar" id="confBar" style="width:0%"></div></div>
+        <div class="card-sub" id="cardConfNote">—</div>
+      </div>
+    </div>
 
-    &lt;div class="pack-section"&gt;
-      &lt;div class="pack-header"&gt;
-        &lt;div class="pack-title"&gt;
-          &lt;span class="dot"&gt;&lt;/span&gt;
+    <div class="pack-section">
+      <div class="pack-header">
+        <div class="pack-title">
+          <span class="dot"></span>
           DOMAIN_VALUATION_PACK.md — 可直接转发给 AI
-        &lt;/div&gt;
-        &lt;button class="copy-btn" id="copyBtn" onclick="copyPack()"&gt;
-          &lt;svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"&gt;
-            &lt;rect x="9" y="9" width="13" height="13" rx="2"/&gt;&lt;path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/&gt;
-          &lt;/svg&gt;
+        </div>
+        <button class="copy-btn" id="copyBtn" onclick="copyPack()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
           复制全文
-        &lt;/button&gt;
-      &lt;/div&gt;
-      &lt;div class="pack-body" id="packBody"&gt;—&lt;/div&gt;
-    &lt;/div&gt;
+        </button>
+      </div>
+      <div class="pack-body" id="packBody">—</div>
+    </div>
 
-    &lt;div class="advanced-toggle" id="advToggle" onclick="toggleAdvanced()"&gt;
-      &lt;svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"&gt;
-        &lt;path d="M12 5v14M5 12l7 7 7-7"/&gt;
-      &lt;/svg&gt;
+    <div class="advanced-toggle" id="advToggle" onclick="toggleAdvanced()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 5v14M5 12l7 7 7-7"/>
+      </svg>
       高级模式：六维分数 · 风险标记 · Outbound 提示
-    &lt;/div&gt;
-    &lt;div id="advanced-panel"&gt;
-      &lt;div class="advanced-inner"&gt;
-        &lt;div class="adv-label"&gt;六维评分明细&lt;/div&gt;
-        &lt;div class="dim-grid" id="dimGrid"&gt;&lt;/div&gt;
-        &lt;div class="adv-label" style="margin-top: var(--space-6);"&gt;风险标记&lt;/div&gt;
-        &lt;div class="risk-list" id="riskList"&gt;&lt;/div&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;
+    </div>
+    <div id="advanced-panel">
+      <div class="advanced-inner">
+        <div class="adv-label">六维评分明细</div>
+        <div class="dim-grid" id="dimGrid"></div>
+        <div class="adv-label" style="margin-top: var(--space-6);">风险标记</div>
+        <div class="risk-list" id="riskList"></div>
+      </div>
+    </div>
 
-  &lt;/div&gt;
+  </div>
 
-  &lt;footer class="footer"&gt;
-    CORE_RULES v2 · Domain AI Judge v6.0 · 估值仅供参考，最终价格以实际市场成交为准
-  &lt;/footer&gt;
-&lt;/div&gt;
+  <footer class="footer">
+    静态规则库 CORE_RULES v2 · Domain AI Judge v6.0.1 · 估值仅供参考，最终价格以实际市场成交为准
+  </footer>
+</div>
 
-&lt;script&gt;
+<script>
 // ── THEME ──
 (function(){
   const btn = document.querySelector('[data-theme-toggle]');
@@ -420,8 +421,8 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   let d = matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light';
   html.setAttribute('data-theme', d);
   const icons = {
-    dark: '&lt;svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"&gt;&lt;circle cx="12" cy="12" r="5"/&gt;&lt;path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/&gt;&lt;/svg&gt;',
-    light: '&lt;svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"&gt;&lt;path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/&gt;&lt;/svg&gt;'
+    dark: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>',
+    light: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'
   };
   if(btn) btn.innerHTML = icons[d === 'dark' ? 'light' : 'dark'];
   if(btn) btn.addEventListener('click', () => {
@@ -486,7 +487,7 @@ function parseDomain(raw) {
 function classifyAsset(sld, tld, full) {
   const key = full;
   if (ANCHORS[key]) {
-    const cls = sld.length === 3 &amp;&amp; /^[a-z]+$/.test(sld) ? 'LLL_COM' :
+    const cls = sld.length === 3 && /^[a-z]+$/.test(sld) ? 'LLL_COM' :
                 ULTRA_WORD_LIST.includes(sld) ? 'ULTRA_WORD_COM' : 'VERIFIED_HIGH_VALUE_COM';
     return {
       id: cls === 'ULTRA_WORD_COM' ? 'ULTRA_WORD_COM' : 'VERIFIED_HIGH_VALUE_COM',
@@ -504,17 +505,17 @@ function classifyAsset(sld, tld, full) {
   const isNumeric = /^[0-9]+$/.test(sld);
 
   if (tld === '.com') {
-    if (isAlpha &amp;&amp; len === 2) return { id: 'LL_COM', priceTag: '投资人流通底价', scoreFloor: 95, p1: '$500,000 – $5,000,000+', p2: '$1,000,000 – $10,000,000', p3: '$5,000,000 – $20,000,000+', rationale: '2字母.COM — 全球最稀缺资产之一' };
-    if (isAlpha &amp;&amp; len === 3) return { id: 'LLL_COM', priceTag: '投资人流通底价', scoreFloor: 88, p1: '$100,000 – $800,000', p2: '$200,000 – $1,500,000', p3: '$500,000 – $3,000,000', rationale: '3字母.COM — 高流动性稀缺资产' };
-    // CRITICAL: Check ULTRA_WORD before generic word/LLLL
-    if (isAlpha &amp;&amp; ULTRA_WORD_LIST.includes(sld)) return {
+    if (isAlpha && len === 2) return { id: 'LL_COM', priceTag: '投资人流通底价', scoreFloor: 95, p1: '$500,000 – $5,000,000+', p2: '$1,000,000 – $10,000,000', p3: '$5,000,000 – $20,000,000+', rationale: '2字母.COM — 全球最稀缺资产之一' };
+    if (isAlpha && len === 3) return { id: 'LLL_COM', priceTag: '投资人流通底价', scoreFloor: 88, p1: '$100,000 – $800,000', p2: '$200,000 – $1,500,000', p3: '$500,000 – $3,000,000', rationale: '3字母.COM — 高流动性稀缺资产' };
+    // FIX #2: ULTRA_WORD → LLLL_PRONOUNCEABLE → WORD_COM（修复分支顺序，防止 LLLL 可发音被 WORD_COM 吃掉）
+    if (isAlpha && ULTRA_WORD_LIST.includes(sld)) return {
       id: 'ULTRA_WORD_COM', priceTag: '投资人流通底价｜⚠️ 需人工经纪复核',
       scoreFloor: 92, p1: '$500,000 – $2,000,000+', p2: '$1,000,000 – $5,000,000', p3: '$3,000,000 – $15,000,000+',
       rationale: ULTRA_RATIONALE[sld] || '顶级行业核心词，高品牌可塑性'
     };
-    if (isAlpha &amp;&amp; len &lt;= 8) return { id: 'WORD_COM', priceTag: '投资人流通底价', scoreFloor: 75, p1: '$15,000 – $200,000', p2: '$50,000 – $500,000', p3: '$100,000 – $1,000,000', rationale: '英文单词.COM — 普通资产' };
-    if (isNumeric &amp;&amp; len &lt;= 5) return { id: 'SHORT_NUMERIC_COM', priceTag: '投资人流通底价', scoreFloor: 75, p1: '$1,000 – $30,000', p2: '$5,000 – $80,000', p3: '$20,000 – $200,000', rationale: '短数字.COM' };
-    if (isAlpha &amp;&amp; /[aeiou]/.test(sld) &amp;&amp; len === 4) return { id: 'LLLL_PRONOUNCEABLE_COM', priceTag: '投资人底价', scoreFloor: 78, p1: '$8,000 – $120,000', p2: '$20,000 – $250,000', p3: '$50,000 – $500,000', rationale: '4字母可发音.COM — GOKA.com $399,995 参考' };
+    if (isAlpha && /[aeiou]/.test(sld) && len === 4) return { id: 'LLLL_PRONOUNCEABLE_COM', priceTag: '投资人底价', scoreFloor: 78, p1: '$8,000 – $120,000', p2: '$20,000 – $250,000', p3: '$50,000 – $500,000', rationale: '4字母可发音.COM — GOKA.com $399,995 参考' };
+    if (isAlpha && len <= 8) return { id: 'WORD_COM', priceTag: '投资人流通底价', scoreFloor: 75, p1: '$15,000 – $200,000', p2: '$50,000 – $500,000', p3: '$100,000 – $1,000,000', rationale: '英文单词.COM — 普通资产' };
+    if (isNumeric && len <= 5) return { id: 'SHORT_NUMERIC_COM', priceTag: '投资人流通底价', scoreFloor: 75, p1: '$1,000 – $30,000', p2: '$5,000 – $80,000', p3: '$20,000 – $200,000', rationale: '短数字.COM' };
   }
   if (tld === '.ai') return { id: 'AI_KEYWORD_TLD', priceTag: '投资人流通价', scoreFloor: 69, p1: '$1,000 – $8,000', p2: '$3,000 – $20,000', p3: '$8,000 – $50,000', rationale: '.AI 后缀域名，市场热度高' };
   return { id: 'GENERIC', priceTag: '同行参考价', scoreFloor: 0, p1: '—', p2: '—', p3: '—', rationale: '未识别为稀缺资产，建议人工复核' };
@@ -525,7 +526,7 @@ function score6D(sld, tld, asset) {
   const tldMap = { '.com': 100, '.ai': 69, '.io': 64, '.co': 60, '.net': 55, '.org': 50 };
   const d1 = tldMap[tld] || 40;
   let d2 = asset.id === 'ULTRA_WORD_COM' ? 92 : asset.id === 'LL_COM' ? 95 : asset.id === 'LLL_COM' ? 85 : asset.id === 'WORD_COM' ? 72 : asset.id === 'LLLL_PRONOUNCEABLE_COM' ? 75 : asset.id === 'AI_KEYWORD_TLD' ? 68 : 60;
-  let d3 = len &lt;= 2 ? 98 : len &lt;= 3 ? 92 : len === 4 &amp;&amp; /[aeiou]/.test(sld) ? 84 : len &lt;= 4 ? 78 : len &lt;= 6 ? 74 : len &lt;= 8 ? 65 : 50;
+  let d3 = len <= 2 ? 98 : len <= 3 ? 92 : len === 4 && /[aeiou]/.test(sld) ? 84 : len <= 4 ? 78 : len <= 6 ? 74 : len <= 8 ? 65 : 50;
   if (asset.id === 'ULTRA_WORD_COM') d3 = Math.max(d3, 88);
   let d4 = asset.id === 'VERIFIED_HIGH_VALUE_COM' ? 90 : ['ULTRA_WORD_COM','LL_COM'].includes(asset.id) ? 88 : asset.id === 'LLL_COM' ? 85 : 65;
   let d5 = tld === '.ai' ? 85 : tld === '.com' ? 80 : 60;
@@ -545,9 +546,9 @@ function getRisks(sld, tld, asset) {
   if (['text','excel','pay','code','market','trade'].includes(sld)) {
     risks.push('™️ 商标风险：需查询 USPTO/WIPO 是否有同名注册商标，评估侵权可能性');
   }
-  if (tld !== '.com' &amp;&amp; tld !== '.ai') risks.push('🔻 非主流后缀，流动性低于 .com，成交周期可能更长');
+  if (tld !== '.com' && tld !== '.ai') risks.push('🔻 非主流后缀，流动性低于 .com，成交周期可能更长');
   if (asset.id === 'GENERIC') risks.push('⚠️ 未识别为稀缺资产类别，建议人工复核');
-  if (sld.length &gt; 8) risks.push('📏 域名较长，品牌可塑性受限，终端买家范围缩小');
+  if (sld.length > 8) risks.push('📏 域名较长，品牌可塑性受限，终端买家范围缩小');
   risks.push('📊 缺失：需人工确认当前持有人是否出售、是否有活跃询盘');
   return risks;
 }
@@ -578,14 +579,17 @@ function getConfidence(asset) {
 function generatePack(parsed, asset, scores, conf, risks, industries) {
   const { sld, tld, full } = parsed;
   const now = new Date().toISOString().split('T')[0];
-  const confKey = conf.label === '高' ? 'high' : conf.label === '中高' ? 'medium_high' : conf.label === '中' ? 'medium' : 'low';
 
+  // FIX #1: JSON字段 score → final_score；FIX #3: data_source_level标注static_rule_pack
   const materialData = JSON.stringify({
     domain: full.toUpperCase(),
     asset_class: asset.id,
-    system_score: scores.final,
+    final_score: scores.final,
+    score_explanation: scores.final >= 90 ? '顶级资产' : scores.final >= 80 ? '优质资产' : scores.final >= 70 ? '良好资产' : '普通域名',
     score_floor: asset.scoreFloor || 0,
     price_tag: asset.priceTag,
+    data_source_level: 'static_rule_pack',
+    live_market_checked: false,
     dimensions: { D1_tld: scores.d1, D2_enduser: scores.d2, D3_quality: scores.d3, D4_market: scores.d4, D5_heat: scores.d5, D6_outbound: scores.d6 },
     price_reference: { p1_investor: asset.p1, p2_brand: asset.p2, p3_enduser: asset.p3 },
     potential_industries: industries,
@@ -595,15 +599,16 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
   }, null, 2);
 
   return `# DOMAIN_VALUATION_PACK.md
-> 生成时间：${now} | 系统：Domain AI Judge v6.0 | 规则：CORE_RULES v2
+> 生成时间：${now} | 系统：Domain AI Judge v6.0.1 | 规则：CORE_RULES v2
 > ⚠️ 本文档为系统初步判断，最终价格以实际市场成交为准
+> 📦 数据来源：静态规则库 / 用户录入 / 待人工复核（live_market_checked: false）
 
 ---
 
 ## 一、域名基础识别
 
 | 字段 | 值 |
-|------|----|
+|------|-----|
 | 域名 | **${full.toUpperCase()}** |
 | 主体（SLD） | ${sld.toUpperCase()} |
 | 后缀（TLD） | ${tld} |
@@ -619,7 +624,7 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
 
 ## 二、系统使用的物料
 
-### 2.1 已知成交锚点（CORE_RULES v2 · 2026公开数据）
+### 2.1 已知成交锚点（静态规则库 / 用户录入 / 待人工复核）
 
 | 域名 | 成交价 | 参考意义 |
 |------|--------|---------|
@@ -676,7 +681,7 @@ ${industries.map((ind, i) => `${i+1}. ${ind}`).join('\n')}
 ## 四、系统初步判断
 
 | 字段 | 值 |
-|------|----|
+|------|-----|
 | **综合评分** | **${scores.final} / 100** |
 | **P1 投资人流通底价** | **${asset.p1 || '—'}** |
 | **P2 品牌资产价** | **${asset.p2 || '—'}** |
@@ -711,6 +716,7 @@ ${risks.map(r => '- ' + r).join('\n')}
 2. 明确区分"事实"、"推断"、"缺失数据"三类信息
 3. ULTRA_WORD_COM 类别不得机械低估，价格区间必须参照同类顶级成交
 4. 必须输出标准 JSON，字段名全部下划线命名（final_score，不得用 finalScore）
+5. ⚠️ 注意：本材料包为静态规则库生成（live_market_checked: false），请勿假设系统已联网查询实时市场数据
 
 **域名材料包：**
 ${materialData}
@@ -720,7 +726,8 @@ ${materialData}
 {
   "domain": "${full.toUpperCase()}",
   "asset_class": "",
-  "score": 0,
+  "final_score": 0,
+  "score_explanation": "",
   "price_range": {
     "investor_floor_usd": "",
     "brand_asset_usd": "",
@@ -742,7 +749,7 @@ ${materialData}
 
 ---
 
-*DOMAIN_VALUATION_PACK.md · Domain AI Judge v6.0 · CORE_RULES v2 · ${now}*
+*DOMAIN_VALUATION_PACK.md · Domain AI Judge v6.0.1 · CORE_RULES v2 · 静态规则库 · ${now}*
 `;
 }
 
@@ -769,13 +776,13 @@ function analyze() {
       document.getElementById('cardAssetClass').textContent = asset.id;
       document.getElementById('cardAssetDesc').textContent = asset.rationale || asset.priceTag;
       document.getElementById('cardScore').textContent = scores.final;
-      document.getElementById('cardScoreLabel').textContent = scores.final &gt;= 90 ? '顶级资产' : scores.final &gt;= 80 ? '优质资产' : scores.final &gt;= 70 ? '良好资产' : '普通域名';
+      document.getElementById('cardScoreLabel').textContent = scores.final >= 90 ? '顶级资产' : scores.final >= 80 ? '优质资产' : scores.final >= 70 ? '良好资产' : '普通域名';
 
       document.getElementById('cardPriceTier').innerHTML = [
         { label: 'P1 投资人底价', val: asset.p1 || '—' },
         { label: 'P2 品牌资产价', val: asset.p2 || '—' },
         { label: 'P3 终端买家价', val: asset.p3 || '—' }
-      ].map(r =&gt; `&lt;div class="price-row"&gt;&lt;span class="price-tier-label"&gt;${r.label}&lt;/span&gt;&lt;span class="price-tier-val"&gt;${r.val}&lt;/span&gt;&lt;/div&gt;`).join('');
+      ].map(r => `<div class="price-row"><span class="price-tier-label">${r.label}</span><span class="price-tier-val">${r.val}</span></div>`).join('');
 
       document.getElementById('cardConf').textContent = conf.label;
       document.getElementById('confBar').style.width = conf.pct + '%';
@@ -792,9 +799,9 @@ function analyze() {
         { name: 'D4 市场定价', score: scores.d4, weight: '20%' },
         { name: 'D5 市场热度', score: scores.d5, weight: '10%' },
         { name: 'D6 Outbound', score: scores.d6, weight: '5%' }
-      ].map(d =&gt; `&lt;div class="dim-item"&gt;&lt;div class="dim-name"&gt;${d.name}&lt;/div&gt;&lt;div class="dim-score" style="color:${d.score&gt;=85?'var(--accent)':d.score&gt;=70?'var(--gold)':'var(--muted)'}"&gt;${d.score}&lt;/div&gt;&lt;div class="dim-weight"&gt;权重 ${d.weight}&lt;/div&gt;&lt;/div&gt;`).join('');
+      ].map(d => `<div class="dim-item"><div class="dim-name">${d.name}</div><div class="dim-score" style="color:${d.score>=85?'var(--accent)':d.score>=70?'var(--gold)':'var(--muted)'}">${d.score}</div><div class="dim-weight">权重 ${d.weight}</div></div>`).join('');
 
-      document.getElementById('riskList').innerHTML = risks.map(r =&gt; `&lt;div class="risk-item"&gt;&lt;span&gt;${r}&lt;/span&gt;&lt;/div&gt;`).join('');
+      document.getElementById('riskList').innerHTML = risks.map(r => `<div class="risk-item"><span>${r}</span></div>`).join('');
 
     } catch(e) { console.error(e); }
 
@@ -804,22 +811,35 @@ function analyze() {
   }, 900);
 }
 
+// FIX #4: copyPack 增加失败兜底，不用 alert，改为按钮状态反馈
 function copyPack() {
   if (!currentPack) return;
-  navigator.clipboard.writeText(currentPack).then(() => {
-    const btn = document.getElementById('copyBtn');
-    btn.classList.add('copied');
-    btn.innerHTML = '&lt;svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"&gt;&lt;polyline points="20 6 9 17 4 12"/&gt;&lt;/svg&gt; 已复制！';
-    setTimeout(() =&gt; {
-      btn.classList.remove('copied');
-      btn.innerHTML = '&lt;svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"&gt;&lt;rect x="9" y="9" width="13" height="13" rx="2"/&gt;&lt;path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/&gt;&lt;/svg&gt; 复制全文';
-    }, 2000);
-  });
+  const btn = document.getElementById('copyBtn');
+  const iconCopy = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+  const iconOk = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+
+  navigator.clipboard.writeText(currentPack)
+    .then(() => {
+      btn.classList.add('copied');
+      btn.innerHTML = iconOk + ' 已复制！';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = iconCopy + ' 复制全文';
+      }, 2000);
+    })
+    .catch(() => {
+      btn.classList.add('failed');
+      btn.innerHTML = '⚠️ 复制失败，请手动复制';
+      setTimeout(() => {
+        btn.classList.remove('failed');
+        btn.innerHTML = iconCopy + ' 复制全文';
+      }, 3000);
+    });
 }
 
-document.getElementById('domainInput').addEventListener('keydown', e =&gt; {
+document.getElementById('domainInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') analyze();
 });
-&lt;/script&gt;
-&lt;/body&gt;
-&lt;/html&gt;
+</script>
+</body>
+</html>
