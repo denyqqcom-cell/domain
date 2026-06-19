@@ -329,16 +329,17 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
       <button class="analyze-btn" id="analyzeBtn" onclick="analyze()">生成估值包</button>
     </div>
     <div class="examples">
-      <span class="examples-label">快速测试：</span>
-      <span class="example-chip" onclick="fillExample('62.com')">62.com</span>
-      <span class="example-chip" onclick="fillExample('888.com')">888.com</span>
-      <span class="example-chip" onclick="fillExample('1888.com')">1888.com</span>
-      <span class="example-chip" onclick="fillExample('12345.com')">12345.com</span>
-      <span class="example-chip" onclick="fillExample('TEXT.COM')">TEXT.COM</span>
-      <span class="example-chip" onclick="fillExample('zkp.com')">zkp.com</span>
-      <span class="example-chip" onclick="fillExample('GOKA.com')">GOKA.com</span>
-      <span class="example-chip" onclick="fillExample('3m.com')">3m.com</span>
-      <span class="example-chip" onclick="fillExample('VJN.com')">VJN.com</span>
+      <span class="examples-label">回归测试：</span>
+      <span class="example-chip" onclick="fillExample('888.com')">888.com → NNN</span>
+      <span class="example-chip" onclick="fillExample('1888.com')">1888.com → NNNN</span>
+      <span class="example-chip" onclick="fillExample('12345.com')">12345.com → NNNNN</span>
+      <span class="example-chip" onclick="fillExample('3m.com')">3m.com → MIXED</span>
+      <span class="example-chip" onclick="fillExample('a1.com')">a1.com → MIXED</span>
+      <span class="example-chip" onclick="fillExample('GOKA.com')">GOKA.com → LLLL</span>
+      <span class="example-chip" onclick="fillExample('VJN.com')">VJN.com → LLL+listing</span>
+      <span class="example-chip" onclick="fillExample('62.com')">62.com → NN anchor</span>
+      <span class="example-chip" onclick="fillExample('TEXT.COM')">TEXT.COM → ULTRA</span>
+      <span class="example-chip" onclick="fillExample('zkp.com')">zkp.com → LLL anchor</span>
     </div>
   </div>
 
@@ -511,6 +512,11 @@ const SCORE_FLOOR_MAP = {
   GENERIC:                  0
 };
 
+// ── 锚点价格格式化（Math.round 保证无小数）──
+function fmtAnchor(usd) {
+  return '$' + Math.round(usd).toLocaleString();
+}
+
 function parseDomain(raw) {
   const full = raw.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '');
   const parts = full.split('.');
@@ -545,9 +551,10 @@ function classifyAsset(sld, tld, full) {
     else cls = 'VERIFIED_HIGH_VALUE_COM';
 
     const scoreFloor = SCORE_FLOOR_MAP[cls] ?? 0;
-    const p1 = '$' + (anchorUsd * 0.7).toLocaleString() + ' – $' + (anchorUsd * 1.5).toLocaleString();
-    const p2 = '$' + (anchorUsd * 1.2).toLocaleString() + ' – $' + (anchorUsd * 3).toLocaleString();
-    const p3 = '$' + (anchorUsd * 2).toLocaleString() + '+';
+    // Math.round() 确保锚点计算结果无小数
+    const p1 = fmtAnchor(anchorUsd * 0.7) + ' – ' + fmtAnchor(anchorUsd * 1.5);
+    const p2 = fmtAnchor(anchorUsd * 1.2) + ' – ' + fmtAnchor(anchorUsd * 3);
+    const p3 = fmtAnchor(anchorUsd * 2) + '+';
     return {
       id: cls,
       priceTag: '投资人底价｜参照已知成交锚点',
