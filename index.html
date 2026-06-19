@@ -337,7 +337,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
       <span class="example-chip" onclick="fillExample('a1.com')">a1.com → MIXED</span>
       <span class="example-chip" onclick="fillExample('GOKA.com')">GOKA.com → LLLL</span>
       <span class="example-chip" onclick="fillExample('VJN.com')">VJN.com → LLL+listing</span>
-      <span class="example-chip" onclick="fillExample('62.com')">62.com → NN anchor</span>
+      <span class="example-chip" onclick="fillExample('62.com')">62.com → NN static</span>
       <span class="example-chip" onclick="fillExample('TEXT.COM')">TEXT.COM → ULTRA</span>
       <span class="example-chip" onclick="fillExample('zkp.com')">zkp.com → LLL anchor</span>
     </div>
@@ -412,7 +412,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   </div>
 
   <footer class="footer">
-    静态规则库 CORE_RULES v2 · Domain AI Judge v6.1.3 · 数字.COM 四级分层 · ANCHORS 对象化（listing 不参与自动定价）· anchor_relation 区分本域名成交 vs 相似域名参考 · 估值仅供参考，最终价格以实际市场成交为准
+    静态规则库 CORE_RULES v2 · Domain AI Judge v6.1.3 · 数字.COM 四级分层 · ANCHORS 对象化（listing/unverified 不参与自动定价）· anchor_relation 区分本域名成交 vs 相似域名参考 · 估值仅供参考，最终价格以实际市场成交为准
   </footer>
 </div>
 
@@ -445,36 +445,57 @@ function toggleAdvanced() {
   document.getElementById('advanced-panel').classList.toggle('open');
 }
 
-// ── CORE RULES v2: ANCHORS — typed objects (v6.1.3) ──
-// type: 'sale'    → verified成交，参与锚点定价
-// type: 'listing' → 仅挂牌报价，verified=false，不参与自动定价，仅注入 reference_note
+// ── CORE RULES v2: ANCHORS — typed objects (v6.1.3-data-patch) ──
 //
-// anchor_relation 字段说明（v6.1.3 新增）：
-//   'exact_domain_historical_sale' → 该锚点是本域名自身的历史成交/报价记录
-//   'comparable_sale'              → 该锚点是其他相似域名的成交，作为类别参考
-// AI 读取时必须区分：exact 说明本域名有历史价；comparable 只是同类参照。
+// pricing_use 规则：
+//   'anchor_allowed'      → verified + confidence medium/high → 参与锚点自动定价（需 type==='sale'/'reported_sale' && verified===true）
+//   'reference_only'      → 挂牌报价，注入 reference_note，不用于自动定价
+//   'manual_review_only'  → 未核验/来源可疑/异常值 → 不参与任何自动定价，仅输出 AI 物料说明
+//
+// anchor_relation 字段：
+//   'exact_domain_historical_sale'   → 本域名自身历史成交（已核验或中等置信）
+//   'exact_domain_unverified_report' → 本域名相关市场报告，但未独立核验成交价
+//   'exact_domain_listing'           → 本域名当前或历史挂牌报价，非成交
+//   'ambiguous_report'               → 来源混淆/错配，无法确认指向本域名
+
 const ANCHORS = {
-  'cloud.com':    { usd: 11000000, type: 'sale',    source: 'DNJournal',                   verified: true,  anchor_relation: 'exact_domain_historical_sale' },
-  'zkp.com':      { usd: 5000000,  type: 'sale',    source: 'DNJournal',                   verified: true,  anchor_relation: 'exact_domain_historical_sale' },
-  'goka.com':     { usd: 399995,   type: 'sale',    source: 'DNJournal',                   verified: true,  anchor_relation: 'exact_domain_historical_sale',
+  // ── 高置信锚点（anchor_allowed）──
+  'cloud.com':    { usd: 11000000, type: 'sale',          source: 'DNJournal',                        verified: true,  confidence: 'high',   anchor_relation: 'exact_domain_historical_sale',   pricing_use: 'anchor_allowed' },
+  'derm.com':     { usd: 825000,   type: 'sale',          source: 'DNJournal',                        verified: true,  confidence: 'high',   anchor_relation: 'exact_domain_historical_sale',   pricing_use: 'anchor_allowed' },
+  'goka.com':     { usd: 399995,   type: 'sale',          source: 'DNJournal',                        verified: true,  confidence: 'high',   anchor_relation: 'exact_domain_historical_sale',   pricing_use: 'anchor_allowed',
                     anchor_note: '该锚点为本域名历史成交记录，不是独立相似域名样本；可作为历史价格参考，但仍需结合当前市场与买家情况复核' },
-  'tronscan.com': { usd: 250000,   type: 'sale',    source: 'public report',               verified: true,  anchor_relation: 'exact_domain_historical_sale' },
-  'gunar.com':    { usd: 175000,   type: 'sale',    source: 'NameBio',                     verified: true,  anchor_relation: 'exact_domain_historical_sale' },
-  'balaena.com':  { usd: 89000,    type: 'sale',    source: 'NameBio',                     verified: true,  anchor_relation: 'exact_domain_historical_sale' },
-  'vjn.com':      { usd: 39000,    type: 'listing', source: 'Afternic via DomainNameWire', verified: false, anchor_relation: 'exact_domain_historical_sale',
-                    anchor_note: '该锚点为本域名历史成交/报价记录，不是独立相似域名样本；可作为历史价格参考，但仍需结合当前市场与买家情况复核' },
-  'farfield.com': { usd: 15000,    type: 'sale',    source: 'NameBio',                     verified: true,  anchor_relation: 'exact_domain_historical_sale' },
-  'travely.com':  { usd: 13000,    type: 'sale',    source: 'NameBio',                     verified: true,  anchor_relation: 'exact_domain_historical_sale' },
-  'mycar.ai':     { usd: 10000,    type: 'sale',    source: 'NameBio',                     verified: true,  anchor_relation: 'exact_domain_historical_sale' },
-  'derm.com':     { usd: 825000,   type: 'sale',    source: 'DNJournal',                   verified: true,  anchor_relation: 'exact_domain_historical_sale' },
-  // 数字.COM 锚点
-  '12.com':  { usd: 2500000, type: 'sale', source: 'public report', verified: true, anchor_relation: 'exact_domain_historical_sale' },
-  '77.com':  { usd: 5000000, type: 'sale', source: 'public report', verified: true, anchor_relation: 'exact_domain_historical_sale' },
-  '88.com':  { usd: 1000000, type: 'sale', source: 'public report', verified: true, anchor_relation: 'exact_domain_historical_sale' },
-  '60.com':  { usd: 310000,  type: 'sale', source: 'DNJournal',     verified: true, anchor_relation: 'exact_domain_historical_sale' },
-  '100.com': { usd: 950000,  type: 'sale', source: 'DNJournal',     verified: true, anchor_relation: 'exact_domain_historical_sale' },
-  '01.com':  { usd: 1820000, type: 'sale', source: 'DNJournal',     verified: true, anchor_relation: 'exact_domain_historical_sale' },
-  '62.com':  { usd: 1820000, type: 'sale', source: 'DNJournal',     verified: true, anchor_relation: 'exact_domain_historical_sale' }
+  'gunar.com':    { usd: 175000,   type: 'sale',          source: 'NameBio',                          verified: true,  confidence: 'high',   anchor_relation: 'exact_domain_historical_sale',   pricing_use: 'anchor_allowed' },
+  'balaena.com':  { usd: 89000,    type: 'sale',          source: 'NameBio',                          verified: true,  confidence: 'high',   anchor_relation: 'exact_domain_historical_sale',   pricing_use: 'anchor_allowed' },
+  'farfield.com': { usd: 15000,    type: 'sale',          source: 'NameBio',                          verified: true,  confidence: 'high',   anchor_relation: 'exact_domain_historical_sale',   pricing_use: 'anchor_allowed' },
+  'travely.com':  { usd: 13000,    type: 'sale',          source: 'NameBio',                          verified: true,  confidence: 'high',   anchor_relation: 'exact_domain_historical_sale',   pricing_use: 'anchor_allowed' },
+  'mycar.ai':     { usd: 10000,    type: 'sale',          source: 'NameBio',                          verified: true,  confidence: 'high',   anchor_relation: 'exact_domain_historical_sale',   pricing_use: 'anchor_allowed' },
+  'tronscan.com': { usd: 250000,   type: 'sale',          source: 'public report',                    verified: true,  confidence: 'high',   anchor_relation: 'exact_domain_historical_sale',   pricing_use: 'anchor_allowed' },
+  '12.com':       { usd: 2500000,  type: 'sale',          source: 'public report',                    verified: true,  confidence: 'high',   anchor_relation: 'exact_domain_historical_sale',   pricing_use: 'anchor_allowed' },
+  '100.com':      { usd: 950000,   type: 'sale',          source: 'DNJournal',                        verified: true,  confidence: 'high',   anchor_relation: 'exact_domain_historical_sale',   pricing_use: 'anchor_allowed' },
+  // 01.com：NamePros/reported_sale，中等置信，可用于锚点
+  '01.com':       { usd: 1820000,  type: 'reported_sale', source: 'NamePros / reported sale reference', verified: true, confidence: 'medium', anchor_relation: 'exact_domain_historical_sale',  pricing_use: 'anchor_allowed' },
+
+  // ── 挂牌报价（reference_only）──
+  // vjn.com：listing 非 sale，改为 exact_domain_listing
+  'vjn.com':      { usd: 39000,    type: 'listing',       source: 'Afternic via DomainNameWire',      verified: false, confidence: 'medium', anchor_relation: 'exact_domain_listing',           pricing_use: 'reference_only',
+                    anchor_note: '该锚点为本域名挂牌报价（非成交），不得用于压低当前估值，仅作挂牌价参考' },
+
+  // ── 手动复核（manual_review_only）──
+  // 88.com：无公开核验成交价，改为 market_report / unverified；usd 保留行业估计值供物料包展示
+  '88.com':       { usd: 12000000, type: 'market_report', source: 'industry report / broker-market reference; public exact sale price not verified', verified: false, confidence: 'low', anchor_relation: 'exact_domain_unverified_report', pricing_use: 'manual_review_only',
+                    anchor_note: '⚠️ 未核验市场报告：88.com 无可公开追溯的确切成交价；$12M 为行业参考估计，不作自动定价依据，仅供 AI 参考' },
+  // 62.com：来源与 01.com $1.82M 混淆，usd 置 null，不参与任何定价
+  '62.com':       { usd: null,     type: 'unverified',    source: 'previously confused with 01.com $1.82M report; 62.com client reference unverified', verified: false, confidence: 'low', anchor_relation: 'ambiguous_report', pricing_use: 'manual_review_only',
+                    anchor_note: '⚠️ 来源混淆：62.com 锚点极可能是 01.com $1.82M 报道的错误对应；当前无独立可核验来源，不参与自动定价' },
+  // 60.com：2012 年历史成交，年代久远，confidence 低
+  '60.com':       { usd: 310000,   type: 'reported_sale', source: 'public report, unusually low for NN_COM; 2012 historical sale', verified: false, confidence: 'low', anchor_relation: 'exact_domain_historical_sale', pricing_use: 'manual_review_only',
+                    anchor_note: '⚠️ 2012 年历史成交 $310,000，年代久远且价格低于当前 NN_COM 市场基准，不参与自动定价，仅作参考' },
+  // 77.com：无独立核验来源，confidence 低
+  '77.com':       { usd: null,     type: 'public_report', source: 'public report; exact transaction details not independently verified', verified: false, confidence: 'low', anchor_relation: 'exact_domain_unverified_report', pricing_use: 'manual_review_only',
+                    anchor_note: '⚠️ 未核验公开报道：77.com 无独立数据库核验来源，不参与自动定价，仅供参考' },
+  // zkp.com：项目方自称买价，非传统域名成交数据库核验，且价格显著高于 LLL_COM 区间
+  'zkp.com':      { usd: 5000000,  type: 'reported_sale', source: 'public report / buyer self-reported; materially above LLL_COM class range; not in major sale databases', verified: false, confidence: 'low', anchor_relation: 'exact_domain_historical_sale', pricing_use: 'manual_review_only',
+                    anchor_note: '⚠️ 买方自报价格 $5M，显著高于 LLL_COM 当前区间，无 DNJournal/NameBio 独立核验；不参与自动定价，仅作参考' }
 };
 
 const ULTRA_WORD_LIST = [
@@ -536,8 +557,8 @@ function classifyAsset(sld, tld, full) {
   const key = full;
   const anchor = ANCHORS[key];
 
-  // v6.1.3: 只有 type==='sale' && verified===true 的锚点才参与自动定价
-  if (anchor && anchor.type === 'sale' && anchor.verified === true) {
+  // v6.1.3-data-patch: 只有 pricing_use==='anchor_allowed' && verified===true 的锚点才参与自动定价
+  if (anchor && anchor.pricing_use === 'anchor_allowed' && anchor.verified === true) {
     const anchorUsd = anchor.usd;
     let cls;
     const isAlpha = /^[a-z]+$/.test(sld);
@@ -558,7 +579,6 @@ function classifyAsset(sld, tld, full) {
     else cls = 'VERIFIED_HIGH_VALUE_COM';
 
     const scoreFloor = SCORE_FLOOR_MAP[cls] ?? 0;
-    // Math.round() 确保锚点计算结果无小数
     const p1 = fmtAnchor(anchorUsd * 0.7) + ' – ' + fmtAnchor(anchorUsd * 1.5);
     const p2 = fmtAnchor(anchorUsd * 1.2) + ' – ' + fmtAnchor(anchorUsd * 3);
     const p3 = fmtAnchor(anchorUsd * 2) + '+';
@@ -571,10 +591,15 @@ function classifyAsset(sld, tld, full) {
     };
   }
 
-  // listing-only 锚点（vjn.com 等）：记录 reference_note，走 static_class 定价
-  const listingNote = (anchor && anchor.type === 'listing')
-    ? `⚠️ 已知挂牌报价 $${anchor.usd.toLocaleString()}（${anchor.source}），尚未成交，不用于自动定价，仅作参考`
-    : null;
+  // reference_only / manual_review_only 锚点：记录 reference_note，走 static_class 定价
+  let referenceNote = null;
+  if (anchor) {
+    if (anchor.pricing_use === 'reference_only') {
+      referenceNote = `⚠️ 已知挂牌报价 ${anchor.usd ? '$' + anchor.usd.toLocaleString() : '未知'}（${anchor.source}），尚未成交，不用于自动定价，仅作参考`;
+    } else if (anchor.pricing_use === 'manual_review_only') {
+      referenceNote = anchor.anchor_note || `⚠️ 该锚点数据可信度低（${anchor.type}），不参与自动定价，仅供人工复核参考`;
+    }
+  }
 
   const len = sld.length;
   const isAlpha = /^[a-z]+$/.test(sld);
@@ -583,13 +608,13 @@ function classifyAsset(sld, tld, full) {
 
   const make = (id, priceTag, p1, p2, p3, rationale) => ({
     id, priceTag, scoreFloor: SCORE_FLOOR_MAP[id] ?? 0,
-    p1, p2, p3, rationale, listingNote, anchorMeta: anchor || null
+    p1, p2, p3, rationale, listingNote: referenceNote, anchorMeta: anchor || null
   });
 
   if (tld === '.com') {
     if (isNumeric && len <= 2) return make('NN_COM', '投资人流通底价',
       '$200,000 – $5,000,000', '$500,000 – $10,000,000', '$1,000,000 – $20,000,000',
-      '1-2位纯数字.COM — 全球仅100个，稀缺度对标LL_COM（参照：88.com $1M+，12.com $2.5M，77.com $5M）');
+      '1-2位纯数字.COM — 全球仅100个，稀缺度对标LL_COM（参照：12.com $2.5M，01.com ~$1.82M reported）');
     if (isNumeric && len === 3) return make('NNN_COM', '投资人流通底价',
       '$50,000 – $800,000', '$100,000 – $1,500,000', '$200,000 – $3,000,000',
       '3位纯数字.COM — 全球仅1,000个，稀缺资产（参照：360.com、888.com）');
@@ -673,8 +698,9 @@ function getRisks(sld, tld, asset) {
     risks.push('⚠️ MIXED_SHORT_COM：字母+数字混合，需确认是否与知名品牌（3M、007）关联，商标查询必做');
   }
   if (asset.id === 'NN_COM') {
-    risks.push('💎 NN_COM：全球仅100个，极稀缺，参照 DNJournal 2位数字成交 $1.82M+（01.com、62.com）');
+    risks.push('💎 NN_COM：全球仅100个，极稀缺，参照 DNJournal 12.com $2.5M、01.com ~$1.82M（reported）');
     risks.push('📌 中国买家市场活跃（4.cn、22.cn），建议同步在中文市场发布');
+    risks.push('⚠️ 注意：62.com 锚点来源混淆已移除；88.com、77.com 无公开核验成交价，不参与自动定价');
   }
   if (asset.id === 'NNN_COM') {
     risks.push('💎 NNN_COM：全球仅1,000个，高流动性，中国买家偏好吉利数字（含8/6/9）溢价明显');
@@ -727,28 +753,35 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
   const { sld, tld, full } = parsed;
   const now = new Date().toISOString().split('T')[0];
 
-  // 构建 anchor_deals 表：listing-only 标注说明
+  // anchorDealsTable：
+  // 88.com: unverified market reference, not a public exact sale; manual review only
+  // 62.com: ambiguous source, likely confused with 01.com $1.82M; manual review only
+  // 77.com: unverified public report; manual review only
+  // 60.com: 2012 historical low, year-old data; manual review only
+  // zkp.com: buyer self-reported $5M, not in major sale databases; manual review only
+  // vjn.com: listing price (not a sale); reference only
   const anchorDealsTable = [
-    { d: 'cloud.com',  p: '$11,000,000', note: '顶级单词.COM价值天花板' },
-    { d: '77.com',     p: '$5,000,000',  note: '2位数字.COM顶级参考' },
-    { d: 'zkp.com',    p: '$5,000,000',  note: '3字母.COM极品参考（本域名历史成交）' },
-    { d: '12.com',     p: '$2,500,000',  note: '2位数字.COM高端参考' },
-    { d: '01.com / 62.com', p: '$1,820,000', note: '2位数字.COM成交锚点（DNJournal）' },
-    { d: '88.com',     p: '$1,000,000+', note: '2位数字.COM吉利数字参考' },
-    { d: '100.com',    p: '$950,000',    note: '3位数字.COM参考' },
-    { d: 'derm.com',   p: '~$825,000',   note: 'ULTRA_WORD_COM 医疗单词参考（本域名历史成交）' },
-    { d: 'GOKA.com',   p: '$399,995',    note: '4字母可发音.COM品牌参考（本域名历史成交，非相似域名样本）' },
-    { d: '60.com',     p: '$310,000',    note: '2位数字.COM下限参考' },
-    { d: 'VJN.com',    p: '$39,000',     note: '⚠️ 挂牌报价（Afternic，未成交），不作定价依据' },
-    { d: 'Farfield.com', p: '$15,000',   note: '6字母.COM参考' }
+    { d: 'cloud.com',    p: '$11,000,000', note: '顶级单词.COM价值天花板（verified sale）' },
+    { d: '12.com',       p: '$2,500,000',  note: '2位数字.COM高端参考（verified sale）' },
+    { d: '01.com',       p: '~$1,820,000', note: '2位数字.COM成交参考（reported sale, medium confidence）' },
+    { d: '88.com',       p: '~$12,000,000 est.', note: '⚠️ 未核验市场报告（unverified market reference, not a public exact sale; manual review only）' },
+    { d: '77.com',       p: 'n/a',         note: '⚠️ 未核验公开报道（unverified public report; manual review only）' },
+    { d: '100.com',      p: '$950,000',    note: '3位数字.COM参考（verified sale）' },
+    { d: 'derm.com',     p: '~$825,000',   note: 'ULTRA_WORD_COM 医疗单词参考（verified sale）' },
+    { d: 'GOKA.com',     p: '$399,995',    note: '4字母可发音.COM品牌参考（verified sale; 本域名历史成交，非相似域名样本）' },
+    { d: '60.com',       p: '$310,000',    note: '⚠️ 2012年历史低价（unusually low, year-old data; manual review only）' },
+    { d: 'VJN.com',      p: '$39,000',     note: '⚠️ 挂牌报价（listing, not a sale; reference only）' },
+    { d: '62.com',       p: 'n/a',         note: '⚠️ 来源混淆（ambiguous source, likely confused with 01.com $1.82M; manual review only）' },
+    { d: 'Farfield.com', p: '$15,000',     note: '6字母.COM参考（verified sale）' }
   ];
 
   const anchorTableMd = anchorDealsTable
     .map(r => `| ${r.d} | ${r.p} | ${r.note} |`).join('\n');
 
-  // anchor_relation 字段输出
   const anchorRelation = asset.anchorMeta ? asset.anchorMeta.anchor_relation || null : null;
   const anchorNoteOverride = asset.anchorMeta ? (asset.anchorMeta.anchor_note || null) : null;
+
+  const pricingMethod = (asset.anchorMeta && asset.anchorMeta.pricing_use === 'anchor_allowed') ? 'anchor_based' : 'static_class';
 
   const materialData = JSON.stringify({
     domain: full.toUpperCase(),
@@ -757,10 +790,14 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
     score_explanation: scores.final >= 90 ? '顶级资产' : scores.final >= 80 ? '优质资产' : scores.final >= 70 ? '良好资产' : '普通域名',
     score_floor: asset.scoreFloor || 0,
     price_tag: asset.priceTag,
-    pricing_method: asset.anchorMeta && asset.anchorMeta.type === 'sale' ? 'anchor_based' : 'static_class',
-    anchor_deal_used: !!(asset.anchorMeta && asset.anchorMeta.type === 'sale'),
-    anchor_deal_usd: asset.anchorMeta && asset.anchorMeta.type === 'sale' ? asset.anchorMeta.usd : null,
+    pricing_method: pricingMethod,
+    anchor_deal_used: !!(asset.anchorMeta && asset.anchorMeta.pricing_use === 'anchor_allowed'),
+    anchor_deal_usd: (asset.anchorMeta && asset.anchorMeta.pricing_use === 'anchor_allowed') ? asset.anchorMeta.usd : null,
     anchor_relation: anchorRelation,
+    anchor_type: asset.anchorMeta ? asset.anchorMeta.type : null,
+    anchor_verified: asset.anchorMeta ? asset.anchorMeta.verified : null,
+    anchor_confidence: asset.anchorMeta ? asset.anchorMeta.confidence : null,
+    anchor_pricing_use: asset.anchorMeta ? asset.anchorMeta.pricing_use : null,
     anchor_note: anchorNoteOverride || asset.listingNote || null,
     data_source_level: 'static_rule_pack',
     live_market_checked: false,
@@ -835,7 +872,7 @@ ${industries.map((ind, i) => `${i+1}. ${ind}`).join('\n')}
 ## 三、分析维度（六维评分 · CORE_RULES v2）
 
 | 维度 | 权重 | 系统评分 | 评分依据 |
-|------|------|---------|---------|
+|------|------|---------|---------| 
 | D1 TLD强度 | 20% | **${scores.d1}/100** | ${tld} 后缀流动性 |
 | D2 终端买家匹配度 | 25% | **${scores.d2}/100** | 行业数量、付费能力、融资利好 |
 | D3 域名品质 | 20% | **${scores.d3}/100** | 长度(${sld.length}字符)、可发音性、品牌可塑性 |
@@ -886,8 +923,9 @@ ${risks.map(r => '- ' + r).join('\n')}
 4. 数字.COM 必须按位数分级：NN_COM(1-2位) > NNN_COM(3位) > NNNN_COM(4位) > NNNNN_COM(5位)，不得混同
 5. 必须输出标准 JSON，字段名全部下划线命名（final_score，不得用 finalScore）
 6. ⚠️ 注意：本材料包为静态规则库生成（live_market_checked: false），请勿假设系统已联网查询实时市场数据
-7. anchor_note 不为 null 时，表示该锚点为挂牌报价（非成交），不得用于压低当前估值
-8. anchor_relation === 'exact_domain_historical_sale' 表示该锚点是本域名自身的历史成交/报价；不是多个独立市场样本，不得误解为市场共识价格
+7. anchor_pricing_use === 'reference_only' 或 'manual_review_only' 的锚点不得用于定价；只有 'anchor_allowed' 且 anchor_verified === true 的锚点才可参与估值
+8. anchor_relation === 'exact_domain_historical_sale' 表示本域名自身历史成交；'exact_domain_listing' 表示挂牌报价；'ambiguous_report'/'exact_domain_unverified_report' 表示来源不可靠，不得用于定价依据
+9. anchor_note 不为 null 时必须在 key_reasons 中引用说明，不得忽略
 
 **域名材料包：**
 ${materialData}
