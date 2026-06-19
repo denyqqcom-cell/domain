@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>域名估值物料包生成器 v6.0.3</title>
+<title>域名估值物料包生成器 v6.0.4</title>
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
 <style>
 /* ── TOKENS ── */
@@ -303,7 +303,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <circle cx="27" cy="10" r="4" fill="var(--gold)"/>
       </svg>
       <span class="logo-text">域名估值</span>
-      <span class="logo-version">v6.0.3</span>
+      <span class="logo-version">v6.0.4</span>
     </div>
     <button class="theme-btn" data-theme-toggle aria-label="切换主题">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -408,7 +408,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   </div>
 
   <footer class="footer">
-    静态规则库 CORE_RULES v2 · Domain AI Judge v6.0.3 · 估值仅供参考，最终价格以实际市场成交为准
+    静态规则库 CORE_RULES v2 · Domain AI Judge v6.0.4 · 估值仅供参考，最终价格以实际市场成交为准
   </footer>
 </div>
 
@@ -473,17 +473,20 @@ const ULTRA_RATIONALE = {
   'health': '医疗健康核心词，高付费力行业'
 };
 
-// FIX v6.0.3: scoreFloorMap — 集中管理，避免遗漏
+// ── SCORE_FLOOR_MAP — 全部路径统一引用，避免遗漏 (v6.0.3+) ──
+// v6.0.4: 补全 L_COM / MIXED_SHORT_COM / VERIFIED_HIGH_VALUE_COM / SHORT_NUMERIC_COM
 const SCORE_FLOOR_MAP = {
-  LL_COM: 95,
-  LLL_COM: 88,
-  ULTRA_WORD_COM: 92,
+  L_COM:                  98,   // v6.0.4 新增：单字母.COM
+  LL_COM:                 95,
+  LLL_COM:                88,
+  ULTRA_WORD_COM:         92,
   LLLL_PRONOUNCEABLE_COM: 78,
-  AI_KEYWORD_TLD: 69,
-  VERIFIED_HIGH_VALUE_COM: 82,
-  WORD_COM: 75,
-  SHORT_NUMERIC_COM: 75,
-  GENERIC: 0
+  WORD_COM:               75,
+  SHORT_NUMERIC_COM:      75,   // v6.0.4 补全：之前无 floor，现在统一
+  MIXED_SHORT_COM:        72,   // v6.0.4 新增：3m.com / 007.com / h20.com
+  AI_KEYWORD_TLD:         69,
+  VERIFIED_HIGH_VALUE_COM:82,
+  GENERIC:                 0
 };
 
 function parseDomain(raw) {
@@ -497,18 +500,20 @@ function parseDomain(raw) {
 function classifyAsset(sld, tld, full) {
   const key = full;
   if (ANCHORS[key] !== undefined) {
-    // FIX v6.0.3: 补全 ANCHORS 分支的 cls 判断，覆盖所有主要稀缺类别
-    // 顺序：LL → LLL → ULTRA_WORD → LLLL_PRONOUNCEABLE → AI_KEYWORD_TLD → VERIFIED_HIGH_VALUE_COM
+    // ANCHORS 分支：完整顺序覆盖所有稀缺类别 (v6.0.3)
     let cls;
-    if (sld.length === 2 && /^[a-z]+$/.test(sld)) {
+    if (sld.length === 1 && /^[a-z]$/.test(sld)) {
+      cls = 'L_COM';                                                         // v6.0.4
+    } else if (sld.length === 2 && /^[a-z]+$/.test(sld)) {
       cls = 'LL_COM';
     } else if (sld.length === 3 && /^[a-z]+$/.test(sld)) {
       cls = 'LLL_COM';
     } else if (ULTRA_WORD_LIST.includes(sld)) {
       cls = 'ULTRA_WORD_COM';
     } else if (sld.length === 4 && /^[a-z]+$/.test(sld) && /[aeiou]/.test(sld)) {
-      // FIX v6.0.3: 新增 — GOKA.com (4字母可发音) 正确归为 LLLL_PRONOUNCEABLE_COM
-      cls = 'LLLL_PRONOUNCEABLE_COM';
+      cls = 'LLLL_PRONOUNCEABLE_COM';                                        // v6.0.3
+    } else if (/^[a-z0-9]{1,3}$/.test(sld) && /[0-9]/.test(sld)) {
+      cls = 'MIXED_SHORT_COM';                                               // v6.0.4: 3m / 007 / h20
     } else if (tld === '.ai') {
       cls = 'AI_KEYWORD_TLD';
     } else {
@@ -530,8 +535,10 @@ function classifyAsset(sld, tld, full) {
   const len = sld.length;
   const isAlpha = /^[a-z]+$/.test(sld);
   const isNumeric = /^[0-9]+$/.test(sld);
+  const isMixedShort = /^[a-z0-9]{2,4}$/.test(sld) && /[0-9]/.test(sld) && /[a-z]/.test(sld); // v6.0.4
 
   if (tld === '.com') {
+    if (isAlpha && len === 1) return { id: 'L_COM', priceTag: '战略级稀缺资产', scoreFloor: SCORE_FLOOR_MAP.L_COM, p1: '$5,000,000 – $50,000,000+', p2: '$10,000,000 – $100,000,000', p3: '$30,000,000+', rationale: '单字母.COM — 全球最顶级域名资产' };                                        // v6.0.4
     if (isAlpha && len === 2) return { id: 'LL_COM', priceTag: '投资人流通底价', scoreFloor: SCORE_FLOOR_MAP.LL_COM, p1: '$500,000 – $5,000,000+', p2: '$1,000,000 – $10,000,000', p3: '$5,000,000 – $20,000,000+', rationale: '2字母.COM — 全球最稀缺资产之一' };
     if (isAlpha && len === 3) return { id: 'LLL_COM', priceTag: '投资人流通底价', scoreFloor: SCORE_FLOOR_MAP.LLL_COM, p1: '$100,000 – $800,000', p2: '$200,000 – $1,500,000', p3: '$500,000 – $3,000,000', rationale: '3字母.COM — 高流动性稀缺资产' };
     if (isAlpha && ULTRA_WORD_LIST.includes(sld)) return {
@@ -540,6 +547,7 @@ function classifyAsset(sld, tld, full) {
       rationale: ULTRA_RATIONALE[sld] || '顶级行业核心词，高品牌可塑性'
     };
     if (isAlpha && /[aeiou]/.test(sld) && len === 4) return { id: 'LLLL_PRONOUNCEABLE_COM', priceTag: '投资人底价', scoreFloor: SCORE_FLOOR_MAP.LLLL_PRONOUNCEABLE_COM, p1: '$8,000 – $120,000', p2: '$20,000 – $250,000', p3: '$50,000 – $500,000', rationale: '4字母可发音.COM — GOKA.com $399,995 参考' };
+    if (isMixedShort) return { id: 'MIXED_SHORT_COM', priceTag: '投资人流通底价', scoreFloor: SCORE_FLOOR_MAP.MIXED_SHORT_COM, p1: '$30,000 – $300,000', p2: '$80,000 – $800,000', p3: '$200,000 – $2,000,000', rationale: '字母+数字混合短域名（3m.com / 007.com 类）' };  // v6.0.4
     if (isAlpha && len <= 8) return { id: 'WORD_COM', priceTag: '投资人流通底价', scoreFloor: SCORE_FLOOR_MAP.WORD_COM, p1: '$15,000 – $200,000', p2: '$50,000 – $500,000', p3: '$100,000 – $1,000,000', rationale: '英文单词.COM — 普通资产' };
     if (isNumeric && len <= 5) return { id: 'SHORT_NUMERIC_COM', priceTag: '投资人流通底价', scoreFloor: SCORE_FLOOR_MAP.SHORT_NUMERIC_COM, p1: '$1,000 – $30,000', p2: '$5,000 – $80,000', p3: '$20,000 – $200,000', rationale: '短数字.COM' };
   }
@@ -547,17 +555,24 @@ function classifyAsset(sld, tld, full) {
   return { id: 'GENERIC', priceTag: '同行参考价', scoreFloor: SCORE_FLOOR_MAP.GENERIC, p1: '—', p2: '—', p3: '—', rationale: '未识别为稀缺资产，建议人工复核' };
 }
 
+// ── score6D ──
+// v6.0.4 修复：D2 统一读取 SCORE_FLOOR_MAP，不再硬编码
+// GENERIC 的 D2 默认值降为 20（语义修正：未识别资产不应有 60 分终端匹配度）
 function score6D(sld, tld, asset) {
   const len = sld.length;
   const tldMap = { '.com': 100, '.ai': 69, '.io': 64, '.co': 60, '.net': 55, '.org': 50 };
   const d1 = tldMap[tld] || 40;
-  let d2 = asset.id === 'ULTRA_WORD_COM' ? 92 : asset.id === 'LL_COM' ? 95 : asset.id === 'LLL_COM' ? 85 : asset.id === 'WORD_COM' ? 72 : asset.id === 'LLLL_PRONOUNCEABLE_COM' ? 75 : asset.id === 'AI_KEYWORD_TLD' ? 68 : 60;
-  let d3 = len <= 2 ? 98 : len <= 3 ? 92 : len === 4 && /[aeiou]/.test(sld) ? 84 : len <= 4 ? 78 : len <= 6 ? 74 : len <= 8 ? 65 : 50;
+
+  // FIX v6.0.4: D2 = SCORE_FLOOR_MAP[cls]，所有类别统一来源，GENERIC 给 20
+  const d2 = asset.id === 'GENERIC' ? 20 : (SCORE_FLOOR_MAP[asset.id] ?? 20);
+
+  let d3 = len <= 1 ? 100 : len <= 2 ? 98 : len <= 3 ? 92 : len === 4 && /[aeiou]/.test(sld) ? 84 : len <= 4 ? 78 : len <= 6 ? 74 : len <= 8 ? 65 : 50;
   if (asset.id === 'ULTRA_WORD_COM') d3 = Math.max(d3, 88);
-  let d4 = asset.id === 'VERIFIED_HIGH_VALUE_COM' ? 90 : ['ULTRA_WORD_COM','LL_COM'].includes(asset.id) ? 88 : asset.id === 'LLL_COM' ? 85 : asset.id === 'LLLL_PRONOUNCEABLE_COM' ? 80 : 65;
+  let d4 = asset.id === 'VERIFIED_HIGH_VALUE_COM' ? 90 : ['ULTRA_WORD_COM','LL_COM','L_COM'].includes(asset.id) ? 88 : asset.id === 'LLL_COM' ? 85 : asset.id === 'LLLL_PRONOUNCEABLE_COM' ? 80 : asset.id === 'MIXED_SHORT_COM' ? 78 : asset.id === 'GENERIC' ? 30 : 65;
   let d5 = tld === '.ai' ? 85 : tld === '.com' ? 80 : 60;
   if (asset.id === 'ULTRA_WORD_COM') d5 = 88;
-  let d6 = ['ULTRA_WORD_COM','LL_COM'].includes(asset.id) ? 85 : asset.id === 'LLL_COM' ? 78 : asset.id === 'LLLL_PRONOUNCEABLE_COM' ? 72 : 60;
+  if (asset.id === 'GENERIC') d5 = 40;
+  let d6 = ['ULTRA_WORD_COM','LL_COM','L_COM'].includes(asset.id) ? 85 : asset.id === 'LLL_COM' ? 78 : asset.id === 'LLLL_PRONOUNCEABLE_COM' ? 72 : asset.id === 'MIXED_SHORT_COM' ? 68 : asset.id === 'GENERIC' ? 20 : 60;
   const weighted = d1*0.20 + d2*0.25 + d3*0.20 + d4*0.20 + d5*0.10 + d6*0.05;
   const final = Math.max(asset.scoreFloor || 0, Math.round(weighted));
   return { d1, d2, d3, d4, d5, d6, final };
@@ -571,6 +586,9 @@ function getRisks(sld, tld, asset) {
   }
   if (['text','excel','pay','code','market','trade'].includes(sld)) {
     risks.push('™️ 商标风险：需查询 USPTO/WIPO 是否有同名注册商标，评估侵权可能性');
+  }
+  if (asset.id === 'MIXED_SHORT_COM') {
+    risks.push('⚠️ MIXED_SHORT_COM：字母+数字混合，需确认是否与知名品牌（3M、007）关联，商标查询必做');
   }
   if (tld !== '.com' && tld !== '.ai') risks.push('🔻 非主流后缀，流动性低于 .com，成交周期可能更长');
   if (asset.id === 'GENERIC') risks.push('⚠️ 未识别为稀缺资产类别，建议人工复核');
@@ -597,10 +615,12 @@ function getIndustries(sld) {
 }
 
 function getConfidence(asset) {
+  if (asset.id === 'L_COM') return { label: '极高', pct: 95, note: '单字母.COM，全球顶级稀缺资产' };
   if (['LL_COM','LLL_COM'].includes(asset.id)) return { label: '高', pct: 90, note: '稀缺资产，市场成交数据充足' };
   if (asset.id === 'ULTRA_WORD_COM') return { label: '中高', pct: 70, note: '顶级单词，价格区间宽，需人工复核' };
   if (asset.id === 'VERIFIED_HIGH_VALUE_COM') return { label: '高', pct: 88, note: '已有公开成交锚点' };
   if (asset.id === 'LLLL_PRONOUNCEABLE_COM') return { label: '中高', pct: 75, note: '4字母可发音，参照 GOKA.com 锚点' };
+  if (asset.id === 'MIXED_SHORT_COM') return { label: '中高', pct: 72, note: '字母数字混合短域名，参照 3m.com 类锚点' };
   if (asset.id === 'WORD_COM') return { label: '中', pct: 60, note: '普通单词，价格受终端买家影响大' };
   return { label: '低-中', pct: 45, note: '建议人工复核' };
 }
@@ -627,7 +647,7 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
   }, null, 2);
 
   return `# DOMAIN_VALUATION_PACK.md
-> 生成时间：${now} | 系统：Domain AI Judge v6.0.3 | 规则：CORE_RULES v2
+> 生成时间：${now} | 系统：Domain AI Judge v6.0.4 | 规则：CORE_RULES v2
 > ⚠️ 本文档为系统初步判断，最终价格以实际市场成交为准
 > 📦 数据来源：静态规则库 / 用户录入 / 待人工复核（live_market_checked: false）
 
@@ -655,7 +675,7 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
 ### 2.1 已知成交锚点（静态规则库 / 用户录入 / 待人工复核）
 
 | 域名 | 成交价 | 参考意义 |
-|------|--------|---------| 
+|------|--------|---------|
 | cloud.com | $11,000,000 | 顶级单词.COM价值天花板 |
 | zkp.com | $5,000,000 | 3字母.COM极品参考 |
 | derm.com | ~$825,000 | ULTRA_WORD_COM 医疗单词参考 |
@@ -695,7 +715,7 @@ ${industries.map((ind, i) => `${i+1}. ${ind}`).join('\n')}
 ## 三、分析维度（六维评分 · CORE_RULES v2）
 
 | 维度 | 权重 | 系统评分 | 评分依据 |
-|------|------|---------|---------| 
+|------|------|---------|---------|
 | D1 TLD强度 | 20% | **${scores.d1}/100** | ${tld} 后缀流动性 |
 | D2 终端买家匹配度 | 25% | **${scores.d2}/100** | 行业数量、付费能力、融资利好 |
 | D3 域名品质 | 20% | **${scores.d3}/100** | 长度(${sld.length}字符)、可发音性、品牌可塑性 |
@@ -777,7 +797,7 @@ ${materialData}
 
 ---
 
-*DOMAIN_VALUATION_PACK.md · Domain AI Judge v6.0.3 · CORE_RULES v2 · 静态规则库 · ${now}*
+*DOMAIN_VALUATION_PACK.md · Domain AI Judge v6.0.4 · CORE_RULES v2 · 静态规则库 · ${now}*
 `;
 }
 
