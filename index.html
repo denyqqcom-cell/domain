@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>域名估值物料包生成器 v6.0.1</title>
+<title>域名估值物料包生成器 v6.0.2</title>
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
 <style>
 /* ── TOKENS ── */
@@ -135,7 +135,6 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
 #results { display: none; }
 #results.visible { display: block; }
 
-/* 4 Card Grid */
 .cards-grid {
   display: grid; grid-template-columns: repeat(2, 1fr);
   gap: var(--space-4); margin-bottom: var(--space-6);
@@ -304,7 +303,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <circle cx="27" cy="10" r="4" fill="var(--gold)"/>
       </svg>
       <span class="logo-text">域名估值</span>
-      <span class="logo-version">v6.0.1</span>
+      <span class="logo-version">v6.0.2</span>
     </div>
     <button class="theme-btn" data-theme-toggle aria-label="切换主题">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -333,10 +332,10 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
       <span class="examples-label">快速测试：</span>
       <span class="example-chip" onclick="fillExample('TEXT.COM')">TEXT.COM</span>
       <span class="example-chip" onclick="fillExample('Derm.com')">Derm.com</span>
-      <span class="example-chip" onclick="fillExample('Excel.com')">Excel.com</span>
+      <span class="example-chip" onclick="fillExample('zkp.com')">zkp.com</span>
       <span class="example-chip" onclick="fillExample('GOKA.com')">GOKA.com</span>
-      <span class="example-chip" onclick="fillExample('TEX.COM')">TEX.COM</span>
       <span class="example-chip" onclick="fillExample('MyCar.ai')">MyCar.ai</span>
+      <span class="example-chip" onclick="fillExample('Farfield.com')">Farfield.com</span>
     </div>
   </div>
 
@@ -409,7 +408,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   </div>
 
   <footer class="footer">
-    静态规则库 CORE_RULES v2 · Domain AI Judge v6.0.1 · 估值仅供参考，最终价格以实际市场成交为准
+    静态规则库 CORE_RULES v2 · Domain AI Judge v6.0.2 · 估值仅供参考，最终价格以实际市场成交为准
   </footer>
 </div>
 
@@ -450,8 +449,6 @@ const ANCHORS = {
   'derm.com': 825000
 };
 
-// ULTRA_WORD_COM: 顶级单词/强品类词/行业核心词
-// KEY FIX: TEXT must be ULTRA_WORD_COM (textile/SMS/AI-text — 3-industry cross)
 const ULTRA_WORD_LIST = [
   'cloud','excel','finance','derm','text','data','code','pay','cash','buy','sell',
   'shop','store','bank','trade','fund','gold','web','net','app','tech','ai','bot',
@@ -486,16 +483,30 @@ function parseDomain(raw) {
 
 function classifyAsset(sld, tld, full) {
   const key = full;
-  if (ANCHORS[key]) {
-    const cls = sld.length === 3 && /^[a-z]+$/.test(sld) ? 'LLL_COM' :
-                ULTRA_WORD_LIST.includes(sld) ? 'ULTRA_WORD_COM' : 'VERIFIED_HIGH_VALUE_COM';
+  if (ANCHORS[key] !== undefined) {
+    // FIX v6.0.2: 直接使用 cls 作为 id，不再强制覆盖为 VERIFIED_HIGH_VALUE_COM
+    // zkp.com (3字母) → LLL_COM；cloud.com (ULTRA_WORD) → ULTRA_WORD_COM；其余 → VERIFIED_HIGH_VALUE_COM
+    let cls;
+    if (sld.length === 2 && /^[a-z]+$/.test(sld)) {
+      cls = 'LL_COM';
+    } else if (sld.length === 3 && /^[a-z]+$/.test(sld)) {
+      cls = 'LLL_COM';
+    } else if (ULTRA_WORD_LIST.includes(sld)) {
+      cls = 'ULTRA_WORD_COM';
+    } else if (tld === '.ai') {
+      cls = 'AI_KEYWORD_TLD';
+    } else {
+      cls = 'VERIFIED_HIGH_VALUE_COM';
+    }
+    const scoreFloor = cls === 'LL_COM' ? 95 : cls === 'LLL_COM' ? 88 : cls === 'ULTRA_WORD_COM' ? 92 : 82;
+    const p1 = '$' + (ANCHORS[key] * 0.7).toLocaleString() + ' – $' + (ANCHORS[key] * 1.5).toLocaleString();
+    const p2 = '$' + (ANCHORS[key] * 1.2).toLocaleString() + ' – $' + (ANCHORS[key] * 3).toLocaleString();
+    const p3 = '$' + (ANCHORS[key] * 2).toLocaleString() + '+';
     return {
-      id: cls === 'ULTRA_WORD_COM' ? 'ULTRA_WORD_COM' : 'VERIFIED_HIGH_VALUE_COM',
+      id: cls,
       priceTag: '投资人底价｜参照已知成交锚点',
-      scoreFloor: cls === 'ULTRA_WORD_COM' ? 92 : 82,
-      p1: '$' + (ANCHORS[key] * 0.7).toLocaleString() + ' – $' + (ANCHORS[key] * 1.5).toLocaleString(),
-      p2: '$' + (ANCHORS[key] * 1.2).toLocaleString() + ' – $' + (ANCHORS[key] * 3).toLocaleString(),
-      p3: '$' + (ANCHORS[key] * 2).toLocaleString() + '+',
+      scoreFloor,
+      p1, p2, p3,
       rationale: ULTRA_RATIONALE[sld] || ('已知成交价 $' + ANCHORS[key].toLocaleString())
     };
   }
@@ -507,7 +518,7 @@ function classifyAsset(sld, tld, full) {
   if (tld === '.com') {
     if (isAlpha && len === 2) return { id: 'LL_COM', priceTag: '投资人流通底价', scoreFloor: 95, p1: '$500,000 – $5,000,000+', p2: '$1,000,000 – $10,000,000', p3: '$5,000,000 – $20,000,000+', rationale: '2字母.COM — 全球最稀缺资产之一' };
     if (isAlpha && len === 3) return { id: 'LLL_COM', priceTag: '投资人流通底价', scoreFloor: 88, p1: '$100,000 – $800,000', p2: '$200,000 – $1,500,000', p3: '$500,000 – $3,000,000', rationale: '3字母.COM — 高流动性稀缺资产' };
-    // FIX #2: ULTRA_WORD → LLLL_PRONOUNCEABLE → WORD_COM（修复分支顺序，防止 LLLL 可发音被 WORD_COM 吃掉）
+    // FIX v6.0.1 #2: ULTRA_WORD → LLLL_PRONOUNCEABLE → WORD_COM（顺序固定）
     if (isAlpha && ULTRA_WORD_LIST.includes(sld)) return {
       id: 'ULTRA_WORD_COM', priceTag: '投资人流通底价｜⚠️ 需人工经纪复核',
       scoreFloor: 92, p1: '$500,000 – $2,000,000+', p2: '$1,000,000 – $5,000,000', p3: '$3,000,000 – $15,000,000+',
@@ -563,7 +574,9 @@ function getIndustries(sld) {
     'code': ['开发者工具','在线IDE','编程教育'],
     'goka': ['DTC消费品牌','时尚/设计品牌','游戏/娱乐'],
     'mycar': ['汽车电商','智能汽车服务','二手车平台'],
-    'vjn': ['金融','科技初创','品牌命名']
+    'vjn': ['金融','科技初创','品牌命名'],
+    'zkp': ['Web3/区块链（Zero-Knowledge Proof）','密码学研究','隐私计算平台'],
+    'farfield': ['声学/音频技术','智能家居','军事/雷达技术']
   };
   return map[sld] || ['科技/SaaS','品牌命名','企业收购'];
 }
@@ -580,7 +593,6 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
   const { sld, tld, full } = parsed;
   const now = new Date().toISOString().split('T')[0];
 
-  // FIX #1: JSON字段 score → final_score；FIX #3: data_source_level标注static_rule_pack
   const materialData = JSON.stringify({
     domain: full.toUpperCase(),
     asset_class: asset.id,
@@ -599,7 +611,7 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
   }, null, 2);
 
   return `# DOMAIN_VALUATION_PACK.md
-> 生成时间：${now} | 系统：Domain AI Judge v6.0.1 | 规则：CORE_RULES v2
+> 生成时间：${now} | 系统：Domain AI Judge v6.0.2 | 规则：CORE_RULES v2
 > ⚠️ 本文档为系统初步判断，最终价格以实际市场成交为准
 > 📦 数据来源：静态规则库 / 用户录入 / 待人工复核（live_market_checked: false）
 
@@ -749,7 +761,7 @@ ${materialData}
 
 ---
 
-*DOMAIN_VALUATION_PACK.md · Domain AI Judge v6.0.1 · CORE_RULES v2 · 静态规则库 · ${now}*
+*DOMAIN_VALUATION_PACK.md · Domain AI Judge v6.0.2 · CORE_RULES v2 · 静态规则库 · ${now}*
 `;
 }
 
@@ -811,7 +823,7 @@ function analyze() {
   }, 900);
 }
 
-// FIX #4: copyPack 增加失败兜底，不用 alert，改为按钮状态反馈
+// FIX v6.0.1 #4: copyPack 失败兜底，不用 alert，按钮状态反馈
 function copyPack() {
   if (!currentPack) return;
   const btn = document.getElementById('copyBtn');
