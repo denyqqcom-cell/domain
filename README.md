@@ -1,4 +1,4 @@
-# Domain AI Judge v6.1
+# Domain AI Judge v6.1.3
 
 > 域名估值物料包生成器 · 资产类别优先 · CORE_RULES v2 对齐
 
@@ -75,13 +75,21 @@
 
 > 当前 888.com 和 420.com 均归类为 `NNN_COM`，系统评分均为 90 分。市场实际溢价差异需人工复核。
 
-### 2. ANCHORS 价格为参考锚点，不绝对覆盖区间
+### 2. ANCHORS 价格锚点与类别地板保护（v6.2 修复中）
 
-有已知成交锚点的域名（如 88.com $1M、62.com $1.82M），系统以锚点为基础计算三层价格区间。如锚点数据较旧，建议人工参照最新成交记录修正。
+当前版本（v6.1.3）中，ANCHORS 成交锚点可能把稀缺类别的估值压低到类别静态地板以下。
+
+典型问题：
+- VJN.com → 分类 `LLL_COM`（类别 P1 底价 $100,000–$800,000）
+- 锚点成交 $39,000 → 系统 P1 输出 $27,300–$58,500
+- **结论：历史低价成交不应覆盖类别基准**
+
+> ⚠️ **此问题将在 v6.2 修复。** 修复原则：ANCHORS 可提高估值，不应将估值压低到该 asset_class 的静态价格地板以下。  
+> 详见 [CHANGELOG_v6.2_PLAN.md](./CHANGELOG_v6.2_PLAN.md)
 
 ---
 
-## 防回归测试样例（v6.1）
+## 防回归测试样例（v6.1.3）
 
 | 域名 | 应识别类别 | 最低分 | 备注 |
 |------|-----------|--------|------|
@@ -97,6 +105,18 @@
 | TEXT.COM | `ULTRA_WORD_COM` | 92 | 顶级行业词 |
 | GOKA.com | `LLLL_PRONOUNCEABLE_COM` | 78 | 4字母可发音，参照 $399,995 |
 | zkp.com | `LLL_COM` | 88 | 3字母，参照 $5M 锚点 |
+| q.com | `L_COM` | 98 | 单字母 |
+
+### v6.2 新增回归测试（ANCHORS 价格地板保护）
+
+| 域名 | 类别 | 触发场景 | 预期 pricing_method |
+|------|------|----------|--------------------|
+| VJN.com | `LLL_COM` | 锚点 $39K < 类别底价 $100K | `class_floor_guarded` |
+| GOKA.com | `LLLL_PRONOUNCEABLE_COM` | 锚点 $399,995 ≥ 类别底价 | `anchor_based` |
+| 62.com | `NN_COM` | 锚点 $1.82M ≥ 类别底价 | `anchor_based` |
+| travely.com | `VERIFIED_HIGH_VALUE_COM` | 低锚点时需检查说明 | 人工复核 |
+| gunar.com | `VERIFIED_HIGH_VALUE_COM` | 锚点价格合理 | `anchor_based` |
+| TEX.COM | `LLL_COM` | 无锚点 | `static_class` |
 
 ---
 
@@ -104,12 +124,13 @@
 
 ```
 domain/
-├── index.html              ← 主工具（v6.1）
-├── README.md               ← 本文件（v6.1.1）
-├── CORE_RULES_v2.md        ← ✅ 当前核心规则（v6.1.1，请使用此版本）
-├── CORE_RULES_v1.md        ← ⚠️ Deprecated（早期草稿，已废弃）
-├── AGENT_PROMPTS.md        ← AI评委 System Prompt（v2 schema对齐）
-└── OUTBOUND_TEMPLATE.md    ← Outbound 邮件模板
+├── index.html                  ← 主工具（v6.1.3）
+├── README.md                   ← 本文件（v6.1.3）
+├── CHANGELOG_v6.2_PLAN.md      ← v6.2 设计规范（ANCHORS 价格地板保护）
+├── CORE_RULES_v2.md            ← ✅ 当前核心规则（请使用此版本）
+├── CORE_RULES_v1.md            ← ⚠️ Deprecated（早期草稿，已废弃）
+├── AGENT_PROMPTS.md            ← AI评委 System Prompt（v2 schema对齐）
+└── OUTBOUND_TEMPLATE.md        ← Outbound 邮件模板
 ```
 
 ---
@@ -141,6 +162,7 @@ domain/
 
 | 版本 | 日期 | 主要变动 |
 |------|------|----------|
+| **v6.1.3** | **2026-06-19** | **正式定版。发现 ANCHORS 价格可能压低类别估值问题，规划 v6.2 修复** |
 | v6.1.1 | 2026-06-19 | 文档收口：README/CORE_RULES_v2 同步 v6.1；SHORT_NUMERIC_COM 标废弃；新增数字质量溢价人工复核说明 |
 | v6.1 | 2026-06-19 | 数字.COM 四级分层（NN/NNN/NNNN/NNNNN_COM）；修复 MIXED_SHORT_COM 误判纯数字；完善 d2/d4/d6/getConfidence/getRisks |
 | v6.0.3 | 2026-06-19 | 核心分类链稳定版 |
