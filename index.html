@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>域名估值物料包生成器 v6.2</title>
+<title>域名估值物料包生成器 v6.1.3</title>
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
 <style>
 /* ── TOKENS ── */
@@ -185,17 +185,6 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   transition: width 0.8s cubic-bezier(0.16,1,0.3,1);
 }
 
-/* ── PRICING METHOD BADGE ── */
-.pricing-method-badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  font-size: var(--text-xs); font-weight: 700;
-  padding: 2px 10px; border-radius: var(--radius-full);
-  margin-top: var(--space-2);
-}
-.pricing-method-badge.anchor_based { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent-glow); }
-.pricing-method-badge.class_floor_guarded { background: rgba(232,175,52,0.12); color: var(--gold); border: 1px solid rgba(232,175,52,0.3); }
-.pricing-method-badge.static_class { background: var(--surface-2); color: var(--muted); border: 1px solid var(--border); }
-
 /* ── MARKDOWN PACK ── */
 .pack-section {
   background: var(--surface); border: 1px solid var(--border);
@@ -314,7 +303,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <circle cx="27" cy="10" r="4" fill="var(--gold)"/>
       </svg>
       <span class="logo-text">域名估值</span>
-      <span class="logo-version">v6.2</span>
+      <span class="logo-version">v6.1.3</span>
     </div>
     <button class="theme-btn" data-theme-toggle aria-label="切换主题">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -334,21 +323,22 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
     <div class="input-row">
       <input
         class="domain-input" id="domainInput"
-        type="text" placeholder="例如：VJN.com"
+        type="text" placeholder="例如：62.com"
         autocomplete="off" autocapitalize="off" spellcheck="false"
       />
       <button class="analyze-btn" id="analyzeBtn" onclick="analyze()">生成估值包</button>
     </div>
     <div class="examples">
-      <span class="examples-label">v6.2 回归测试：</span>
-      <span class="example-chip" onclick="fillExample('VJN.com')">VJN.com</span>
-      <span class="example-chip" onclick="fillExample('GOKA.com')">GOKA.com</span>
+      <span class="examples-label">快速测试：</span>
       <span class="example-chip" onclick="fillExample('62.com')">62.com</span>
-      <span class="example-chip" onclick="fillExample('travely.com')">travely.com</span>
-      <span class="example-chip" onclick="fillExample('gunar.com')">gunar.com</span>
-      <span class="example-chip" onclick="fillExample('TEX.COM')">TEX.COM</span>
+      <span class="example-chip" onclick="fillExample('888.com')">888.com</span>
+      <span class="example-chip" onclick="fillExample('1888.com')">1888.com</span>
+      <span class="example-chip" onclick="fillExample('12345.com')">12345.com</span>
       <span class="example-chip" onclick="fillExample('TEXT.COM')">TEXT.COM</span>
+      <span class="example-chip" onclick="fillExample('zkp.com')">zkp.com</span>
+      <span class="example-chip" onclick="fillExample('GOKA.com')">GOKA.com</span>
       <span class="example-chip" onclick="fillExample('3m.com')">3m.com</span>
+      <span class="example-chip" onclick="fillExample('VJN.com')">VJN.com</span>
     </div>
   </div>
 
@@ -366,7 +356,6 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <div class="card-label">资产类别</div>
         <div class="asset-badge" id="cardAssetClass">—</div>
         <div class="card-sub" id="cardAssetDesc">—</div>
-        <div id="cardPricingMethod"></div>
       </div>
       <div class="result-card">
         <div class="card-label">综合评分</div>
@@ -422,7 +411,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   </div>
 
   <footer class="footer">
-    静态规则库 CORE_RULES v2 · Domain AI Judge v6.2 · ANCHORS 价格地板保护 · 数字.COM 四级分层 · 估值仅供参考，最终价格以实际市场成交为准
+    静态规则库 CORE_RULES v2 · Domain AI Judge v6.1.3 · 数字.COM 四级分层 · ANCHORS 对象化（listing 不参与自动定价）· 估值仅供参考，最终价格以实际市场成交为准
   </footer>
 </div>
 
@@ -455,15 +444,29 @@ function toggleAdvanced() {
   document.getElementById('advanced-panel').classList.toggle('open');
 }
 
-// ── CORE RULES v2: Asset Classification ──
+// ── CORE RULES v2: ANCHORS — typed objects (v6.1.3) ──
+// type: 'sale'    → verified成交，参与锚点定价
+// type: 'listing' → 仅挂牌报价，verified=false，不参与自动定价，仅注入 reference_note
 const ANCHORS = {
-  'cloud.com': 11000000, 'zkp.com': 5000000, 'goka.com': 399995,
-  'tronscan.com': 250000, 'gunar.com': 175000, 'balaena.com': 89000,
-  'vjn.com': 39000, 'farfield.com': 15000, 'travely.com': 13000, 'mycar.ai': 10000,
-  'derm.com': 825000,
-  // v6.1 数字.COM 锚点
-  '12.com': 2500000, '77.com': 5000000, '88.com': 1000000,
-  '60.com': 310000, '100.com': 950000, '01.com': 1820000, '62.com': 1820000
+  'cloud.com':    { usd: 11000000, type: 'sale',    source: 'DNJournal',                    verified: true  },
+  'zkp.com':      { usd: 5000000,  type: 'sale',    source: 'DNJournal',                    verified: true  },
+  'goka.com':     { usd: 399995,   type: 'sale',    source: 'DNJournal',                    verified: true  },
+  'tronscan.com': { usd: 250000,   type: 'sale',    source: 'public report',                verified: true  },
+  'gunar.com':    { usd: 175000,   type: 'sale',    source: 'NameBio',                      verified: true  },
+  'balaena.com':  { usd: 89000,    type: 'sale',    source: 'NameBio',                      verified: true  },
+  'vjn.com':      { usd: 39000,    type: 'listing', source: 'Afternic via DomainNameWire',  verified: false },
+  'farfield.com': { usd: 15000,    type: 'sale',    source: 'NameBio',                      verified: true  },
+  'travely.com':  { usd: 13000,    type: 'sale',    source: 'NameBio',                      verified: true  },
+  'mycar.ai':     { usd: 10000,    type: 'sale',    source: 'NameBio',                      verified: true  },
+  'derm.com':     { usd: 825000,   type: 'sale',    source: 'DNJournal',                    verified: true  },
+  // 数字.COM 锚点
+  '12.com':  { usd: 2500000, type: 'sale', source: 'public report', verified: true },
+  '77.com':  { usd: 5000000, type: 'sale', source: 'public report', verified: true },
+  '88.com':  { usd: 1000000, type: 'sale', source: 'public report', verified: true },
+  '60.com':  { usd: 310000,  type: 'sale', source: 'DNJournal',     verified: true },
+  '100.com': { usd: 950000,  type: 'sale', source: 'DNJournal',     verified: true },
+  '01.com':  { usd: 1820000, type: 'sale', source: 'DNJournal',     verified: true },
+  '62.com':  { usd: 1820000, type: 'sale', source: 'DNJournal',     verified: true }
 };
 
 const ULTRA_WORD_LIST = [
@@ -508,70 +511,6 @@ const SCORE_FLOOR_MAP = {
   GENERIC:                  0
 };
 
-// ── CLASS STATIC PRICE FLOORS (v6.2: 用于 anchor price floor guard) ──
-// key: asset_class → { p1_low_usd, p1_high_usd, p1, p2, p3 }
-const CLASS_STATIC_PRICES = {
-  L_COM:   { p1_low: 5000000, p1_high: 50000000, p1: '$5,000,000 – $50,000,000+', p2: '$10,000,000 – $100,000,000', p3: '$30,000,000+' },
-  LL_COM:  { p1_low: 500000, p1_high: 5000000, p1: '$500,000 – $5,000,000+', p2: '$1,000,000 – $10,000,000', p3: '$5,000,000 – $20,000,000+' },
-  LLL_COM: { p1_low: 100000, p1_high: 800000, p1: '$100,000 – $800,000', p2: '$200,000 – $1,500,000', p3: '$500,000 – $3,000,000' },
-  ULTRA_WORD_COM: { p1_low: 500000, p1_high: 2000000, p1: '$500,000 – $2,000,000+', p2: '$1,000,000 – $5,000,000', p3: '$3,000,000 – $15,000,000+' },
-  LLLL_PRONOUNCEABLE_COM: { p1_low: 8000, p1_high: 120000, p1: '$8,000 – $120,000', p2: '$20,000 – $250,000', p3: '$50,000 – $500,000' },
-  WORD_COM: { p1_low: 15000, p1_high: 200000, p1: '$15,000 – $200,000', p2: '$50,000 – $500,000', p3: '$100,000 – $1,000,000' },
-  NN_COM:   { p1_low: 200000, p1_high: 5000000, p1: '$200,000 – $5,000,000', p2: '$500,000 – $10,000,000', p3: '$1,000,000 – $20,000,000' },
-  NNN_COM:  { p1_low: 50000, p1_high: 800000, p1: '$50,000 – $800,000', p2: '$100,000 – $1,500,000', p3: '$200,000 – $3,000,000' },
-  NNNN_COM: { p1_low: 5000, p1_high: 150000, p1: '$5,000 – $150,000', p2: '$15,000 – $400,000', p3: '$50,000 – $800,000' },
-  NNNNN_COM:{ p1_low: 1000, p1_high: 30000, p1: '$1,000 – $30,000', p2: '$5,000 – $80,000', p3: '$20,000 – $200,000' },
-  MIXED_SHORT_COM: { p1_low: 30000, p1_high: 300000, p1: '$30,000 – $300,000', p2: '$80,000 – $800,000', p3: '$200,000 – $2,000,000' },
-  AI_KEYWORD_TLD: { p1_low: 1000, p1_high: 8000, p1: '$1,000 – $8,000', p2: '$3,000 – $20,000', p3: '$8,000 – $50,000' },
-  VERIFIED_HIGH_VALUE_COM: { p1_low: 50000, p1_high: 2000000, p1: '$50,000 – $2,000,000', p2: '$100,000 – $5,000,000', p3: '$500,000+' }
-};
-
-// ── v6.2: ANCHORS price floor guard ──
-// Returns: { p1, p2, p3, pricing_method, anchor_note }
-function applyAnchorFloorGuard(anchorUsd, classId) {
-  const cs = CLASS_STATIC_PRICES[classId];
-  if (!cs) {
-    // Unknown class — just use anchor
-    const p1 = '$' + (anchorUsd * 0.7).toLocaleString() + ' – $' + (anchorUsd * 1.5).toLocaleString();
-    const p2 = '$' + (anchorUsd * 1.2).toLocaleString() + ' – $' + (anchorUsd * 3).toLocaleString();
-    const p3 = '$' + (anchorUsd * 2).toLocaleString() + '+';
-    return { p1, p2, p3, pricing_method: 'anchor_based', anchor_note: null };
-  }
-
-  const anchor_p1_low = anchorUsd * 0.7;
-  const anchor_p1_high = anchorUsd * 1.5;
-  const class_p1_low = cs.p1_low;
-  const class_p1_high = cs.p1_high;
-
-  if (anchor_p1_high < class_p1_low) {
-    // 锚点整体低于类别地板 → 完全使用类别静态区间
-    return {
-      p1: cs.p1, p2: cs.p2, p3: cs.p3,
-      pricing_method: 'class_floor_guarded',
-      anchor_note: `历史低价锚点（$${anchorUsd.toLocaleString()}），仅作参考；当前估值不低于 ${classId} 类别地板（${cs.p1}）`
-    };
-  } else if (anchor_p1_low < class_p1_low) {
-    // 锚点下限低于类别地板 → 抬升下限，保留锚点上限
-    const newLow = class_p1_low;
-    const newHigh = Math.max(anchor_p1_high, class_p1_high);
-    const fmt = n => '$' + Math.round(n).toLocaleString();
-    const p1 = fmt(newLow) + ' – ' + fmt(newHigh);
-    const p2 = fmt(newLow * 1.5) + ' – ' + fmt(newHigh * 2);
-    const p3 = fmt(newLow * 3) + '+';
-    return {
-      p1, p2, p3,
-      pricing_method: 'class_floor_guarded',
-      anchor_note: `锚点下限（$${Math.round(anchorUsd*0.7).toLocaleString()}）低于 ${classId} 类别地板，已抬升至类别下限 $${newLow.toLocaleString()}`
-    };
-  } else {
-    // 锚点完全在类别区间内或高于类别 → 正常使用锚点
-    const p1 = '$' + Math.round(anchor_p1_low).toLocaleString() + ' – $' + Math.round(anchor_p1_high).toLocaleString();
-    const p2 = '$' + Math.round(anchorUsd * 1.2).toLocaleString() + ' – $' + Math.round(anchorUsd * 3).toLocaleString();
-    const p3 = '$' + Math.round(anchorUsd * 2).toLocaleString() + '+';
-    return { p1, p2, p3, pricing_method: 'anchor_based', anchor_note: null };
-  }
-}
-
 function parseDomain(raw) {
   const full = raw.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '');
   const parts = full.split('.');
@@ -582,8 +521,11 @@ function parseDomain(raw) {
 
 function classifyAsset(sld, tld, full) {
   const key = full;
-  if (ANCHORS[key] !== undefined) {
-    const anchorUsd = ANCHORS[key];
+  const anchor = ANCHORS[key];
+
+  // v6.1.3: 只有 type==='sale' && verified===true 的锚点才参与自动定价
+  if (anchor && anchor.type === 'sale' && anchor.verified === true) {
+    const anchorUsd = anchor.usd;
     let cls;
     const isAlpha = /^[a-z]+$/.test(sld);
     const isNumeric = /^[0-9]+$/.test(sld);
@@ -603,61 +545,73 @@ function classifyAsset(sld, tld, full) {
     else cls = 'VERIFIED_HIGH_VALUE_COM';
 
     const scoreFloor = SCORE_FLOOR_MAP[cls] ?? 0;
-
-    // v6.2: apply anchor floor guard
-    const guarded = applyAnchorFloorGuard(anchorUsd, cls);
-
+    const p1 = '$' + (anchorUsd * 0.7).toLocaleString() + ' – $' + (anchorUsd * 1.5).toLocaleString();
+    const p2 = '$' + (anchorUsd * 1.2).toLocaleString() + ' – $' + (anchorUsd * 3).toLocaleString();
+    const p3 = '$' + (anchorUsd * 2).toLocaleString() + '+';
     return {
       id: cls,
-      priceTag: guarded.pricing_method === 'class_floor_guarded'
-        ? '投资人底价｜历史低价锚点，已按类别地板保护'
-        : '投资人底价｜参照已知成交锚点',
-      scoreFloor,
-      p1: guarded.p1, p2: guarded.p2, p3: guarded.p3,
+      priceTag: '投资人底价｜参照已知成交锚点',
+      scoreFloor, p1, p2, p3,
       rationale: ULTRA_RATIONALE[sld] || ('已知成交价 $' + anchorUsd.toLocaleString()),
-      pricing_method: guarded.pricing_method,
-      anchor_deal_used: true,
-      anchor_deal_usd: anchorUsd,
-      anchor_note: guarded.anchor_note
+      anchorMeta: anchor
     };
   }
+
+  // listing-only 锚点（vjn.com 等）：记录 reference_note，走 static_class 定价
+  const listingNote = (anchor && anchor.type === 'listing')
+    ? `⚠️ 已知挂牌报价 $${anchor.usd.toLocaleString()}（${anchor.source}），尚未成交，不用于自动定价，仅作参考`
+    : null;
 
   const len = sld.length;
   const isAlpha = /^[a-z]+$/.test(sld);
   const isNumeric = /^[0-9]+$/.test(sld);
   const isMixedShort = /^[a-z0-9]{2,4}$/.test(sld) && /[0-9]/.test(sld) && /[a-z]/.test(sld);
 
-  const staticAsset = (id, priceTag, rationale) => {
-    const cs = CLASS_STATIC_PRICES[id] || { p1: '—', p2: '—', p3: '—' };
-    return {
-      id, priceTag, scoreFloor: SCORE_FLOOR_MAP[id] ?? 0,
-      p1: cs.p1, p2: cs.p2, p3: cs.p3, rationale,
-      pricing_method: 'static_class',
-      anchor_deal_used: false,
-      anchor_deal_usd: null,
-      anchor_note: null
-    };
-  };
+  const make = (id, priceTag, p1, p2, p3, rationale) => ({
+    id, priceTag, scoreFloor: SCORE_FLOOR_MAP[id] ?? 0,
+    p1, p2, p3, rationale, listingNote, anchorMeta: anchor || null
+  });
 
   if (tld === '.com') {
-    if (isNumeric && len <= 2) return staticAsset('NN_COM', '投资人流通底价', '1-2位纯数字.COM — 全球仅100个，稀缺度对标LL_COM（参照：88.com $1M+，12.com $2.5M，77.com $5M）');
-    if (isNumeric && len === 3) return staticAsset('NNN_COM', '投资人流通底价', '3位纯数字.COM — 全球仅1,000个，稀缺资产（参照：360.com、888.com）');
-    if (isNumeric && len === 4) return staticAsset('NNNN_COM', '投资人流通底价', '4位纯数字.COM — 全球仅10,000个（参照：1888.com 等吉利数字）');
-    if (isNumeric && len === 5) return staticAsset('NNNNN_COM', '投资人流通底价', '5位纯数字.COM — 全球仅100,000个（参照：12345.com 等）');
-    if (isAlpha && len === 1) return staticAsset('L_COM', '战略级稀缺资产', '单字母.COM — 全球最顶级域名资产');
-    if (isAlpha && len === 2) return staticAsset('LL_COM', '投资人流通底价', '2字母.COM — 全球最稀缺资产之一');
-    if (isAlpha && len === 3) return staticAsset('LLL_COM', '投资人流通底价', '3字母.COM — 高流动性稀缺资产');
-    if (isAlpha && ULTRA_WORD_LIST.includes(sld)) return staticAsset('ULTRA_WORD_COM', '投资人流通底价｜⚠️ 需人工经纪复核', ULTRA_RATIONALE[sld] || '顶级行业核心词，高品牌可塑性');
-    if (isAlpha && /[aeiou]/.test(sld) && len === 4) return staticAsset('LLLL_PRONOUNCEABLE_COM', '投资人底价', '4字母可发音.COM — GOKA.com $399,995 参考');
-    if (isMixedShort) return staticAsset('MIXED_SHORT_COM', '投资人流通底价', '字母+数字混合短域名（3m.com / h20.com 类）');
-    if (isAlpha && len <= 8) return staticAsset('WORD_COM', '投资人流通底价', '英文单词.COM — 普通资产');
+    if (isNumeric && len <= 2) return make('NN_COM', '投资人流通底价',
+      '$200,000 – $5,000,000', '$500,000 – $10,000,000', '$1,000,000 – $20,000,000',
+      '1-2位纯数字.COM — 全球仅100个，稀缺度对标LL_COM（参照：88.com $1M+，12.com $2.5M，77.com $5M）');
+    if (isNumeric && len === 3) return make('NNN_COM', '投资人流通底价',
+      '$50,000 – $800,000', '$100,000 – $1,500,000', '$200,000 – $3,000,000',
+      '3位纯数字.COM — 全球仅1,000个，稀缺资产（参照：360.com、888.com）');
+    if (isNumeric && len === 4) return make('NNNN_COM', '投资人流通底价',
+      '$5,000 – $150,000', '$15,000 – $400,000', '$50,000 – $800,000',
+      '4位纯数字.COM — 全球仅10,000个（参照：1888.com 等吉利数字）');
+    if (isNumeric && len === 5) return make('NNNNN_COM', '投资人流通底价',
+      '$1,000 – $30,000', '$5,000 – $80,000', '$20,000 – $200,000',
+      '5位纯数字.COM — 全球仅100,000个（参照：12345.com 等）');
+    if (isAlpha && len === 1) return make('L_COM', '战略级稀缺资产',
+      '$5,000,000 – $50,000,000+', '$10,000,000 – $100,000,000', '$30,000,000+',
+      '单字母.COM — 全球最顶级域名资产');
+    if (isAlpha && len === 2) return make('LL_COM', '投资人流通底价',
+      '$500,000 – $5,000,000+', '$1,000,000 – $10,000,000', '$5,000,000 – $20,000,000+',
+      '2字母.COM — 全球最稀缺资产之一');
+    if (isAlpha && len === 3) return make('LLL_COM', '投资人流通底价',
+      '$100,000 – $800,000', '$200,000 – $1,500,000', '$500,000 – $3,000,000',
+      '3字母.COM — 高流动性稀缺资产');
+    if (isAlpha && ULTRA_WORD_LIST.includes(sld)) return make('ULTRA_WORD_COM',
+      '投资人流通底价｜⚠️ 需人工经纪复核',
+      '$500,000 – $2,000,000+', '$1,000,000 – $5,000,000', '$3,000,000 – $15,000,000+',
+      ULTRA_RATIONALE[sld] || '顶级行业核心词，高品牌可塑性');
+    if (isAlpha && /[aeiou]/.test(sld) && len === 4) return make('LLLL_PRONOUNCEABLE_COM', '投资人底价',
+      '$8,000 – $120,000', '$20,000 – $250,000', '$50,000 – $500,000',
+      '4字母可发音.COM — GOKA.com $399,995 参考');
+    if (isMixedShort) return make('MIXED_SHORT_COM', '投资人流通底价',
+      '$30,000 – $300,000', '$80,000 – $800,000', '$200,000 – $2,000,000',
+      '字母+数字混合短域名（3m.com / h20.com 类）');
+    if (isAlpha && len <= 8) return make('WORD_COM', '投资人流通底价',
+      '$15,000 – $200,000', '$50,000 – $500,000', '$100,000 – $1,000,000',
+      '英文单词.COM — 普通资产');
   }
-  if (tld === '.ai') return staticAsset('AI_KEYWORD_TLD', '投资人流通价', '.AI 后缀域名，市场热度高');
-  return {
-    id: 'GENERIC', priceTag: '同行参考价', scoreFloor: 0,
-    p1: '—', p2: '—', p3: '—', rationale: '未识别为稀缺资产，建议人工复核',
-    pricing_method: 'static_class', anchor_deal_used: false, anchor_deal_usd: null, anchor_note: null
-  };
+  if (tld === '.ai') return make('AI_KEYWORD_TLD', '投资人流通价',
+    '$1,000 – $8,000', '$3,000 – $20,000', '$8,000 – $50,000',
+    '.AI 后缀域名，市场热度高');
+  return make('GENERIC', '同行参考价', '—', '—', '—', '未识别为稀缺资产，建议人工复核');
 }
 
 // ── score6D ──
@@ -673,4 +627,370 @@ function score6D(sld, tld, asset) {
     : ['LLL_COM','NNN_COM'].includes(asset.id) ? 85
     : ['LLLL_PRONOUNCEABLE_COM','NNNN_COM'].includes(asset.id) ? 80
     : asset.id === 'MIXED_SHORT_COM' ? 78
-  
+    : asset.id === 'NNNNN_COM' ? 70
+    : asset.id === 'GENERIC' ? 30
+    : 65;
+  let d5 = tld === '.ai' ? 85 : tld === '.com' ? 80 : 60;
+  if (asset.id === 'ULTRA_WORD_COM') d5 = 88;
+  if (asset.id === 'GENERIC') d5 = 40;
+  let d6 = ['ULTRA_WORD_COM','LL_COM','L_COM','NN_COM'].includes(asset.id) ? 85
+    : ['LLL_COM','NNN_COM'].includes(asset.id) ? 78
+    : ['LLLL_PRONOUNCEABLE_COM','NNNN_COM'].includes(asset.id) ? 72
+    : asset.id === 'MIXED_SHORT_COM' ? 68
+    : asset.id === 'NNNNN_COM' ? 65
+    : asset.id === 'GENERIC' ? 20
+    : 60;
+  const weighted = d1*0.20 + d2*0.25 + d3*0.20 + d4*0.20 + d5*0.10 + d6*0.05;
+  const final = Math.max(asset.scoreFloor || 0, Math.round(weighted));
+  return { d1, d2, d3, d4, d5, d6, final };
+}
+
+function getRisks(sld, tld, asset) {
+  const risks = [];
+  if (asset.listingNote) risks.push(asset.listingNote);
+  if (asset.id === 'ULTRA_WORD_COM') {
+    risks.push('⚠️ ULTRA_WORD_COM：不得机械低估，必须人工经纪复核，价格区间宽幅大');
+    risks.push('📋 需人工查询 NameBio / DNJournal / Escrow / Whois / 商标库');
+  }
+  if (['text','excel','pay','code','market','trade'].includes(sld)) {
+    risks.push('™️ 商标风险：需查询 USPTO/WIPO 是否有同名注册商标，评估侵权可能性');
+  }
+  if (asset.id === 'MIXED_SHORT_COM') {
+    risks.push('⚠️ MIXED_SHORT_COM：字母+数字混合，需确认是否与知名品牌（3M、007）关联，商标查询必做');
+  }
+  if (asset.id === 'NN_COM') {
+    risks.push('💎 NN_COM：全球仅100个，极稀缺，参照 DNJournal 2位数字成交 $1.82M+（01.com、62.com）');
+    risks.push('📌 中国买家市场活跃（4.cn、22.cn），建议同步在中文市场发布');
+  }
+  if (asset.id === 'NNN_COM') {
+    risks.push('💎 NNN_COM：全球仅1,000个，高流动性，中国买家偏好吉利数字（含8/6/9）溢价明显');
+  }
+  if (asset.id === 'NNNN_COM') {
+    risks.push('📊 NNNN_COM：吉利数字（1888/8888等）溢价显著，普通数字组合流动性一般');
+  }
+  if (asset.id === 'NNNNN_COM') {
+    risks.push('📊 NNNNN_COM：5位数字供应量100,000，流动性弱于短数字，价格差异大');
+  }
+  if (tld !== '.com' && tld !== '.ai') risks.push('🔻 非主流后缀，流动性低于 .com，成交周期可能更长');
+  if (asset.id === 'GENERIC') risks.push('⚠️ 未识别为稀缺资产类别，建议人工复核');
+  if (sld.length > 8) risks.push('📏 域名较长，品牌可塑性受限，终端买家范围缩小');
+  risks.push('📊 缺失：需人工确认当前持有人是否出售、是否有活跃询盘');
+  return risks;
+}
+
+function getIndustries(sld) {
+  const map = {
+    'text': ['AI文本生成（OpenAI、Anthropic类）','SMS/短信营销平台（Twilio、SendGrid类）','文档协作SaaS（Notion、Confluence类）','纺织行业（textile缩写）','AI客服/对话系统'],
+    'derm': ['皮肤科连锁诊所','医美/皮肤护理品牌','皮肤科SaaS平台'],
+    'excel': ['微软生态/企业SaaS','数据分析工具','财务软件'],
+    'cloud': ['云服务商（AWS/Azure类）','企业SaaS','存储/CDN服务'],
+    'pay': ['支付处理商','金融科技','电商平台'],
+    'code': ['开发者工具','在线IDE','编程教育'],
+    'goka': ['DTC消费品牌','时尚/设计品牌','游戏/娱乐'],
+    'mycar': ['汽车电商','智能汽车服务','二手车平台'],
+    'vjn': ['金融','科技初创','品牌命名'],
+    'zkp': ['Web3/区块链（Zero-Knowledge Proof）','密码学研究','隐私计算平台'],
+    'farfield': ['声学/音频技术','智能家居','军事/雷达技术']
+  };
+  if (/^[0-9]+$/.test(sld)) return ['数字品牌（金融/彩票/游戏）','中文互联网平台（品牌命名）','投资/收藏品市场'];
+  return map[sld] || ['科技/SaaS','品牌命名','企业收购'];
+}
+
+function getConfidence(asset) {
+  if (asset.id === 'L_COM') return { label: '极高', pct: 95, note: '单字母.COM，全球顶级稀缺资产' };
+  if (['LL_COM','LLL_COM','NN_COM'].includes(asset.id)) return { label: '高', pct: 90, note: '稀缺资产，市场成交数据充足' };
+  if (asset.id === 'NNN_COM') return { label: '高', pct: 88, note: '3位数字.COM，中国市场成交数据丰富' };
+  if (asset.id === 'ULTRA_WORD_COM') return { label: '中高', pct: 70, note: '顶级单词，价格区间宽，需人工复核' };
+  if (asset.id === 'VERIFIED_HIGH_VALUE_COM') return { label: '高', pct: 88, note: '已有公开成交锚点' };
+  if (['LLLL_PRONOUNCEABLE_COM','NNNN_COM'].includes(asset.id)) return { label: '中高', pct: 75, note: '参照同类锚点，价格受具体组合影响' };
+  if (asset.id === 'MIXED_SHORT_COM') return { label: '中高', pct: 72, note: '字母数字混合短域名，参照 3m.com 类锚点' };
+  if (asset.id === 'NNNNN_COM') return { label: '中', pct: 60, note: '5位数字供应量大，价格差异显著' };
+  if (asset.id === 'WORD_COM') return { label: '中', pct: 60, note: '普通单词，价格受终端买家影响大' };
+  return { label: '低-中', pct: 45, note: '建议人工复核' };
+}
+
+function generatePack(parsed, asset, scores, conf, risks, industries) {
+  const { sld, tld, full } = parsed;
+  const now = new Date().toISOString().split('T')[0];
+
+  // 构建 anchor_deals 表：listing-only 标注说明
+  const anchorDealsTable = [
+    { d: 'cloud.com',  p: '$11,000,000', note: '顶级单词.COM价值天花板' },
+    { d: '77.com',     p: '$5,000,000',  note: '2位数字.COM顶级参考' },
+    { d: 'zkp.com',    p: '$5,000,000',  note: '3字母.COM极品参考' },
+    { d: '12.com',     p: '$2,500,000',  note: '2位数字.COM高端参考' },
+    { d: '01.com / 62.com', p: '$1,820,000', note: '2位数字.COM成交锚点（DNJournal）' },
+    { d: '88.com',     p: '$1,000,000+', note: '2位数字.COM吉利数字参考' },
+    { d: '100.com',    p: '$950,000',    note: '3位数字.COM参考' },
+    { d: 'derm.com',   p: '~$825,000',   note: 'ULTRA_WORD_COM 医疗单词参考' },
+    { d: 'GOKA.com',   p: '$399,995',    note: '4字母可发音.COM品牌参考' },
+    { d: '60.com',     p: '$310,000',    note: '2位数字.COM下限参考' },
+    { d: 'VJN.com',    p: '$39,000',     note: '⚠️ 挂牌报价（Afternic，未成交），不作定价依据' },
+    { d: 'Farfield.com', p: '$15,000',   note: '6字母.COM参考' }
+  ];
+
+  const anchorTableMd = anchorDealsTable
+    .map(r => `| ${r.d} | ${r.p} | ${r.note} |`).join('\n');
+
+  const materialData = JSON.stringify({
+    domain: full.toUpperCase(),
+    asset_class: asset.id,
+    final_score: scores.final,
+    score_explanation: scores.final >= 90 ? '顶级资产' : scores.final >= 80 ? '优质资产' : scores.final >= 70 ? '良好资产' : '普通域名',
+    score_floor: asset.scoreFloor || 0,
+    price_tag: asset.priceTag,
+    pricing_method: asset.anchorMeta && asset.anchorMeta.type === 'sale' ? 'anchor_based' : 'static_class',
+    anchor_deal_used: !!(asset.anchorMeta && asset.anchorMeta.type === 'sale'),
+    anchor_deal_usd: asset.anchorMeta && asset.anchorMeta.type === 'sale' ? asset.anchorMeta.usd : null,
+    anchor_note: asset.listingNote || null,
+    data_source_level: 'static_rule_pack',
+    live_market_checked: false,
+    dimensions: { D1_tld: scores.d1, D2_enduser: scores.d2, D3_quality: scores.d3, D4_market: scores.d4, D5_heat: scores.d5, D6_outbound: scores.d6 },
+    price_reference: { p1_investor: asset.p1, p2_brand: asset.p2, p3_enduser: asset.p3 },
+    potential_industries: industries,
+    missing_data: ['NameBio历史成交','Whois持有人联系状态','商标查询','当前平台挂牌价'],
+    risk_flags: risks
+  }, null, 2);
+
+  return `# DOMAIN_VALUATION_PACK.md
+> 生成时间：${now} | 系统：Domain AI Judge v6.1.3 | 规则：CORE_RULES v2
+> ⚠️ 本文档为系统初步判断，最终价格以实际市场成交为准
+> 📦 数据来源：静态规则库 / 用户录入 / 待人工复核（live_market_checked: false）
+
+---
+
+## 一、域名基础识别
+
+| 字段 | 值 |
+|------|-----|
+| 域名 | **${full.toUpperCase()}** |
+| 主体（SLD） | ${sld.toUpperCase()} |
+| 后缀（TLD） | ${tld} |
+| 主体长度 | ${sld.length} 字符 |
+| 是否纯英文字母 | ${/^[a-z]+$/.test(sld) ? '✅ 是' : '❌ 否'} |
+| 是否包含元音 | ${/[aeiou]/.test(sld) ? '✅ 是' : '❌ 否'} |
+| 是否纯数字 | ${/^[0-9]+$/.test(sld) ? '✅ 是' : '❌ 否'} |
+| **资产类别** | **${asset.id}** |
+| 分类依据 | ${asset.rationale || asset.priceTag} |
+| 价格标签 | ${asset.priceTag} |
+${asset.listingNote ? `| 锚点说明 | ${asset.listingNote} |` : ''}
+
+---
+
+## 二、系统使用的物料
+
+### 2.1 已知成交锚点（静态规则库 / 用户录入 / 待人工复核）
+
+| 域名 | 价格 | 参考意义 |
+|------|------|---------|
+${anchorTableMd}
+
+### 2.2 当前资产类别价格区间参考
+
+- **P1 投资人流通底价**：${asset.p1 || '需人工估算'}
+- **P2 品牌资产价**：${asset.p2 || '需人工估算'}
+- **P3 终端/战略买家价**：${asset.p3 || '需人工估算'}
+${asset.id === 'ULTRA_WORD_COM' ? `\n> ⚠️ ULTRA_WORD_COM 特别说明：${sld.toUpperCase()} 的通用性和行业覆盖度是定价关键，不得以字母数量机械归类为普通域名。` : ''}
+${['NN_COM','NNN_COM'].includes(asset.id) ? `\n> 💎 ${asset.id} 特别说明：供应量极稀缺，中国买家市场活跃，吉利数字（含8/6/9）有额外溢价。` : ''}
+
+### 2.3 当前建站/使用情况
+
+- ⚠️ 缺失数据：需人工查询 Whois 持有人信息
+- ⚠️ 缺失数据：需确认是否建站或 Parking
+- ⚠️ 缺失数据：需确认 Afternic/Sedo/Dan.com 是否有挂牌及标价
+
+### 2.4 潜在终端买家行业
+
+${industries.map((ind, i) => `${i+1}. ${ind}`).join('\n')}
+
+### 2.5 需要人工复核的数据
+
+- [ ] NameBio 近3年同类成交记录
+- [ ] DNJournal 年度报告同类排名
+- [ ] USPTO / WIPO 商标数据库查询
+- [ ] Whois 持有人联系方式及出售意愿
+- [ ] Afternic / Sedo / Dan.com 当前挂牌价
+
+---
+
+## 三、分析维度（六维评分 · CORE_RULES v2）
+
+| 维度 | 权重 | 系统评分 | 评分依据 |
+|------|------|---------|---------|
+| D1 TLD强度 | 20% | **${scores.d1}/100** | ${tld} 后缀流动性 |
+| D2 终端买家匹配度 | 25% | **${scores.d2}/100** | 行业数量、付费能力、融资利好 |
+| D3 域名品质 | 20% | **${scores.d3}/100** | 长度(${sld.length}字符)、可发音性、品牌可塑性 |
+| D4 市场定价参考 | 20% | **${scores.d4}/100** | 对标成交锚点合理性 |
+| D5 市场热度 | 10% | **${scores.d5}/100** | 行业热度、后缀市场情绪 |
+| D6 Outbound可行性 | 5% | **${scores.d6}/100** | 可联系终端数量、成交可能性 |
+| **加权总分** | 100% | **${scores.final}/100** | 资产类别地板分：${asset.scoreFloor || 0} |
+
+---
+
+## 四、系统初步判断
+
+| 字段 | 值 |
+|------|-----|
+| **综合评分** | **${scores.final} / 100** |
+| **P1 投资人流通底价** | **${asset.p1 || '—'}** |
+| **P2 品牌资产价** | **${asset.p2 || '—'}** |
+| **P3 终端/战略买家价** | **${asset.p3 || '—'}** |
+| **置信度** | **${conf.label}**（${conf.pct}%）|
+| 置信度说明 | ${conf.note} |
+
+**估值依据：**
+- 资产类别 ${asset.id}，系统评分地板为 ${asset.scoreFloor || 0} 分，不得低于此值
+- ${asset.rationale || '基础规则定价'}
+- TLD 后缀 ${tld}，流动性评分 ${scores.d1}/100
+- 终端买家匹配度 ${scores.d2}/100，覆盖 ${industries.length} 个行业方向
+- ${asset.id === 'ULTRA_WORD_COM' ? '参照 derm.com（医疗单词 $825,000）—— ' + sld.toUpperCase() + ' 通用性更广，价值区间应≥ derm.com' : '依据六维加权模型计算'}
+
+---
+
+## 五、风险标记
+
+${risks.map(r => '- ' + r).join('\n')}
+
+---
+
+## 六、转发给 AI 的提示词
+
+> 将以下全部内容复制发送给 AI（从 === 到 === 之间）：
+
+===
+你是专业域名估值顾问，请根据以下材料对域名 ${full.toUpperCase()} 进行估值分析。
+
+**规则要求：**
+1. 必须先判断资产类别，再套对应价格模型（绝不能先算价格）
+2. 明确区分"事实"、"推断"、"缺失数据"三类信息
+3. ULTRA_WORD_COM 类别不得机械低估，价格区间必须参照同类顶级成交
+4. 数字.COM 必须按位数分级：NN_COM(1-2位) > NNN_COM(3位) > NNNN_COM(4位) > NNNNN_COM(5位)，不得混同
+5. 必须输出标准 JSON，字段名全部下划线命名（final_score，不得用 finalScore）
+6. ⚠️ 注意：本材料包为静态规则库生成（live_market_checked: false），请勿假设系统已联网查询实时市场数据
+7. anchor_note 不为 null 时，表示该锚点为挂牌报价（非成交），不得用于压低当前估值
+
+**域名材料包：**
+${materialData}
+
+**请输出以下 JSON 格式：**
+\`\`\`json
+{
+  "domain": "${full.toUpperCase()}",
+  "asset_class": "",
+  "final_score": 0,
+  "score_explanation": "",
+  "pricing_method": "anchor_based | static_class",
+  "price_range": {
+    "investor_floor_usd": "",
+    "brand_asset_usd": "",
+    "end_user_usd": ""
+  },
+  "confidence": "high|medium_high|medium|low",
+  "used_materials": [],
+  "key_reasons": [],
+  "risk_flags": [],
+  "missing_checks": [],
+  "fact_vs_inference": {
+    "facts": [],
+    "inferences": [],
+    "missing": []
+  }
+}
+\`\`\`
+===
+
+---
+
+*DOMAIN_VALUATION_PACK.md · Domain AI Judge v6.1.3 · CORE_RULES v2 · 静态规则库 · ${now}*
+`;
+}
+
+// ── MAIN ──
+let currentPack = '';
+
+function analyze() {
+  const raw = document.getElementById('domainInput').value.trim();
+  if (!raw) return;
+  const btn = document.getElementById('analyzeBtn');
+  btn.disabled = true;
+  document.getElementById('loader').classList.add('active');
+  document.getElementById('results').classList.remove('visible');
+
+  setTimeout(() => {
+    try {
+      const parsed = parseDomain(raw);
+      const asset = classifyAsset(parsed.sld, parsed.tld, parsed.full);
+      const scores = score6D(parsed.sld, parsed.tld, asset);
+      const conf = getConfidence(asset);
+      const risks = getRisks(parsed.sld, parsed.tld, asset);
+      const industries = getIndustries(parsed.sld);
+
+      document.getElementById('cardAssetClass').textContent = asset.id;
+      document.getElementById('cardAssetDesc').textContent = asset.rationale || asset.priceTag;
+      document.getElementById('cardScore').textContent = scores.final;
+      document.getElementById('cardScoreLabel').textContent = scores.final >= 90 ? '顶级资产' : scores.final >= 80 ? '优质资产' : scores.final >= 70 ? '良好资产' : '普通域名';
+
+      document.getElementById('cardPriceTier').innerHTML = [
+        { label: 'P1 投资人底价', val: asset.p1 || '—' },
+        { label: 'P2 品牌资产价', val: asset.p2 || '—' },
+        { label: 'P3 终端买家价', val: asset.p3 || '—' }
+      ].map(r => `<div class="price-row"><span class="price-tier-label">${r.label}</span><span class="price-tier-val">${r.val}</span></div>`).join('');
+
+      document.getElementById('cardConf').textContent = conf.label;
+      document.getElementById('confBar').style.width = conf.pct + '%';
+      document.getElementById('cardConfNote').textContent = conf.note;
+
+      const pack = generatePack(parsed, asset, scores, conf, risks, industries);
+      currentPack = pack;
+      document.getElementById('packBody').textContent = pack;
+
+      document.getElementById('dimGrid').innerHTML = [
+        { name: 'D1 TLD强度', score: scores.d1, weight: '20%' },
+        { name: 'D2 终端匹配', score: scores.d2, weight: '25%' },
+        { name: 'D3 域名品质', score: scores.d3, weight: '20%' },
+        { name: 'D4 市场定价', score: scores.d4, weight: '20%' },
+        { name: 'D5 市场热度', score: scores.d5, weight: '10%' },
+        { name: 'D6 Outbound', score: scores.d6, weight: '5%' }
+      ].map(d => `<div class="dim-item"><div class="dim-name">${d.name}</div><div class="dim-score" style="color:${d.score>=85?'var(--accent)':d.score>=70?'var(--gold)':'var(--muted)'}">${d.score}</div><div class="dim-weight">权重 ${d.weight}</div></div>`).join('');
+
+      document.getElementById('riskList').innerHTML = risks.map(r => `<div class="risk-item"><span>${r}</span></div>`).join('');
+
+    } catch(e) { console.error(e); }
+
+    document.getElementById('loader').classList.remove('active');
+    document.getElementById('results').classList.add('visible');
+    btn.disabled = false;
+  }, 900);
+}
+
+function copyPack() {
+  if (!currentPack) return;
+  const btn = document.getElementById('copyBtn');
+  const iconCopy = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+  const iconOk = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+
+  navigator.clipboard.writeText(currentPack)
+    .then(() => {
+      btn.classList.add('copied');
+      btn.innerHTML = iconOk + ' 已复制！';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = iconCopy + ' 复制全文';
+      }, 2000);
+    })
+    .catch(() => {
+      btn.classList.add('failed');
+      btn.innerHTML = '⚠️ 复制失败，请手动复制';
+      setTimeout(() => {
+        btn.classList.remove('failed');
+        btn.innerHTML = iconCopy + ' 复制全文';
+      }, 3000);
+    });
+}
+
+document.getElementById('domainInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') analyze();
+});
+</script>
+</body>
+</html>
