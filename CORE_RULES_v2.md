@@ -1,6 +1,6 @@
-# CORE_RULES v2 — Domain AI Judge v6.1
+# CORE_RULES v2 — Domain AI Judge v6.3.1
 
-> 当前正式规则文件，v6.1.5 · 2026-06-22。请始终使用此版本投喂 AI 评委。
+> 当前正式规则文件，v6.3.1 · 2026-06-22。请始终使用此版本投喂 AI 评委。
 
 ---
 
@@ -142,7 +142,7 @@ NFTs.com（$15M 成交后已建站）、google.com、openai.com、x.com 等 — 
 
 | 域名 | 类别 | 价格参考 | 可信度 | pricing_use | 备注 |
 |------|------|---------|--------|-------------|------| 
-| cloud.com | ULTRA_WORD_COM | $11,000,000 | ✅ verified | anchor_allowed | 公开拍卖记录 |
+| cloud.com | ULTRA_WORD_COM | $11,000,000 | ✅ verified | anchor_allowed | 公开拍卖记录；**active_brand**（Citrix/云品类终端品牌，已建站运营，不在二级市场流通） |
 | NFTs.com | LLLL_COM | $15,000,000 | ✅ verified | anchor_allowed | Escrow.com 2022；**active_brand**（成交后已建站，锚点仅作类别参考） |
 | 01.com | NN_COM | $1,820,000 | ✅ verified | anchor_allowed | DNJournal 2017 可查 |
 | derm.com | ULTRA_WORD_COM | ~$825,000 | ✅ verified | anchor_allowed | 公开成交记录 |
@@ -179,6 +179,10 @@ AI 评委必须返回以下标准 JSON：
   "outbound_score": 0,
   "final_score": 0,
   "confidence": "low|medium|high",
+  "pricing_method": "anchor_based|static_class",
+  "domain_status": "active_brand|investment_inventory|parked|null",
+  "acquirable": true,
+  "acquirable_note": "",
   "p1_investor_floor": "",
   "p2_brand_asset": "",
   "p3_enduser_range": "",
@@ -188,6 +192,11 @@ AI 评委必须返回以下标准 JSON：
 ```
 
 > 所有分数字段均使用下划线命名：`final_score`、`tld_score` 等。不得使用 camelCase（如 `finalScore`）。
+>
+> **v6.3.1 新增字段说明**：
+> - `pricing_method`：`"anchor_based"` 表示基于锚点成交价定价，`"static_class"` 表示基于资产类别静态区间定价
+> - `domain_status`：`"active_brand"`（终端运营中，不可收购）、`"investment_inventory"`（投资人持有）、`"parked"`（停泊）、`null`（未核验）
+> - `acquirable`：`true`（可收购场景）、`false`（不可收购）、`"unknown"`（需人工确认）。**`acquirable === false` 时必须注明估值仅供参考，不得输出收购建议价**
 
 ---
 
@@ -258,4 +267,4 @@ AI 评委必须返回以下标准 JSON：
 
 ---
 
-*CORE_RULES v2 · Domain AI Judge v6.1.5 · 2026-06-22*
+*CORE_RULES v2 · Domain AI Judge v6.3.1 · 2026-06-22*
