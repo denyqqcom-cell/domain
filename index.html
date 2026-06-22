@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>域名估值物料包生成器 v6.3</title>
+<title>域名估值物料包生成器 v6.3.1</title>
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
 <style>
 /* ── TOKENS ── */
@@ -130,6 +130,13 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   cursor: pointer; transition: background var(--transition);
 }
 .example-chip:hover { background: var(--accent-glow); }
+.status-hint {
+  display: none; margin-top: var(--space-3); padding: var(--space-3) var(--space-4);
+  font-size: var(--text-xs); color: var(--gold); line-height: 1.5;
+  background: rgba(232,175,52,0.08); border: 1px solid rgba(232,175,52,0.2);
+  border-radius: var(--radius-md);
+}
+.status-hint.visible { display: block; }
 
 /* ── RESULT SECTION ── */
 #results { display: none; }
@@ -318,7 +325,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <circle cx="27" cy="10" r="4" fill="var(--gold)"/>
       </svg>
       <span class="logo-text">域名估值</span>
-      <span class="logo-version">v6.3</span>
+      <span class="logo-version">v6.3.1</span>
     </div>
     <button class="theme-btn" data-theme-toggle aria-label="切换主题">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -343,6 +350,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
       />
       <button class="analyze-btn" id="analyzeBtn" onclick="analyze()">生成估值包</button>
     </div>
+    <div class="status-hint" id="domainStatusHint"></div>
     <div class="examples">
       <span class="examples-label">回归测试：</span>
       <span class="example-chip" onclick="fillExample('888.com')">888.com → NNN</span>
@@ -432,7 +440,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   </div>
 
   <footer class="footer">
-    静态规则库 CORE_RULES v2 · Domain AI Judge v6.3 · LLLL_COM · ANCHORS 单数据源 · Price Floor Guard · manual_review_only 不参与自动定价 · 估值仅供参考，最终价格以实际市场成交为准
+    静态规则库 CORE_RULES v2 · Domain AI Judge v6.3.1 · domain_status · acquirable · LLLL_COM · Price Floor Guard · 估值仅供参考，最终价格以实际市场成交为准
   </footer>
 </div>
 
@@ -477,12 +485,74 @@ function toggleAdvanced() {
 //   'exact_domain_unverified_report' → 本域名相关市场报告，但未独立核验成交价
 //   'exact_domain_listing'           → 本域名当前或历史挂牌报价，非成交
 //   'ambiguous_report'               → 来源混淆/错配，无法确认指向本域名
+//
+// domain_status（v6.3.1）— 成交后域名当前状态，影响 acquirable 判定：
+//   'investment_inventory' → 投资人持有，可收购（估值主战场）
+//   'active_brand'         → 终端建站运营，历史成交仅作类别参考，本身不可收购
+//   'parked'               → 停泊，可能出售
+
+const ACTIVE_BRAND_BLACKLIST = {
+  'google.com':    'Google 核心品牌，全球运营中，不存在二级市场收购场景',
+  'openai.com':    'OpenAI 核心品牌，运营中，不存在二级市场收购场景',
+  'x.com':         'X/Twitter 核心品牌，运营中，不存在二级市场收购场景',
+  'microsoft.com': 'Microsoft 核心品牌，运营中，不存在二级市场收购场景',
+  'apple.com':     'Apple 核心品牌，运营中，不存在二级市场收购场景',
+  'amazon.com':    'Amazon 核心品牌，运营中，不存在二级市场收购场景',
+  'meta.com':      'Meta 核心品牌，运营中，不存在二级市场收购场景',
+  'facebook.com':  'Facebook 核心品牌，运营中，不存在二级市场收购场景',
+  'cloud.com':     'Citrix/云品类终端品牌，已建站运营，不在二级市场流通'
+};
+
+function resolveDomainStatus(full) {
+  const key = full.toLowerCase();
+  if (ACTIVE_BRAND_BLACKLIST[key]) {
+    return { domain_status: 'active_brand', status_note: ACTIVE_BRAND_BLACKLIST[key], source: 'known_brand_blacklist' };
+  }
+  const anchor = ANCHORS[key];
+  if (anchor && anchor.domain_status) {
+    return { domain_status: anchor.domain_status, status_note: anchor.status_note || null, source: 'anchors' };
+  }
+  return { domain_status: null, status_note: null, source: null };
+}
+
+function resolveAcquirable(statusInfo, anchorMeta) {
+  if (statusInfo.domain_status === 'active_brand') {
+    return { acquirable: false, acquirable_note: statusInfo.status_note || '活跃品牌域名，通常不在二级市场流通' };
+  }
+  if (anchorMeta && anchorMeta.pricing_use === 'reference_only') {
+    return { acquirable: true, acquirable_note: anchorMeta.anchor_note || '投资人持有，挂牌参考' };
+  }
+  if (statusInfo.domain_status === 'parked') {
+    return { acquirable: true, acquirable_note: statusInfo.status_note || '停泊状态，可能出售' };
+  }
+  if (statusInfo.domain_status === 'investment_inventory') {
+    return { acquirable: true, acquirable_note: statusInfo.status_note || '投资人库存，可收购场景' };
+  }
+  return { acquirable: 'unknown', acquirable_note: '未核验持有人状态，需人工确认是否可收购' };
+}
+
+function updateDomainStatusHint(raw) {
+  const hint = document.getElementById('domainStatusHint');
+  if (!hint) return;
+  const trimmed = (raw || '').trim();
+  if (!trimmed) { hint.classList.remove('visible'); hint.textContent = ''; return; }
+  const parsed = parseDomain(trimmed);
+  const status = resolveDomainStatus(parsed.full);
+  if (status.domain_status === 'active_brand') {
+    hint.textContent = '⚠️ 该域名为活跃品牌网站（' + status.domain_status + '），估值仅供学术/类别参考，不代表当前可收购。' + (status.status_note ? ' ' + status.status_note : '');
+    hint.classList.add('visible');
+  } else {
+    hint.classList.remove('visible');
+    hint.textContent = '';
+  }
+}
 
 const ANCHORS = {
   // ── 高置信锚点（anchor_allowed）──
   'cloud.com':    { usd: 11000000, type: 'sale',          source: 'DNJournal',                        verified: true,  confidence: 'high',   anchor_relation: 'exact_domain_historical_sale',   pricing_use: 'anchor_allowed' },
   'nfts.com':     { usd: 15000000, type: 'sale',          source: 'Escrow.com official press release + DNJournal (Aug 2022)', verified: true, confidence: 'high', anchor_relation: 'exact_domain_historical_sale', pricing_use: 'anchor_allowed',
-                    anchor_note: 'Escrow.com/Domainer.com 官方联合发布；DNJournal 记录为史上第二大公开 .com 成交之一' },
+                    domain_status: 'active_brand', status_note: '成交后已被终端用户建站运营，不在二级市场流通',
+                    anchor_note: '$15M 为 2022 年成交价（Escrow.com verified），成交后域名已建站运营，当前不在二级市场流通。该价格作为 LLLL_COM 类别基准参考，不代表当前可收购。' },
   'derm.com':     { usd: 825000,   type: 'sale',          source: 'DNJournal',                        verified: true,  confidence: 'high',   anchor_relation: 'exact_domain_historical_sale',   pricing_use: 'anchor_allowed' },
   'goka.com':     { usd: 399995,   type: 'sale',          source: 'DNJournal',                        verified: true,  confidence: 'high',   anchor_relation: 'exact_domain_historical_sale',   pricing_use: 'anchor_allowed',
                     anchor_note: '该锚点为本域名历史成交记录，不是独立相似域名样本；可作为历史价格参考，但仍需结合当前市场与买家情况复核' },
@@ -507,6 +577,7 @@ const ANCHORS = {
   // ── 挂牌报价（reference_only）──
   // vjn.com：listing 非 sale，改为 exact_domain_listing
   'vjn.com':      { usd: 39000,    type: 'listing',       source: 'Afternic via DomainNameWire',      verified: false, confidence: 'medium', anchor_relation: 'exact_domain_listing',           pricing_use: 'reference_only',
+                    domain_status: 'investment_inventory', status_note: '投资人持有，Afternic 挂牌中',
                     anchor_note: '该锚点为本域名挂牌报价（非成交），不得用于压低当前估值，仅作挂牌价参考' },
 
   // ── 手动复核（manual_review_only）──
@@ -658,9 +729,15 @@ function formatAnchorDisplayPrice(anchor) {
 }
 
 function buildAnchorDisplayNote(domain, anchor) {
-  if (anchor.anchor_note) return anchor.anchor_note;
-  const tag = anchor.pricing_use === 'anchor_allowed' ? 'verified sale' : anchor.pricing_use;
-  return `${domain}（${anchor.source}；${tag}）`;
+  let note = anchor.anchor_note;
+  if (!note) {
+    const tag = anchor.pricing_use === 'anchor_allowed' ? 'verified sale' : anchor.pricing_use;
+    note = `${domain}（${anchor.source}；${tag}）`;
+  }
+  if (anchor.domain_status === 'active_brand') {
+    note += '；active_brand：历史成交仅作类别参考';
+  }
+  return note;
 }
 
 function buildAnchorDealsTable(anchors) {
@@ -815,8 +892,12 @@ function score6D(sld, tld, asset) {
   return { d1, d2, d3, d4, d5, d6, final };
 }
 
-function getRisks(sld, tld, asset) {
+function getRisks(sld, tld, asset, full) {
   const risks = [];
+  const statusInfo = resolveDomainStatus(full || (sld + tld));
+  if (statusInfo.domain_status === 'active_brand') {
+    risks.push('🚫 active_brand：该域名已被终端建站运营，通常不可收购；估值仅供类别/学术参考');
+  }
   if (asset.listingNote) risks.push(asset.listingNote);
   if (asset.id === 'ULTRA_WORD_COM') {
     risks.push('⚠️ ULTRA_WORD_COM：不得机械低估，必须人工经纪复核，价格区间宽幅大');
@@ -887,6 +968,8 @@ function getConfidence(asset) {
 function generatePack(parsed, asset, scores, conf, risks, industries) {
   const { sld, tld, full } = parsed;
   const now = new Date().toISOString().split('T')[0];
+  const statusInfo = resolveDomainStatus(full);
+  const acquirableInfo = resolveAcquirable(statusInfo, asset.anchorMeta);
 
   const anchorDealsTable = buildAnchorDealsTable(ANCHORS);
 
@@ -914,6 +997,10 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
     anchor_confidence: asset.anchorMeta ? asset.anchorMeta.confidence : null,
     anchor_pricing_use: asset.anchorMeta ? asset.anchorMeta.pricing_use : null,
     anchor_note: asset.anchorNote || anchorNoteOverride || asset.listingNote || null,
+    domain_status: statusInfo.domain_status,
+    status_note: statusInfo.status_note,
+    acquirable: acquirableInfo.acquirable,
+    acquirable_note: acquirableInfo.acquirable_note,
     data_source_level: 'static_rule_pack',
     live_market_checked: false,
     dimensions: { D1_tld: scores.d1, D2_enduser: scores.d2, D3_quality: scores.d3, D4_market: scores.d4, D5_heat: scores.d5, D6_outbound: scores.d6 },
@@ -923,12 +1010,15 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
     risk_flags: risks
   }, null, 2);
 
+  const activeBrandBanner = statusInfo.domain_status === 'active_brand'
+    ? `> ⚠️ **适用边界**：该域名状态为 **active_brand**（活跃品牌/终端运营），通常不在二级市场流通。\n> 本估值仅供学习及类别定价参考，**不代表该域名当前可收购**。\n> ${statusInfo.status_note || acquirableInfo.acquirable_note}\n\n`
+    : '';
+
   return `# DOMAIN_VALUATION_PACK.md
-> 生成时间：${now} | 系统：Domain AI Judge v6.3 | 规则：CORE_RULES v2
+> 生成时间：${now} | 系统：Domain AI Judge v6.3.1 | 规则：CORE_RULES v2
 > ⚠️ 本文档为系统初步判断，最终价格以实际市场成交为准
 > 📦 数据来源：静态规则库 / 用户录入 / 待人工复核（live_market_checked: false）
-
----
+${activeBrandBanner}---
 
 ## 一、域名基础识别
 
@@ -944,6 +1034,9 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
 | **资产类别** | **${asset.id}** |
 | 分类依据 | ${asset.rationale || asset.priceTag} |
 | 价格标签 | ${asset.priceTag} |
+| **可收购性 acquirable** | **${acquirableInfo.acquirable}** |
+| 可收购性说明 | ${acquirableInfo.acquirable_note} |
+${statusInfo.domain_status ? `| 域名状态 domain_status | ${statusInfo.domain_status} |` : ''}
 ${asset.listingNote ? `| 锚点说明 | ${asset.listingNote} |` : ''}
 
 ---
@@ -1074,7 +1167,7 @@ ${materialData}
 
 ---
 
-*DOMAIN_VALUATION_PACK.md · Domain AI Judge v6.3 · CORE_RULES v2 · 静态规则库 · ${now}*
+*DOMAIN_VALUATION_PACK.md · Domain AI Judge v6.3.1 · CORE_RULES v2 · 静态规则库 · ${now}*
 `;
 }
 
@@ -1095,7 +1188,8 @@ function analyze() {
       const asset = classifyAsset(parsed.sld, parsed.tld, parsed.full);
       const scores = score6D(parsed.sld, parsed.tld, asset);
       const conf = getConfidence(asset);
-      const risks = getRisks(parsed.sld, parsed.tld, asset);
+      const risks = getRisks(parsed.sld, parsed.tld, asset, parsed.full);
+      updateDomainStatusHint(raw);
       const industries = getIndustries(parsed.sld);
 
       document.getElementById('cardAssetClass').textContent = asset.id;
@@ -1169,6 +1263,9 @@ function copyPack() {
 
 document.getElementById('domainInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') analyze();
+});
+document.getElementById('domainInput').addEventListener('input', e => {
+  updateDomainStatusHint(e.target.value);
 });
 </script>
 </body>

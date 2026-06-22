@@ -112,6 +112,30 @@
 
 ---
 
+## 五之二、域名状态与可收购性（v6.3.1）
+
+> 估值系统适用边界：并非所有域名都处于可收购状态。
+
+### domain_status 取值
+
+| 值 | 含义 | 估值用途 |
+|----|------|---------|
+| `investment_inventory` | 投资人持有，可收购 | ✅ 核心适用场景 |
+| `active_brand` | 终端建站运营 | ⚠️ 历史成交可作类别参考，本身不可收购 |
+| `parked` | 停泊，可能出售 | ✅ 可能可收购 |
+
+### acquirable 物料包字段
+
+- `true` — 投资人持有/挂牌，估值有实际交易意义
+- `false` — 活跃品牌，估值仅供学术/类别参考
+- `"unknown"` — 未核验持有人状态
+
+### 已知 active_brand 示例
+
+NFTs.com（$15M 成交后已建站）、google.com、openai.com、x.com 等 — 系统输入端与物料包顶部均会警告。
+
+---
+
 ## 六、成交锚点（2026 公开数据）
 
 > ⚠️ **v6.1.5 数据可信度标注**：仅 `anchor_allowed` 锚点可参与自动定价；`manual_review_only` 锚点不得用于自动估值，只能作为参考说明。
@@ -119,7 +143,7 @@
 | 域名 | 类别 | 价格参考 | 可信度 | pricing_use | 备注 |
 |------|------|---------|--------|-------------|------| 
 | cloud.com | ULTRA_WORD_COM | $11,000,000 | ✅ verified | anchor_allowed | 公开拍卖记录 |
-| NFTs.com | LLLL_COM | $15,000,000 | ✅ verified | anchor_allowed | Escrow.com 官方新闻稿 + DNJournal（2022-08） |
+| NFTs.com | LLLL_COM | $15,000,000 | ✅ verified | anchor_allowed | Escrow.com 2022；**active_brand**（成交后已建站，锚点仅作类别参考） |
 | 01.com | NN_COM | $1,820,000 | ✅ verified | anchor_allowed | DNJournal 2017 可查 |
 | derm.com | ULTRA_WORD_COM | ~$825,000 | ✅ verified | anchor_allowed | 公开成交记录 |
 | GOKA.com | LLLL_PRONOUNCEABLE_COM | $399,995 | ✅ verified | anchor_allowed | DomainGang 报道 |
