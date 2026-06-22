@@ -1181,7 +1181,15 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
     status_note: statusInfo.status_note,
     acquirable: acquirableInfo.acquirable,
     acquirable_note: acquirableInfo.acquirable_note,
-    culture_weight: null,
+    regional_modifiers: null,  // [RESERVED v6.5] v6.4 恒为 null，任何代码路径读取此字段视为回归失败
+    _culture_weight_note: 'RESERVED v6.4: not active, not used in pricing. v6.5 only.',
+    version_manifest: {
+      schema_version: '6.4',
+      core_rules_version: '6.4',
+      commit_hash: '76d9e02',
+      release_date: '2026-06-23',
+      baseline_regression_count: 27
+    },
     data_source_level: 'static_rule_pack',
     live_market_checked: false,
     dimensions: { D1_tld: scores.d1, D2_enduser: scores.d2, D3_quality: scores.d3, D4_market: scores.d4, D5_heat: scores.d5, D6_outbound: scores.d6 },

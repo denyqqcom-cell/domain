@@ -1,6 +1,6 @@
-# CORE_RULES v2 — Domain AI Judge v6.3.1
+# CORE_RULES v2 — Domain AI Judge v6.4
 
-> 当前正式规则文件，v6.3.1 · 2026-06-22。请始终使用此版本投喂 AI 评委。
+> 当前正式规则文件，v6.4 · 2026-06-23。请始终使用此版本投喂 AI 评委。
 
 ---
 
@@ -232,7 +232,22 @@ AI 评委必须返回以下标准 JSON：
 
 ---
 
-## 十、防回归测试样例（v6.3.2）
+## 九之二、culture_weight 预埋约束（v6.4）
+
+物料包 JSON 须包含：
+
+```json
+{
+  "culture_weight": null,
+  "_culture_weight_note": "RESERVED v6.4: not active, not used in pricing. v6.5 only."
+}
+```
+
+**硬约束**：v6.4 中 `culture_weight` 恒为 `null`。任何代码路径读取或依赖此字段参与定价，视为 v6.4 回归失败。v6.5 激活时需同步删除本条约束。
+
+---
+
+## 十、防回归测试样例（v6.4）
 
 | 域名 | 应识别类别 | 最低分 | 价格标签 | 备注 |
 |------|-----------|--------|---------|------| 
@@ -254,6 +269,15 @@ AI 评委必须返回以下标准 JSON：
 | cloud.com | `ULTRA_WORD_COM` | 92 | 历史类别参考价 | **active_brand**（黑名单），acquirable=false |
 | google.com | `WORD_COM` | 75 | 历史类别参考价 | **active_brand**（黑名单），acquirable=false，6字母普通单词 |
 | vjn.com | `LLL_COM` | 88 | 投资人流通底价 | listing锚点，acquirable=true（投资人挂牌中） |
+| fxl.com | `LLL_COM` | 88 | 投资人流通底价 | v6.4 B1：$30K 锚点 → class_floor_guarded |
+| fxm.com | `LLL_COM` | 88 | 投资人流通底价 | v6.4 B1：$80K 锚点 → anchor_floor_adjusted |
+
+### v6.4 批量评估（B2）
+
+| 场景 | 验证点 |
+|------|--------|
+| 5 行输入（nfts/vjn/qrst/cloud/google） | 5 行表格输出，无崩溃 |
+| 空行 + 重复域名 | 空行跳过，大小写去重 |
 
 ---
 
@@ -272,4 +296,4 @@ AI 评委必须返回以下标准 JSON：
 
 ---
 
-*CORE_RULES v2 · Domain AI Judge v6.3.1 · 2026-06-22*
+*CORE_RULES v2 · Domain AI Judge v6.4 · 2026-06-23*
