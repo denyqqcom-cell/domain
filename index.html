@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>域名估值物料包生成器 v6.3.2</title>
+<title>域名估值物料包生成器 v6.4</title>
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
 <style>
 /* ── TOKENS ── */
@@ -329,7 +329,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <circle cx="27" cy="10" r="4" fill="var(--gold)"/>
       </svg>
       <span class="logo-text">域名估值</span>
-      <span class="logo-version">v6.3.2</span>
+      <span class="logo-version">v6.4</span>
     </div>
     <button class="theme-btn" data-theme-toggle aria-label="切换主题">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -445,7 +445,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   </div>
 
   <footer class="footer">
-    静态规则库 CORE_RULES v2 · Domain AI Judge v6.3.2 · domain_status · acquirable · LLLL_COM · Price Floor Guard · 估值仅供参考，最终价格以实际市场成交为准
+    静态规则库 CORE_RULES v2 · Domain AI Judge v6.4 · domain_status · acquirable · LLLL_COM · Price Floor Guard · 估值仅供参考，最终价格以实际市场成交为准
   </footer>
 </div>
 
@@ -491,7 +491,7 @@ function toggleAdvanced() {
 //   'exact_domain_listing'           → 本域名当前或历史挂牌报价，非成交
 //   'ambiguous_report'               → 来源混淆/错配，无法确认指向本域名
 //
-// domain_status（v6.3.2）— 成交后域名当前状态，影响 acquirable 判定：
+// domain_status（v6.4）— 成交后域名当前状态，影响 acquirable 判定：
 //   'investment_inventory' → 投资人持有，可收购（估值主战场）
 //   'active_brand'         → 终端建站运营，历史成交仅作类别参考，本身不可收购
 //   'parked'               → 停泊，可能出售
@@ -647,13 +647,28 @@ const SCORE_FLOOR_MAP = {
   GENERIC:                  0
 };
 
-// v6.2: 类别 P1 静态下限（与 CORE_RULES v2 对齐）
+// v6.4: 类别 P1/P2/P3 静态下限（与 CORE_RULES v2 对齐）
 const CLASS_P1_FLOOR = {
   L_COM: 5000000, LL_COM: 500000, LLL_COM: 100000,
   ULTRA_WORD_COM: 500000, LLLL_PRONOUNCEABLE_COM: 8000, LLLL_COM: 50000,
   WORD_COM: 15000, NN_COM: 200000, NNN_COM: 50000,
   NNNN_COM: 5000, NNNNN_COM: 1000, MIXED_SHORT_COM: 30000,
   AI_KEYWORD_TLD: 1000, VERIFIED_HIGH_VALUE_COM: 10000, GENERIC: 0
+};
+// v6.4: 类别 P2/P3 静态下限（≈ P1 × 3 / × 5，与 CORE_RULES v2 对齐）
+const CLASS_P2_FLOOR = {
+  L_COM: 15000000, LL_COM: 1500000, LLL_COM: 300000,
+  ULTRA_WORD_COM: 1500000, LLLL_PRONOUNCEABLE_COM: 24000, LLLL_COM: 150000,
+  WORD_COM: 45000, NN_COM: 600000, NNN_COM: 150000,
+  NNNN_COM: 15000, NNNNN_COM: 3000, MIXED_SHORT_COM: 90000,
+  AI_KEYWORD_TLD: 3000, VERIFIED_HIGH_VALUE_COM: 30000, GENERIC: 0
+};
+const CLASS_P3_FLOOR = {
+  L_COM: 25000000, LL_COM: 2500000, LLL_COM: 500000,
+  ULTRA_WORD_COM: 2500000, LLLL_PRONOUNCEABLE_COM: 40000, LLLL_COM: 250000,
+  WORD_COM: 75000, NN_COM: 1000000, NNN_COM: 250000,
+  NNNN_COM: 25000, NNNNN_COM: 5000, MIXED_SHORT_COM: 150000,
+  AI_KEYWORD_TLD: 5000, VERIFIED_HIGH_VALUE_COM: 50000, GENERIC: 0
 };
 
 const PRICING_BADGE_LABELS = {
@@ -664,30 +679,52 @@ const PRICING_BADGE_LABELS = {
 };
 
 function applyAnchorFloorGuard(anchorUsd, assetClassId) {
-  const floor = CLASS_P1_FLOOR[assetClassId] ?? 0;
+  const p1Floor = CLASS_P1_FLOOR[assetClassId] ?? 0;
+  const p2Floor = CLASS_P2_FLOOR[assetClassId] ?? 0;
+  const p3Floor = CLASS_P3_FLOOR[assetClassId] ?? 0;
   const anchorP1Low  = anchorUsd * 0.7;
   const anchorP1High = anchorUsd * 1.5;
+  const anchorP2Low  = anchorUsd * 1.2;
+  const anchorP2High = anchorUsd * 3;
+  const anchorP3Low  = anchorUsd * 2;
 
-  if (anchorP1High < floor) {
+  if (anchorP1High < p1Floor) {
     return {
       method: 'class_floor_guarded',
-      anchor_note: `历史低价锚点 ${fmtAnchor(anchorUsd)}，仅作参考；当前估值不低于 ${assetClassId} 类别地板 ${fmtAnchor(floor)}`
+      p1Low: p1Floor, p1High: p1Floor * 2.5,
+      p2Low: p2Floor, p2High: p2Floor * 2.5,
+      p3Low: p3Floor,
+      anchor_note: `历史低价锚点 ${fmtAnchor(anchorUsd)}，仅作参考；当前估值不低于 ${assetClassId} 类别地板 P1 ${fmtAnchor(p1Floor)} / P2 ${fmtAnchor(p2Floor)} / P3 ${fmtAnchor(p3Floor)}`
     };
   }
-  if (anchorP1Low < floor) {
+  if (anchorP1Low < p1Floor) {
+    const p2low = Math.max(anchorP2Low, p2Floor);
+    const p3low = Math.max(anchorP3Low, p3Floor);
     return {
       method: 'anchor_floor_adjusted',
-      p1Low: floor, p1High: anchorP1High,
-      p2Low: anchorUsd * 1.2, p2High: anchorUsd * 3,
-      p3Low: anchorUsd * 2,
-      anchor_note: `锚点下限低于类别基准，P1 下界已抬至 ${fmtAnchor(floor)}`
+      p1Low: p1Floor, p1High: anchorP1High,
+      p2Low: p2low, p2High: anchorP2High,
+      p3Low: p3low,
+      anchor_note: `锚点下限低于类别基准，P1 下界已抬至 ${fmtAnchor(p1Floor)}${p2low > anchorP2Low ? '，P2 下界已抬至 ' + fmtAnchor(p2Floor) : ''}${p3low > anchorP3Low ? '，P3 下界已抬至 ' + fmtAnchor(p3Floor) : ''}`
+    };
+  }
+  // P2/P3 独立保护（P1 正常但 P2/P3 可能低于地板）
+  const p2low = Math.max(anchorP2Low, p2Floor);
+  const p3low = Math.max(anchorP3Low, p3Floor);
+  if (p2low > anchorP2Low || p3low > anchorP3Low) {
+    return {
+      method: 'anchor_floor_adjusted',
+      p1Low: anchorP1Low, p1High: anchorP1High,
+      p2Low: p2low, p2High: anchorP2High,
+      p3Low: p3low,
+      anchor_note: `锚点 P1 正常，${p2low > anchorP2Low ? 'P2 下界已抬至 ' + fmtAnchor(p2Floor) : ''}${p3low > anchorP3Low ? 'P3 下界已抬至 ' + fmtAnchor(p3Floor) : ''}`
     };
   }
   return {
     method: 'anchor_based',
     p1Low: anchorP1Low, p1High: anchorP1High,
-    p2Low: anchorUsd * 1.2, p2High: anchorUsd * 3,
-    p3Low: anchorUsd * 2,
+    p2Low: anchorP2Low, p2High: anchorP2High,
+    p3Low: anchorP3Low,
     anchor_note: null
   };
 }
@@ -1007,6 +1044,7 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
     status_note: statusInfo.status_note,
     acquirable: acquirableInfo.acquirable,
     acquirable_note: acquirableInfo.acquirable_note,
+    culture_weight: null,
     data_source_level: 'static_rule_pack',
     live_market_checked: false,
     dimensions: { D1_tld: scores.d1, D2_enduser: scores.d2, D3_quality: scores.d3, D4_market: scores.d4, D5_heat: scores.d5, D6_outbound: scores.d6 },
@@ -1021,7 +1059,7 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
     : '';
 
   return `# DOMAIN_VALUATION_PACK.md
-> 生成时间：${now} | 系统：Domain AI Judge v6.3.2 | 规则：CORE_RULES v2
+> 生成时间：${now} | 系统：Domain AI Judge v6.4 | 规则：CORE_RULES v2
 > ⚠️ 本文档为系统初步判断，最终价格以实际市场成交为准
 > 📦 数据来源：静态规则库 / 用户录入 / 待人工复核（live_market_checked: false）
 ${activeBrandBanner}---
@@ -1141,6 +1179,7 @@ ${risks.map(r => '- ' + r).join('\n')}
 8. anchor_relation === 'exact_domain_historical_sale' 表示本域名自身历史成交；'exact_domain_listing' 表示挂牌报价；'ambiguous_report'/'exact_domain_unverified_report' 表示来源不可靠，不得用于定价依据
 9. anchor_note 不为 null 时必须在 key_reasons 中引用说明，不得忽略
 10. acquirable 为三态：true（可收购）/ false（不可收购）/ "unknown"（字符串，需人工确认）。acquirable===false 时必须注明估值仅供类别参考，不得输出收购建议价
+11. key_reasons 每条须加标签前缀：[anchor] 锚点依据 / [class] 类别规则 / [score6D] 六维评分 / [market] 市场数据。key_reasons_v2 为结构化版本，tag 字段取同一值，与 key_reasons 一一对应
 
 **域名材料包：**
 ${materialData}
@@ -1164,6 +1203,7 @@ ${materialData}
   "acquirable_note": "",
   "used_materials": [],
   "key_reasons": [],
+  "key_reasons_v2": [{"tag": "anchor|class|score6D|market", "reason": "", "confidence": "high|medium|low"}],
   "risk_flags": [],
   "missing_checks": [],
   "fact_vs_inference": {
@@ -1177,7 +1217,7 @@ ${materialData}
 
 ---
 
-*DOMAIN_VALUATION_PACK.md · Domain AI Judge v6.3.2 · CORE_RULES v2 · 静态规则库 · ${now}*
+*DOMAIN_VALUATION_PACK.md · Domain AI Judge v6.4 · CORE_RULES v2 · 静态规则库 · ${now}*
 `;
 }
 
