@@ -149,7 +149,101 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
 @media (max-width: 600px) {
   .cards-grid { grid-template-columns: 1fr; }
   .input-row { flex-direction: column; }
+  .batch-row { flex-direction: column; }
 }
+
+/* ── BATCH EVALUATION ── */
+.batch-row {
+  display: flex; gap: var(--space-3); margin-top: var(--space-4);
+  align-items: flex-start;
+}
+.batch-textarea {
+  flex: 1; background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  font-size: var(--text-sm); color: var(--text);
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  outline: none; resize: vertical; min-height: 100px;
+  line-height: 1.8;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.batch-textarea::placeholder { color: var(--faint); font-weight: 400; }
+.batch-textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+.batch-btn {
+  padding: var(--space-4) var(--space-8);
+  background: var(--gold); color: #1a1a1a;
+  border-radius: var(--radius-lg); font-size: var(--text-base);
+  font-weight: 700; white-space: nowrap;
+  transition: opacity var(--transition), transform var(--transition);
+}
+.batch-btn:hover { opacity: 0.88; }
+.batch-btn:active { transform: scale(0.97); }
+.batch-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.batch-divider {
+  border: none; border-top: 1px solid var(--border);
+  margin: var(--space-4) 0;
+}
+.batch-label {
+  font-size: var(--text-xs); color: var(--faint);
+  margin-bottom: var(--space-2);
+  display: flex; align-items: center; gap: var(--space-2);
+}
+.batch-results {
+  display: none; margin-top: var(--space-6);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-xl); overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.batch-results.visible { display: block; }
+.batch-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--space-5) var(--space-6);
+  border-bottom: 1px solid var(--border); background: var(--surface-2);
+}
+.batch-title {
+  font-size: var(--text-sm); font-weight: 700;
+  display: flex; align-items: center; gap: var(--space-2);
+}
+.batch-count { font-size: var(--text-xs); color: var(--muted); }
+.batch-table-wrap { overflow-x: auto; }
+.batch-table {
+  width: 100%; border-collapse: collapse;
+  font-size: var(--text-xs);
+}
+.batch-table th {
+  text-align: left; padding: var(--space-3) var(--space-4);
+  font-weight: 700; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  border-bottom: 2px solid var(--border);
+  background: var(--surface-2); white-space: nowrap;
+}
+.batch-table td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+.batch-table tbody tr:hover td { background: var(--surface-2); }
+.batch-table .cell-domain {
+  font-weight: 700; font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  letter-spacing: -0.02em;
+}
+.batch-table .cell-asset {
+  font-weight: 700; color: var(--accent);
+}
+.batch-table .cell-acq-false { color: #e05555; }
+.batch-table .cell-acq-true { color: #4caf50; }
+.batch-table .cell-acq-unknown { color: var(--gold); }
+.batch-table .cell-pricing {
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; padding: 2px 8px; border-radius: var(--radius-full);
+  display: inline-block;
+}
+.batch-error { padding: var(--space-6); color: var(--red); text-align: center; }
+.batch-loading-row td { text-align: center; color: var(--muted); padding: var(--space-8); }
+
 .result-card {
   background: var(--surface); border: 1px solid var(--border);
   border-radius: var(--radius-xl); padding: var(--space-6);
@@ -354,6 +448,21 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
       />
       <button class="analyze-btn" id="analyzeBtn" onclick="analyze()">生成估值包</button>
     </div>
+    <hr class="batch-divider">
+    <div class="batch-label">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+      </svg>
+      批量评估（每行一个域名，空行跳过，重复去重）
+    </div>
+    <div class="batch-row">
+      <textarea
+        class="batch-textarea" id="batchInput"
+        placeholder="例如：&#10;nfts.com&#10;vjn.com&#10;qrst.com&#10;cloud.com&#10;google.com"
+        autocomplete="off" autocapitalize="off" spellcheck="false"
+      ></textarea>
+      <button class="batch-btn" id="batchBtn" onclick="batchAnalyze()">批量评估</button>
+    </div>
     <div class="status-hint" id="domainStatusHint"></div>
     <div class="examples">
       <span class="examples-label">回归测试：</span>
@@ -368,6 +477,34 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
       <span class="example-chip" onclick="fillExample('TEXT.COM')">TEXT.COM → ULTRA</span>
       <span class="example-chip" onclick="fillExample('zkp.com')">zkp.com → LLL anchor</span>
       <span class="example-chip" onclick="fillExample('nfts.com')">nfts.com → LLLL $15M</span>
+    </div>
+  </div>
+
+  <!-- BATCH RESULTS -->
+  <div class="batch-results" id="batchResults">
+    <div class="batch-header">
+      <div class="batch-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+        </svg>
+        批量评估结果
+      </div>
+      <span class="batch-count" id="batchCount"></span>
+    </div>
+    <div class="batch-table-wrap">
+      <table class="batch-table">
+        <thead>
+          <tr>
+            <th>域名</th>
+            <th>资产类别</th>
+            <th>P1 区间</th>
+            <th>定价方式</th>
+            <th>置信度</th>
+            <th>可收购</th>
+          </tr>
+        </thead>
+        <tbody id="batchTbody"></tbody>
+      </table>
     </div>
   </div>
 
@@ -1301,6 +1438,98 @@ function analyze() {
     document.getElementById('results').classList.add('visible');
     btn.disabled = false;
   }, 900);
+}
+
+// ── BATCH ANALYZE (v6.4 B2) ──
+function batchAnalyze() {
+  const raw = document.getElementById('batchInput').value.trim();
+  if (!raw) return;
+
+  const btn = document.getElementById('batchBtn');
+  btn.disabled = true;
+  const tbody = document.getElementById('batchTbody');
+  const resultsDiv = document.getElementById('batchResults');
+  const countEl = document.getElementById('batchCount');
+
+  // Split, trim, skip blank, deduplicate (preserving order)
+  const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  const seen = new Set();
+  const domains = [];
+  for (const d of lines) {
+    const lower = d.toLowerCase();
+    if (!seen.has(lower)) { seen.add(lower); domains.push(d); }
+  }
+
+  if (domains.length === 0) {
+    btn.disabled = false;
+    return;
+  }
+
+  // Show results container with loading state
+  resultsDiv.classList.add('visible');
+  countEl.textContent = `共 ${domains.length} 个域名 · 评估中…`;
+  tbody.innerHTML = `<tr class="batch-loading-row"><td colspan="6">正在评估 ${domains.length} 个域名…</td></tr>`;
+
+  let completed = 0;
+  const rows = [];
+
+  function processNext(index) {
+    if (index >= domains.length) {
+      // All done — render table
+      tbody.innerHTML = rows.join('');
+      countEl.textContent = `共 ${domains.length} 个域名 · 完成`;
+      btn.disabled = false;
+      return;
+    }
+
+    const rawDomain = domains[index];
+    try {
+      const parsed = parseDomain(rawDomain);
+      const asset = classifyAsset(parsed.sld, parsed.tld, parsed.full);
+      const scores = score6D(parsed.sld, parsed.tld, asset);
+      const conf = getConfidence(asset);
+      const statusInfo = resolveDomainStatus(parsed.full);
+      const acquirableInfo = resolveAcquirable(statusInfo, asset.anchorMeta);
+
+      const pm = asset.pricingMethod || 'static_class';
+      const pmLabel = PRICING_BADGE_LABELS[pm] || pm;
+      const p1Display = asset.p1 || '—';
+
+      let acqClass, acqText;
+      if (acquirableInfo.acquirable === false) {
+        acqClass = 'cell-acq-false'; acqText = '否';
+      } else if (acquirableInfo.acquirable === true) {
+        acqClass = 'cell-acq-true'; acqText = '是';
+      } else {
+        acqClass = 'cell-acq-unknown'; acqText = '未知';
+      }
+
+      rows.push(`<tr>
+        <td class="cell-domain">${escapeHtml(parsed.full)}</td>
+        <td class="cell-asset">${escapeHtml(asset.id)}</td>
+        <td>${escapeHtml(p1Display)}</td>
+        <td><span class="cell-pricing badge-${pm}">${escapeHtml(pmLabel)}</span></td>
+        <td>${escapeHtml(conf.label)}（${conf.pct}%）</td>
+        <td class="${acqClass}">${acqText}</td>
+      </tr>`);
+    } catch(e) {
+      rows.push(`<tr><td class="cell-domain">${escapeHtml(rawDomain)}</td><td colspan="5" style="color:var(--red)">错误: ${escapeHtml(e.message || String(e))}</td></tr>`);
+    }
+
+    completed++;
+    countEl.textContent = `共 ${domains.length} 个域名 · 已完成 ${completed}/${domains.length}`;
+
+    // Process next asynchronously to keep UI responsive
+    setTimeout(() => processNext(index + 1), 50);
+  }
+
+  processNext(0);
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.appendChild(document.createTextNode(str));
+  return div.innerHTML;
 }
 
 function copyPack() {
