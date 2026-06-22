@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>域名估值物料包生成器 v6.1.5</title>
+<title>域名估值物料包生成器 v6.2</title>
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
 <style>
 /* ── TOKENS ── */
@@ -175,6 +175,21 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
 .price-row:last-child { border-bottom: none; }
 .price-tier-label { color: var(--muted); }
 .price-tier-val { font-weight: 700; }
+.card-label-row {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: var(--space-3);
+}
+.card-label-row .card-label { margin-bottom: 0; }
+.pricing-badge {
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; padding: 2px 8px; border-radius: var(--radius-full);
+  white-space: nowrap;
+}
+.badge-static_class { background: var(--surface-2); color: var(--muted); border: 1px solid var(--border); }
+.badge-anchor_based { background: rgba(109,170,69,0.15); color: var(--green); border: 1px solid rgba(109,170,69,0.3); }
+.badge-anchor_floor_adjusted { background: rgba(232,175,52,0.15); color: var(--gold); border: 1px solid rgba(232,175,52,0.3); }
+.badge-class_floor_guarded { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent-glow); }
+.anchor-note-line { font-size: var(--text-xs); color: var(--gold); margin-top: var(--space-2); line-height: 1.4; }
 .conf-bar-wrap {
   margin-top: var(--space-3); background: var(--surface-2);
   border-radius: var(--radius-full); height: 6px; overflow: hidden;
@@ -303,7 +318,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <circle cx="27" cy="10" r="4" fill="var(--gold)"/>
       </svg>
       <span class="logo-text">域名估值</span>
-      <span class="logo-version">v6.1.5</span>
+      <span class="logo-version">v6.2</span>
     </div>
     <button class="theme-btn" data-theme-toggle aria-label="切换主题">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -367,8 +382,12 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <div class="card-sub" id="cardScoreLabel">—</div>
       </div>
       <div class="result-card">
-        <div class="card-label">三层估值</div>
+        <div class="card-label-row">
+          <div class="card-label">三层估值</div>
+          <span class="pricing-badge badge-static_class" id="cardPricingBadge"></span>
+        </div>
         <div class="price-tier" id="cardPriceTier">—</div>
+        <div class="anchor-note-line" id="cardAnchorNote"></div>
       </div>
       <div class="result-card">
         <div class="card-label">置信度</div>
@@ -412,7 +431,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   </div>
 
   <footer class="footer">
-    静态规则库 CORE_RULES v2 · Domain AI Judge v6.1.5 · ANCHORS 单数据源 · manual_review_only 不参与自动定价 · 估值仅供参考，最终价格以实际市场成交为准
+    静态规则库 CORE_RULES v2 · Domain AI Judge v6.2 · ANCHORS 单数据源 · Price Floor Guard · manual_review_only 不参与自动定价 · 估值仅供参考，最终价格以实际市场成交为准
   </footer>
 </div>
 
@@ -469,6 +488,11 @@ const ANCHORS = {
   'farfield.com': { usd: 15000,    type: 'sale',          source: 'NameBio',                          verified: true,  confidence: 'high',   anchor_relation: 'exact_domain_historical_sale',   pricing_use: 'anchor_allowed' },
   'travely.com':  { usd: 13000,    type: 'sale',          source: 'NameBio',                          verified: true,  confidence: 'high',   anchor_relation: 'exact_domain_historical_sale',   pricing_use: 'anchor_allowed' },
   'mycar.ai':     { usd: 10000,    type: 'sale',          source: 'NameBio',                          verified: true,  confidence: 'high',   anchor_relation: 'exact_domain_historical_sale',   pricing_use: 'anchor_allowed' },
+  // v6.2 永久边界测试样本（回归用，保留在 ANCHORS）
+  'fxl.com':      { usd: 30000,    type: 'sale',          source: 'v6.2 fixture — LLL class_floor_guarded boundary', verified: true, confidence: 'high', anchor_relation: 'exact_domain_historical_sale', pricing_use: 'anchor_allowed',
+                    anchor_note: '🧪 v6.2 边界测试：$30K 锚点，LLL 地板 $100K → class_floor_guarded' },
+  'fxm.com':      { usd: 80000,    type: 'sale',          source: 'v6.2 fixture — LLL anchor_floor_adjusted boundary', verified: true, confidence: 'high', anchor_relation: 'exact_domain_historical_sale', pricing_use: 'anchor_allowed',
+                    anchor_note: '🧪 v6.2 边界测试：$80K 锚点，P1 跨越 LLL 地板 → anchor_floor_adjusted' },
   'tronscan.com': { usd: 250000,   type: 'sale',          source: 'public report; not in DNJournal/NameBio', verified: false, confidence: 'low', anchor_relation: 'exact_domain_unverified_report', pricing_use: 'manual_review_only',
                     anchor_note: '⚠️ 公开报道 $250,000，未经 DNJournal/NameBio 独立核验；不参与自动定价，仅供参考' },
   '12.com':       { usd: 2500000,  type: 'sale',          source: 'public report; not in DNJournal/NameBio', verified: false, confidence: 'low', anchor_relation: 'exact_domain_unverified_report', pricing_use: 'manual_review_only',
@@ -542,6 +566,72 @@ const SCORE_FLOOR_MAP = {
   GENERIC:                  0
 };
 
+// v6.2: 类别 P1 静态下限（与 CORE_RULES v2 对齐）
+const CLASS_P1_FLOOR = {
+  L_COM: 5000000, LL_COM: 500000, LLL_COM: 100000,
+  ULTRA_WORD_COM: 500000, LLLL_PRONOUNCEABLE_COM: 8000,
+  WORD_COM: 15000, NN_COM: 200000, NNN_COM: 50000,
+  NNNN_COM: 5000, NNNNN_COM: 1000, MIXED_SHORT_COM: 30000,
+  AI_KEYWORD_TLD: 1000, VERIFIED_HIGH_VALUE_COM: 10000, GENERIC: 0
+};
+
+const PRICING_BADGE_LABELS = {
+  static_class: '类别区间',
+  anchor_based: '锚点定价',
+  anchor_floor_adjusted: '地板抬升',
+  class_floor_guarded: '类别保护'
+};
+
+function applyAnchorFloorGuard(anchorUsd, assetClassId) {
+  const floor = CLASS_P1_FLOOR[assetClassId] ?? 0;
+  const anchorP1Low  = anchorUsd * 0.7;
+  const anchorP1High = anchorUsd * 1.5;
+
+  if (anchorP1High < floor) {
+    return {
+      method: 'class_floor_guarded',
+      anchor_note: `历史低价锚点 ${fmtAnchor(anchorUsd)}，仅作参考；当前估值不低于 ${assetClassId} 类别地板 ${fmtAnchor(floor)}`
+    };
+  }
+  if (anchorP1Low < floor) {
+    return {
+      method: 'anchor_floor_adjusted',
+      p1Low: floor, p1High: anchorP1High,
+      p2Low: anchorUsd * 1.2, p2High: anchorUsd * 3,
+      p3Low: anchorUsd * 2,
+      anchor_note: `锚点下限低于类别基准，P1 下界已抬至 ${fmtAnchor(floor)}`
+    };
+  }
+  return {
+    method: 'anchor_based',
+    p1Low: anchorP1Low, p1High: anchorP1High,
+    p2Low: anchorUsd * 1.2, p2High: anchorUsd * 3,
+    p3Low: anchorUsd * 2,
+    anchor_note: null
+  };
+}
+
+function detectAssetClassId(sld, tld, forAnchor) {
+  const isAlpha = /^[a-z]+$/.test(sld);
+  const isNumeric = /^[0-9]+$/.test(sld);
+  const len = sld.length;
+  if (tld === '.ai') return 'AI_KEYWORD_TLD';
+  if (tld !== '.com') return 'GENERIC';
+  if (isNumeric && len <= 2) return 'NN_COM';
+  if (isNumeric && len === 3) return 'NNN_COM';
+  if (isNumeric && len === 4) return 'NNNN_COM';
+  if (isNumeric && len === 5) return 'NNNNN_COM';
+  if (isAlpha && len === 1) return 'L_COM';
+  if (isAlpha && len === 2) return 'LL_COM';
+  if (isAlpha && len === 3) return 'LLL_COM';
+  if (ULTRA_WORD_LIST.includes(sld)) return 'ULTRA_WORD_COM';
+  if (isAlpha && len === 4 && /[aeiou]/.test(sld)) return 'LLLL_PRONOUNCEABLE_COM';
+  if (/^[a-z0-9]{1,4}$/.test(sld) && /[0-9]/.test(sld) && /[a-z]/.test(sld)) return 'MIXED_SHORT_COM';
+  if (forAnchor) return 'VERIFIED_HIGH_VALUE_COM';
+  if (isAlpha && len <= 8) return 'WORD_COM';
+  return 'GENERIC';
+}
+
 // ── 锚点价格格式化（Math.round 保证无小数）──
 function fmtAnchor(usd) {
   return '$' + Math.round(usd).toLocaleString();
@@ -593,43 +683,34 @@ function parseDomain(raw) {
 function classifyAsset(sld, tld, full) {
   const key = full;
   const anchor = ANCHORS[key];
+  let guardFallthroughNote = null;
 
-  // v6.1.4: 只有 pricing_use==='anchor_allowed' && verified===true 的锚点才参与自动定价
+  // v6.2: anchor_allowed + verified → applyAnchorFloorGuard；class_floor_guarded 则 fallthrough
   if (anchor && anchor.pricing_use === 'anchor_allowed' && anchor.verified === true) {
     const anchorUsd = anchor.usd;
-    let cls;
-    const isAlpha = /^[a-z]+$/.test(sld);
-    const isNumeric = /^[0-9]+$/.test(sld);
-    const len = sld.length;
+    const cls = detectAssetClassId(sld, tld, true);
+    const guard = applyAnchorFloorGuard(anchorUsd, cls);
 
-    if (isNumeric && len <= 2) cls = 'NN_COM';
-    else if (isNumeric && len === 3) cls = 'NNN_COM';
-    else if (isNumeric && len === 4) cls = 'NNNN_COM';
-    else if (isNumeric && len === 5) cls = 'NNNNN_COM';
-    else if (isAlpha && len === 1) cls = 'L_COM';
-    else if (isAlpha && len === 2) cls = 'LL_COM';
-    else if (isAlpha && len === 3) cls = 'LLL_COM';
-    else if (ULTRA_WORD_LIST.includes(sld)) cls = 'ULTRA_WORD_COM';
-    else if (isAlpha && len === 4 && /[aeiou]/.test(sld)) cls = 'LLLL_PRONOUNCEABLE_COM';
-    else if (/^[a-z0-9]{1,4}$/.test(sld) && /[0-9]/.test(sld) && /[a-z]/.test(sld)) cls = 'MIXED_SHORT_COM';
-    else if (tld === '.ai') cls = 'AI_KEYWORD_TLD';
-    else cls = 'VERIFIED_HIGH_VALUE_COM';
-
-    const scoreFloor = SCORE_FLOOR_MAP[cls] ?? 0;
-    const p1 = fmtAnchor(anchorUsd * 0.7) + ' – ' + fmtAnchor(anchorUsd * 1.5);
-    const p2 = fmtAnchor(anchorUsd * 1.2) + ' – ' + fmtAnchor(anchorUsd * 3);
-    const p3 = fmtAnchor(anchorUsd * 2) + '+';
-    return {
-      id: cls,
-      priceTag: '投资人底价｜参照已知成交锚点',
-      scoreFloor, p1, p2, p3,
-      rationale: ULTRA_RATIONALE[sld] || ('已知成交价 $' + anchorUsd.toLocaleString()),
-      anchorMeta: anchor
-    };
+    if (guard.method !== 'class_floor_guarded') {
+      const scoreFloor = SCORE_FLOOR_MAP[cls] ?? 0;
+      const p1 = fmtAnchor(guard.p1Low) + ' – ' + fmtAnchor(guard.p1High);
+      const p2 = fmtAnchor(guard.p2Low) + ' – ' + fmtAnchor(guard.p2High);
+      const p3 = fmtAnchor(guard.p3Low) + '+';
+      return {
+        id: cls,
+        priceTag: '投资人底价｜参照已知成交锚点',
+        scoreFloor, p1, p2, p3,
+        rationale: ULTRA_RATIONALE[sld] || ('已知成交价 $' + anchorUsd.toLocaleString()),
+        anchorMeta: anchor,
+        pricingMethod: guard.method,
+        anchorNote: guard.anchor_note
+      };
+    }
+    guardFallthroughNote = guard.anchor_note;
   }
 
   // reference_only / manual_review_only 锚点：记录 reference_note，走 static_class 定价
-  let referenceNote = null;
+  let referenceNote = guardFallthroughNote;
   if (anchor) {
     if (anchor.pricing_use === 'reference_only') {
       referenceNote = `⚠️ 已知挂牌报价 ${anchor.usd ? '$' + anchor.usd.toLocaleString() : '未知'}（${anchor.source}），尚未成交，不用于自动定价，仅作参考`;
@@ -645,7 +726,9 @@ function classifyAsset(sld, tld, full) {
 
   const make = (id, priceTag, p1, p2, p3, rationale) => ({
     id, priceTag, scoreFloor: SCORE_FLOOR_MAP[id] ?? 0,
-    p1, p2, p3, rationale, listingNote: referenceNote, anchorMeta: anchor || null
+    p1, p2, p3, rationale, listingNote: referenceNote, anchorMeta: anchor || null,
+    pricingMethod: guardFallthroughNote ? 'class_floor_guarded' : 'static_class',
+    anchorNote: guardFallthroughNote || null
   });
 
   if (tld === '.com') {
@@ -798,7 +881,7 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
   const anchorRelation = asset.anchorMeta ? asset.anchorMeta.anchor_relation || null : null;
   const anchorNoteOverride = asset.anchorMeta ? (asset.anchorMeta.anchor_note || null) : null;
 
-  const pricingMethod = (asset.anchorMeta && asset.anchorMeta.pricing_use === 'anchor_allowed') ? 'anchor_based' : 'static_class';
+  const pricingMethod = asset.pricingMethod || 'static_class';
 
   const materialData = JSON.stringify({
     domain: full.toUpperCase(),
@@ -808,14 +891,14 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
     score_floor: asset.scoreFloor || 0,
     price_tag: asset.priceTag,
     pricing_method: pricingMethod,
-    anchor_deal_used: !!(asset.anchorMeta && asset.anchorMeta.pricing_use === 'anchor_allowed'),
-    anchor_deal_usd: (asset.anchorMeta && asset.anchorMeta.pricing_use === 'anchor_allowed') ? asset.anchorMeta.usd : null,
+    anchor_deal_used: ['anchor_based', 'anchor_floor_adjusted', 'class_floor_guarded'].includes(pricingMethod),
+    anchor_deal_usd: ['anchor_based', 'anchor_floor_adjusted', 'class_floor_guarded'].includes(pricingMethod) && asset.anchorMeta ? asset.anchorMeta.usd : null,
     anchor_relation: anchorRelation,
     anchor_type: asset.anchorMeta ? asset.anchorMeta.type : null,
     anchor_verified: asset.anchorMeta ? asset.anchorMeta.verified : null,
     anchor_confidence: asset.anchorMeta ? asset.anchorMeta.confidence : null,
     anchor_pricing_use: asset.anchorMeta ? asset.anchorMeta.pricing_use : null,
-    anchor_note: anchorNoteOverride || asset.listingNote || null,
+    anchor_note: asset.anchorNote || anchorNoteOverride || asset.listingNote || null,
     data_source_level: 'static_rule_pack',
     live_market_checked: false,
     dimensions: { D1_tld: scores.d1, D2_enduser: scores.d2, D3_quality: scores.d3, D4_market: scores.d4, D5_heat: scores.d5, D6_outbound: scores.d6 },
@@ -826,7 +909,7 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
   }, null, 2);
 
   return `# DOMAIN_VALUATION_PACK.md
-> 生成时间：${now} | 系统：Domain AI Judge v6.1.5 | 规则：CORE_RULES v2
+> 生成时间：${now} | 系统：Domain AI Judge v6.2 | 规则：CORE_RULES v2
 > ⚠️ 本文档为系统初步判断，最终价格以实际市场成交为准
 > 📦 数据来源：静态规则库 / 用户录入 / 待人工复核（live_market_checked: false）
 
@@ -976,7 +1059,7 @@ ${materialData}
 
 ---
 
-*DOMAIN_VALUATION_PACK.md · Domain AI Judge v6.1.5 · CORE_RULES v2 · 静态规则库 · ${now}*
+*DOMAIN_VALUATION_PACK.md · Domain AI Judge v6.2 · CORE_RULES v2 · 静态规则库 · ${now}*
 `;
 }
 
@@ -1010,6 +1093,12 @@ function analyze() {
         { label: 'P2 品牌资产价', val: asset.p2 || '—' },
         { label: 'P3 终端买家价', val: asset.p3 || '—' }
       ].map(r => `<div class="price-row"><span class="price-tier-label">${r.label}</span><span class="price-tier-val">${r.val}</span></div>`).join('');
+
+      const pm = asset.pricingMethod || 'static_class';
+      const badge = document.getElementById('cardPricingBadge');
+      badge.textContent = PRICING_BADGE_LABELS[pm] || pm;
+      badge.className = 'pricing-badge badge-' + pm;
+      document.getElementById('cardAnchorNote').textContent = asset.anchorNote || '';
 
       document.getElementById('cardConf').textContent = conf.label;
       document.getElementById('confBar').style.width = conf.pct + '%';
