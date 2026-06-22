@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>域名估值物料包生成器 v6.2</title>
+<title>域名估值物料包生成器 v6.3</title>
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
 <style>
 /* ── TOKENS ── */
@@ -318,7 +318,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <circle cx="27" cy="10" r="4" fill="var(--gold)"/>
       </svg>
       <span class="logo-text">域名估值</span>
-      <span class="logo-version">v6.2</span>
+      <span class="logo-version">v6.3</span>
     </div>
     <button class="theme-btn" data-theme-toggle aria-label="切换主题">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -355,6 +355,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
       <span class="example-chip" onclick="fillExample('62.com')">62.com → NN static</span>
       <span class="example-chip" onclick="fillExample('TEXT.COM')">TEXT.COM → ULTRA</span>
       <span class="example-chip" onclick="fillExample('zkp.com')">zkp.com → LLL anchor</span>
+      <span class="example-chip" onclick="fillExample('nfts.com')">nfts.com → LLLL $15M</span>
     </div>
   </div>
 
@@ -431,7 +432,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   </div>
 
   <footer class="footer">
-    静态规则库 CORE_RULES v2 · Domain AI Judge v6.2 · ANCHORS 单数据源 · Price Floor Guard · manual_review_only 不参与自动定价 · 估值仅供参考，最终价格以实际市场成交为准
+    静态规则库 CORE_RULES v2 · Domain AI Judge v6.3 · LLLL_COM · ANCHORS 单数据源 · Price Floor Guard · manual_review_only 不参与自动定价 · 估值仅供参考，最终价格以实际市场成交为准
   </footer>
 </div>
 
@@ -480,6 +481,8 @@ function toggleAdvanced() {
 const ANCHORS = {
   // ── 高置信锚点（anchor_allowed）──
   'cloud.com':    { usd: 11000000, type: 'sale',          source: 'DNJournal',                        verified: true,  confidence: 'high',   anchor_relation: 'exact_domain_historical_sale',   pricing_use: 'anchor_allowed' },
+  'nfts.com':     { usd: 15000000, type: 'sale',          source: 'Escrow.com official press release + DNJournal (Aug 2022)', verified: true, confidence: 'high', anchor_relation: 'exact_domain_historical_sale', pricing_use: 'anchor_allowed',
+                    anchor_note: 'Escrow.com/Domainer.com 官方联合发布；DNJournal 记录为史上第二大公开 .com 成交之一' },
   'derm.com':     { usd: 825000,   type: 'sale',          source: 'DNJournal',                        verified: true,  confidence: 'high',   anchor_relation: 'exact_domain_historical_sale',   pricing_use: 'anchor_allowed' },
   'goka.com':     { usd: 399995,   type: 'sale',          source: 'DNJournal',                        verified: true,  confidence: 'high',   anchor_relation: 'exact_domain_historical_sale',   pricing_use: 'anchor_allowed',
                     anchor_note: '该锚点为本域名历史成交记录，不是独立相似域名样本；可作为历史价格参考，但仍需结合当前市场与买家情况复核' },
@@ -555,6 +558,7 @@ const SCORE_FLOOR_MAP = {
   LLL_COM:                 88,
   ULTRA_WORD_COM:          92,
   LLLL_PRONOUNCEABLE_COM:  78,
+  LLLL_COM:                82,
   WORD_COM:                75,
   NN_COM:                  95,
   NNN_COM:                 90,
@@ -569,7 +573,7 @@ const SCORE_FLOOR_MAP = {
 // v6.2: 类别 P1 静态下限（与 CORE_RULES v2 对齐）
 const CLASS_P1_FLOOR = {
   L_COM: 5000000, LL_COM: 500000, LLL_COM: 100000,
-  ULTRA_WORD_COM: 500000, LLLL_PRONOUNCEABLE_COM: 8000,
+  ULTRA_WORD_COM: 500000, LLLL_PRONOUNCEABLE_COM: 8000, LLLL_COM: 50000,
   WORD_COM: 15000, NN_COM: 200000, NNN_COM: 50000,
   NNNN_COM: 5000, NNNNN_COM: 1000, MIXED_SHORT_COM: 30000,
   AI_KEYWORD_TLD: 1000, VERIFIED_HIGH_VALUE_COM: 10000, GENERIC: 0
@@ -626,6 +630,7 @@ function detectAssetClassId(sld, tld, forAnchor) {
   if (isAlpha && len === 3) return 'LLL_COM';
   if (ULTRA_WORD_LIST.includes(sld)) return 'ULTRA_WORD_COM';
   if (isAlpha && len === 4 && /[aeiou]/.test(sld)) return 'LLLL_PRONOUNCEABLE_COM';
+  if (isAlpha && len === 4) return 'LLLL_COM';
   if (/^[a-z0-9]{1,4}$/.test(sld) && /[0-9]/.test(sld) && /[a-z]/.test(sld)) return 'MIXED_SHORT_COM';
   if (forAnchor) return 'VERIFIED_HIGH_VALUE_COM';
   if (isAlpha && len <= 8) return 'WORD_COM';
@@ -641,7 +646,7 @@ const ANCHOR_USE_RANK = { anchor_allowed: 3, reference_only: 2, manual_review_on
 const ANCHOR_CONF_RANK = { high: 3, medium: 2, low: 1 };
 
 const ANCHOR_DISPLAY_NAMES = {
-  'goka.com': 'GOKA.com', 'vjn.com': 'VJN.com', 'farfield.com': 'Farfield.com',
+  'goka.com': 'GOKA.com', 'nfts.com': 'NFTs.com', 'vjn.com': 'VJN.com', 'farfield.com': 'Farfield.com',
   'balaena.com': 'Balaena.com', 'travely.com': 'Travely.com', 'mycar.ai': 'MyCar.ai'
 };
 
@@ -760,6 +765,9 @@ function classifyAsset(sld, tld, full) {
     if (isAlpha && /[aeiou]/.test(sld) && len === 4) return make('LLLL_PRONOUNCEABLE_COM', '投资人底价',
       '$8,000 – $120,000', '$20,000 – $250,000', '$50,000 – $500,000',
       '4字母可发音.COM — GOKA.com $399,995 参考');
+    if (isAlpha && len === 4) return make('LLLL_COM', '投资人流通底价',
+      '$50,000 – $500,000+', '$150,000 – $1,500,000', '$500,000 – $5,000,000+',
+      '4字母纯辅音/行业缩写.COM — 非英文单词（参照：NFTs.com $15M Escrow.com verified）');
     if (isMixedShort) return make('MIXED_SHORT_COM', '投资人流通底价',
       '$30,000 – $300,000', '$80,000 – $800,000', '$200,000 – $2,000,000',
       '字母+数字混合短域名（3m.com / h20.com 类）');
@@ -781,9 +789,11 @@ function score6D(sld, tld, asset) {
   const d2 = asset.id === 'GENERIC' ? 20 : (SCORE_FLOOR_MAP[asset.id] ?? 20);
   let d3 = len <= 1 ? 100 : len <= 2 ? 98 : len <= 3 ? 92 : len === 4 && /[aeiou]/.test(sld) ? 84 : len <= 4 ? 78 : len <= 6 ? 74 : len <= 8 ? 65 : 50;
   if (asset.id === 'ULTRA_WORD_COM') d3 = Math.max(d3, 88);
+  if (asset.id === 'LLLL_COM') d3 = Math.max(d3, 82);
   let d4 = asset.id === 'VERIFIED_HIGH_VALUE_COM' ? 90
     : ['ULTRA_WORD_COM','LL_COM','L_COM','NN_COM'].includes(asset.id) ? 88
     : ['LLL_COM','NNN_COM'].includes(asset.id) ? 85
+    : ['LLLL_COM','LLL_COM','NNN_COM'].includes(asset.id) ? 85
     : ['LLLL_PRONOUNCEABLE_COM','NNNN_COM'].includes(asset.id) ? 80
     : asset.id === 'MIXED_SHORT_COM' ? 78
     : asset.id === 'NNNNN_COM' ? 70
@@ -794,6 +804,7 @@ function score6D(sld, tld, asset) {
   if (asset.id === 'GENERIC') d5 = 40;
   let d6 = ['ULTRA_WORD_COM','LL_COM','L_COM','NN_COM'].includes(asset.id) ? 85
     : ['LLL_COM','NNN_COM'].includes(asset.id) ? 78
+    : ['LLLL_COM','LLL_COM','NNN_COM'].includes(asset.id) ? 78
     : ['LLLL_PRONOUNCEABLE_COM','NNNN_COM'].includes(asset.id) ? 72
     : asset.id === 'MIXED_SHORT_COM' ? 68
     : asset.id === 'NNNNN_COM' ? 65
@@ -824,6 +835,9 @@ function getRisks(sld, tld, asset) {
   }
   if (asset.id === 'NNN_COM') {
     risks.push('💎 NNN_COM：全球仅1,000个，高流动性，中国买家偏好吉利数字（含8/6/9）溢价明显');
+  }
+  if (asset.id === 'LLLL_COM') {
+    risks.push('💎 LLLL_COM：4字母纯辅音/行业缩写，非英文单词；参照 NFTs.com $15M（Escrow.com verified, Aug 2022）');
   }
   if (asset.id === 'NNNN_COM') {
     risks.push('📊 NNNN_COM：吉利数字（1888/8888等）溢价显著，普通数字组合流动性一般');
@@ -862,6 +876,7 @@ function getConfidence(asset) {
   if (asset.id === 'NNN_COM') return { label: '高', pct: 88, note: '3位数字.COM，中国市场成交数据丰富' };
   if (asset.id === 'ULTRA_WORD_COM') return { label: '中高', pct: 70, note: '顶级单词，价格区间宽，需人工复核' };
   if (asset.id === 'VERIFIED_HIGH_VALUE_COM') return { label: '高', pct: 88, note: '已有公开成交锚点' };
+  if (asset.id === 'LLLL_COM') return { label: '高', pct: 85, note: '4字母行业缩写，稀缺度高；有 verified 锚点时置信更高' };
   if (['LLLL_PRONOUNCEABLE_COM','NNNN_COM'].includes(asset.id)) return { label: '中高', pct: 75, note: '参照同类锚点，价格受具体组合影响' };
   if (asset.id === 'MIXED_SHORT_COM') return { label: '中高', pct: 72, note: '字母数字混合短域名，参照 3m.com 类锚点' };
   if (asset.id === 'NNNNN_COM') return { label: '中', pct: 60, note: '5位数字供应量大，价格差异显著' };
@@ -909,7 +924,7 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
   }, null, 2);
 
   return `# DOMAIN_VALUATION_PACK.md
-> 生成时间：${now} | 系统：Domain AI Judge v6.2 | 规则：CORE_RULES v2
+> 生成时间：${now} | 系统：Domain AI Judge v6.3 | 规则：CORE_RULES v2
 > ⚠️ 本文档为系统初步判断，最终价格以实际市场成交为准
 > 📦 数据来源：静态规则库 / 用户录入 / 待人工复核（live_market_checked: false）
 
@@ -1059,7 +1074,7 @@ ${materialData}
 
 ---
 
-*DOMAIN_VALUATION_PACK.md · Domain AI Judge v6.2 · CORE_RULES v2 · 静态规则库 · ${now}*
+*DOMAIN_VALUATION_PACK.md · Domain AI Judge v6.3 · CORE_RULES v2 · 静态规则库 · ${now}*
 `;
 }
 
