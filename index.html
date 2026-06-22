@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>域名估值物料包生成器 v6.3.1</title>
+<title>域名估值物料包生成器 v6.3.2</title>
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
 <style>
 /* ── TOKENS ── */
@@ -197,6 +197,10 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
 .badge-anchor_floor_adjusted { background: rgba(232,175,52,0.15); color: var(--gold); border: 1px solid rgba(232,175,52,0.3); }
 .badge-class_floor_guarded { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent-glow); }
 .anchor-note-line { font-size: var(--text-xs); color: var(--gold); margin-top: var(--space-2); line-height: 1.4; }
+.acquirable-line { font-size: var(--text-xs); margin-top: var(--space-2); line-height: 1.4; padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); display: inline-block; }
+.acquirable-false { color: #e05555; background: rgba(224,85,85,0.08); border: 1px solid rgba(224,85,85,0.2); }
+.acquirable-true { color: #4caf50; background: rgba(76,175,80,0.08); border: 1px solid rgba(76,175,80,0.2); }
+.acquirable-unknown { color: var(--gold); background: rgba(232,175,52,0.08); border: 1px solid rgba(232,175,52,0.2); }
 .conf-bar-wrap {
   margin-top: var(--space-3); background: var(--surface-2);
   border-radius: var(--radius-full); height: 6px; overflow: hidden;
@@ -325,7 +329,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <circle cx="27" cy="10" r="4" fill="var(--gold)"/>
       </svg>
       <span class="logo-text">域名估值</span>
-      <span class="logo-version">v6.3.1</span>
+      <span class="logo-version">v6.3.2</span>
     </div>
     <button class="theme-btn" data-theme-toggle aria-label="切换主题">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -397,6 +401,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         </div>
         <div class="price-tier" id="cardPriceTier">—</div>
         <div class="anchor-note-line" id="cardAnchorNote"></div>
+        <div class="acquirable-line" id="cardAcquirable"></div>
       </div>
       <div class="result-card">
         <div class="card-label">置信度</div>
@@ -440,7 +445,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   </div>
 
   <footer class="footer">
-    静态规则库 CORE_RULES v2 · Domain AI Judge v6.3.1 · domain_status · acquirable · LLLL_COM · Price Floor Guard · 估值仅供参考，最终价格以实际市场成交为准
+    静态规则库 CORE_RULES v2 · Domain AI Judge v6.3.2 · domain_status · acquirable · LLLL_COM · Price Floor Guard · 估值仅供参考，最终价格以实际市场成交为准
   </footer>
 </div>
 
@@ -486,7 +491,7 @@ function toggleAdvanced() {
 //   'exact_domain_listing'           → 本域名当前或历史挂牌报价，非成交
 //   'ambiguous_report'               → 来源混淆/错配，无法确认指向本域名
 //
-// domain_status（v6.3.1）— 成交后域名当前状态，影响 acquirable 判定：
+// domain_status（v6.3.2）— 成交后域名当前状态，影响 acquirable 判定：
 //   'investment_inventory' → 投资人持有，可收购（估值主战场）
 //   'active_brand'         → 终端建站运营，历史成交仅作类别参考，本身不可收购
 //   'parked'               → 停泊，可能出售
@@ -549,7 +554,8 @@ function updateDomainStatusHint(raw) {
 
 const ANCHORS = {
   // ── 高置信锚点（anchor_allowed）──
-  'cloud.com':    { usd: 11000000, type: 'sale',          source: 'DNJournal',                        verified: true,  confidence: 'high',   anchor_relation: 'exact_domain_historical_sale',   pricing_use: 'anchor_allowed' },
+  'cloud.com':    { usd: 11000000, type: 'sale',          source: 'DNJournal',                        verified: true,  confidence: 'high',   anchor_relation: 'exact_domain_historical_sale',   pricing_use: 'anchor_allowed',
+                    domain_status: 'active_brand', status_note: 'Citrix/云品类终端品牌，已建站运营，不在二级市场流通' },
   'nfts.com':     { usd: 15000000, type: 'sale',          source: 'Escrow.com official press release + DNJournal (Aug 2022)', verified: true, confidence: 'high', anchor_relation: 'exact_domain_historical_sale', pricing_use: 'anchor_allowed',
                     domain_status: 'active_brand', status_note: '成交后已被终端用户建站运营，不在二级市场流通',
                     anchor_note: '$15M 为 2022 年成交价（Escrow.com verified），成交后域名已建站运营，当前不在二级市场流通。该价格作为 LLLL_COM 类别基准参考，不代表当前可收购。' },
@@ -870,7 +876,7 @@ function score6D(sld, tld, asset) {
   let d4 = asset.id === 'VERIFIED_HIGH_VALUE_COM' ? 90
     : ['ULTRA_WORD_COM','LL_COM','L_COM','NN_COM'].includes(asset.id) ? 88
     : ['LLL_COM','NNN_COM'].includes(asset.id) ? 85
-    : ['LLLL_COM','LLL_COM','NNN_COM'].includes(asset.id) ? 85
+    : ['LLLL_COM'].includes(asset.id) ? 85
     : ['LLLL_PRONOUNCEABLE_COM','NNNN_COM'].includes(asset.id) ? 80
     : asset.id === 'MIXED_SHORT_COM' ? 78
     : asset.id === 'NNNNN_COM' ? 70
@@ -881,7 +887,7 @@ function score6D(sld, tld, asset) {
   if (asset.id === 'GENERIC') d5 = 40;
   let d6 = ['ULTRA_WORD_COM','LL_COM','L_COM','NN_COM'].includes(asset.id) ? 85
     : ['LLL_COM','NNN_COM'].includes(asset.id) ? 78
-    : ['LLLL_COM','LLL_COM','NNN_COM'].includes(asset.id) ? 78
+    : ['LLLL_COM'].includes(asset.id) ? 78
     : ['LLLL_PRONOUNCEABLE_COM','NNNN_COM'].includes(asset.id) ? 72
     : asset.id === 'MIXED_SHORT_COM' ? 68
     : asset.id === 'NNNNN_COM' ? 65
@@ -1015,7 +1021,7 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
     : '';
 
   return `# DOMAIN_VALUATION_PACK.md
-> 生成时间：${now} | 系统：Domain AI Judge v6.3.1 | 规则：CORE_RULES v2
+> 生成时间：${now} | 系统：Domain AI Judge v6.3.2 | 规则：CORE_RULES v2
 > ⚠️ 本文档为系统初步判断，最终价格以实际市场成交为准
 > 📦 数据来源：静态规则库 / 用户录入 / 待人工复核（live_market_checked: false）
 ${activeBrandBanner}---
@@ -1134,6 +1140,7 @@ ${risks.map(r => '- ' + r).join('\n')}
 7. anchor_pricing_use === 'reference_only' 或 'manual_review_only' 的锚点不得用于定价；只有 'anchor_allowed' 且 anchor_verified === true 的锚点才可参与估值
 8. anchor_relation === 'exact_domain_historical_sale' 表示本域名自身历史成交；'exact_domain_listing' 表示挂牌报价；'ambiguous_report'/'exact_domain_unverified_report' 表示来源不可靠，不得用于定价依据
 9. anchor_note 不为 null 时必须在 key_reasons 中引用说明，不得忽略
+10. acquirable 为三态：true（可收购）/ false（不可收购）/ "unknown"（字符串，需人工确认）。acquirable===false 时必须注明估值仅供类别参考，不得输出收购建议价
 
 **域名材料包：**
 ${materialData}
@@ -1170,7 +1177,7 @@ ${materialData}
 
 ---
 
-*DOMAIN_VALUATION_PACK.md · Domain AI Judge v6.3.1 · CORE_RULES v2 · 静态规则库 · ${now}*
+*DOMAIN_VALUATION_PACK.md · Domain AI Judge v6.3.2 · CORE_RULES v2 · 静态规则库 · ${now}*
 `;
 }
 
@@ -1195,13 +1202,18 @@ function analyze() {
       updateDomainStatusHint(raw);
       const industries = getIndustries(parsed.sld);
 
+      const statusInfo = resolveDomainStatus(parsed.full);
+      const acquirableInfo = resolveAcquirable(statusInfo, asset.anchorMeta);
+
       document.getElementById('cardAssetClass').textContent = asset.id;
       document.getElementById('cardAssetDesc').textContent = asset.rationale || asset.priceTag;
       document.getElementById('cardScore').textContent = scores.final;
       document.getElementById('cardScoreLabel').textContent = scores.final >= 90 ? '顶级资产' : scores.final >= 80 ? '优质资产' : scores.final >= 70 ? '良好资产' : '普通域名';
 
+      const isNotAcquirable = acquirableInfo.acquirable === false;
+      const p1Label = isNotAcquirable ? 'P1 历史类别参考价' : 'P1 投资人底价';
       document.getElementById('cardPriceTier').innerHTML = [
-        { label: 'P1 投资人底价', val: asset.p1 || '—' },
+        { label: p1Label, val: asset.p1 || '—' },
         { label: 'P2 品牌资产价', val: asset.p2 || '—' },
         { label: 'P3 终端买家价', val: asset.p3 || '—' }
       ].map(r => `<div class="price-row"><span class="price-tier-label">${r.label}</span><span class="price-tier-val">${r.val}</span></div>`).join('');
@@ -1211,6 +1223,18 @@ function analyze() {
       badge.textContent = PRICING_BADGE_LABELS[pm] || pm;
       badge.className = 'pricing-badge badge-' + pm;
       document.getElementById('cardAnchorNote').textContent = asset.anchorNote || '';
+
+      const acqEl = document.getElementById('cardAcquirable');
+      if (acquirableInfo.acquirable === false) {
+        acqEl.textContent = '🚫 ' + (acquirableInfo.acquirable_note || '不可收购，估值仅供类别参考');
+        acqEl.className = 'acquirable-line acquirable-false';
+      } else if (acquirableInfo.acquirable === true) {
+        acqEl.textContent = '✅ ' + (acquirableInfo.acquirable_note || '可收购场景');
+        acqEl.className = 'acquirable-line acquirable-true';
+      } else {
+        acqEl.textContent = '⚠️ ' + (acquirableInfo.acquirable_note || '未核验是否可收购');
+        acqEl.className = 'acquirable-line acquirable-unknown';
+      }
 
       document.getElementById('cardConf').textContent = conf.label;
       document.getElementById('confBar').style.width = conf.pct + '%';

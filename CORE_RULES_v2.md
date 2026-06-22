@@ -232,7 +232,7 @@ AI 评委必须返回以下标准 JSON：
 
 ---
 
-## 十、防回归测试样例（v6.1.5）
+## 十、防回归测试样例（v6.3.2）
 
 | 域名 | 应识别类别 | 最低分 | 价格标签 | 备注 |
 |------|-----------|--------|---------|------| 
@@ -249,6 +249,11 @@ AI 评委必须返回以下标准 JSON：
 | GOKA.com | `LLLL_PRONOUNCEABLE_COM` | 78 | 投资人底价 | 参照 $399,995（anchor_allowed）|
 | zkp.com | `LLL_COM` | 88 | 投资人流通底价 | **锚点为买方自报，manual_review_only，不参与自动定价** |
 | VJN.com | `LLL_COM` | 88 | 投资人流通底价 | 锚点为挂牌价（listing），不参与自动定价 |
+| nfts.com | `LLLL_COM` | 82 | 历史类别参考价 | **active_brand**，acquirable=false，历史成交仅作类别基准 |
+| qrst.com | `LLLL_COM` | 82 | 投资人流通底价 | 4字母纯辅音，无锚点，acquirable=unknown |
+| cloud.com | `ULTRA_WORD_COM` | 92 | 历史类别参考价 | **active_brand**（黑名单），acquirable=false |
+| google.com | `WORD_COM` | 75 | 历史类别参考价 | **active_brand**（黑名单），acquirable=false，6字母普通单词 |
+| vjn.com | `LLL_COM` | 88 | 投资人流通底价 | listing锚点，acquirable=true（投资人挂牌中） |
 
 ---
 
