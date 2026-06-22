@@ -119,6 +119,7 @@
 | 域名 | 类别 | 价格参考 | 可信度 | pricing_use | 备注 |
 |------|------|---------|--------|-------------|------| 
 | cloud.com | ULTRA_WORD_COM | $11,000,000 | ✅ verified | anchor_allowed | 公开拍卖记录 |
+| NFTs.com | LLLL_COM | $15,000,000 | ✅ verified | anchor_allowed | Escrow.com 官方新闻稿 + DNJournal（2022-08） |
 | 01.com | NN_COM | $1,820,000 | ✅ verified | anchor_allowed | DNJournal 2017 可查 |
 | derm.com | ULTRA_WORD_COM | ~$825,000 | ✅ verified | anchor_allowed | 公开成交记录 |
 | GOKA.com | LLLL_PRONOUNCEABLE_COM | $399,995 | ✅ verified | anchor_allowed | DomainGang 报道 |
