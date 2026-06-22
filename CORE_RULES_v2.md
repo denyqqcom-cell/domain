@@ -232,18 +232,18 @@ AI 评委必须返回以下标准 JSON：
 
 ---
 
-## 九之二、culture_weight 预埋约束（v6.4）
+## 九之二、regional_modifiers 预埋约束（v6.4）
 
 物料包 JSON 须包含：
 
 ```json
 {
-  "culture_weight": null,
-  "_culture_weight_note": "RESERVED v6.4: not active, not used in pricing. v6.5 only."
+  "regional_modifiers": null,
+  "_regional_modifiers_note": "[RESERVED v6.5] v6.4: not active, not used in pricing. v6.5 only."
 }
 ```
 
-**硬约束**：v6.4 中 `culture_weight` 恒为 `null`。任何代码路径读取或依赖此字段参与定价，视为 v6.4 回归失败。v6.5 激活时需同步删除本条约束。
+**硬约束**：v6.4 中 `regional_modifiers` 恒为 `null`。任何代码路径读取或依赖此字段参与定价，视为 v6.4 回归失败。v6.5 激活时需同步删除本条约束。
 
 ---
 
