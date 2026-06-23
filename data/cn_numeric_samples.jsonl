@@ -1,5 +1,11 @@
-{"domain":"888.com","price_usd":null,"platform":null,"verified":"unverified","note":"[RESERVED v6.5] placeholder"}
-{"domain":"168.com","price_usd":null,"platform":null,"verified":"unverified","note":"[RESERVED v6.5] placeholder"}
-{"domain":"520.com","price_usd":null,"platform":null,"verified":"unverified","note":"[RESERVED v6.5] placeholder"}
-{"domain":"666.com","price_usd":null,"platform":null,"verified":"unverified","note":"[RESERVED v6.5] placeholder"}
-{"domain":"999.com","price_usd":null,"platform":null,"verified":"unverified","note":"[RESERVED v6.5] placeholder"}
+{"domain":"08888.com","price_cny":498000,"price_usd":68500,"platform":"A5站长网","verified":"V2","pattern":"leopard_8","note":"豹子8结尾，2024成交"}
+{"domain":"09999.com","price_cny":250000,"price_usd":34400,"platform":"A5站长网","verified":"V2","pattern":"leopard_9","note":"豹子9结尾"}
+{"domain":"07777.com","price_cny":248000,"price_usd":34100,"platform":"A5站长网","verified":"V2","pattern":"leopard_7","note":"豹子7结尾"}
+{"domain":"06666.com","price_cny":246000,"price_usd":33800,"platform":"A5站长网","verified":"V2","pattern":"leopard_6","note":"豹子6结尾"}
+{"domain":"73456.com","price_cny":120000,"price_usd":16500,"platform":"35.com","verified":"V2","pattern":"tail_seq_3456","note":"3456尾顺子，一口价秒"}
+{"domain":"95234.com","price_cny":100800,"price_usd":13800,"platform":"A5站长网","verified":"V2","pattern":"tail_seq_234","note":"234尾递增顺子，一口价秒"}
+{"domain":"22678.com","price_cny":100000,"price_usd":15755,"platform":"35.com","verified":"V1","pattern":"tail_seq_678","note":"678尾顺子+谐音"}
+{"domain":"57597.com","price_cny":18800,"price_usd":2580,"platform":"35.com","verified":"V1","pattern":"no_04","note":"普通品相，不含0/4"}
+{"domain":"55857.com","price_cny":12000,"price_usd":1650,"platform":"35.com","verified":"V1","pattern":"repeat","note":"规律重复，不含0/4"}
+{"domain":"83900.com","price_cny":10500,"price_usd":1440,"platform":"35.com","verified":"V1","pattern":"mixed","note":"含0但8/9吉利"}
+{"domain":"91878.com","price_cny":16960,"price_usd":2330,"platform":"35.com","verified":"V1","pattern":"no_04","note":"不含0/4"}
