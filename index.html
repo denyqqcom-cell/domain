@@ -305,6 +305,46 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   transition: width 0.8s cubic-bezier(0.16,1,0.3,1);
 }
 
+/* ── Stage1b Pattern Blocks ── */
+.pattern-section {
+  margin-bottom: var(--space-6);
+}
+.pattern-section-title {
+  font-size: var(--text-sm); font-weight: 700; color: var(--muted);
+  margin-bottom: var(--space-4);
+  display: flex; align-items: center; gap: var(--space-2);
+}
+.pattern-grid {
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+@media (max-width: 900px) { .pattern-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 600px) { .pattern-grid { grid-template-columns: 1fr 1fr; } }
+.pattern-block {
+  background: var(--surface); border: 2px solid var(--border);
+  border-radius: var(--radius-lg); padding: var(--space-4);
+  text-align: center; transition: border-color var(--transition), box-shadow var(--transition);
+}
+.pattern-block.orange-border {
+  border-color: #e8960a; box-shadow: 0 0 12px rgba(232,150,10,0.18);
+}
+.pattern-block .pat-name {
+  font-size: var(--text-xs); color: var(--muted);
+  margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.06em;
+}
+.pattern-block .pat-status {
+  font-size: var(--text-lg); font-weight: 700; line-height: 1.2;
+}
+.pattern-block .pat-status.active { color: var(--accent); }
+.pattern-block .pat-status.inactive { color: var(--faint); }
+.pattern-block .pat-sub {
+  font-size: var(--text-xs); color: var(--muted); margin-top: 2px;
+}
+.pattern-block .pat-sub.orange-sub {
+  color: #e8960a; font-weight: 700;
+}
+
 /* ── MARKDOWN PACK ── */
 .pack-section {
   background: var(--surface); border: 1px solid var(--border);
@@ -545,6 +585,43 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <div class="card-value" id="cardConf">—</div>
         <div class="conf-bar-wrap"><div class="conf-bar" id="confBar" style="width:0%"></div></div>
         <div class="card-sub" id="cardConfNote">—</div>
+      </div>
+    </div>
+
+    <!-- Stage1b: Pattern Analysis for NNNNN_COM -->
+    <div class="pattern-section" id="patternSection" style="display:none;">
+      <div class="pattern-section-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 12h8M12 8v8"/>
+        </svg>
+        五位数模式识别 (stage1b)
+      </div>
+      <div class="pattern-grid" id="patternGrid">
+        <div class="pattern-block" id="block_fullseq">
+          <div class="pat-name">纯顺子 full_sequence</div>
+          <div class="pat-status inactive" id="pat_fullseq">—</div>
+          <div class="pat-sub" id="pat_fullseq_sub"></div>
+        </div>
+        <div class="pattern-block" id="block_repeat">
+          <div class="pat-name">重复号 repeat</div>
+          <div class="pat-status inactive" id="pat_repeat">—</div>
+          <div class="pat-sub" id="pat_repeat_sub"></div>
+        </div>
+        <div class="pattern-block" id="block_tailseq">
+          <div class="pat-name">尾顺子 tail_sequence</div>
+          <div class="pat-status inactive" id="pat_tailseq">—</div>
+          <div class="pat-sub" id="pat_tailseq_sub"></div>
+        </div>
+        <div class="pattern-block" id="block_lucky">
+          <div class="pat-name">吉祥号 lucky</div>
+          <div class="pat-status inactive" id="pat_lucky">—</div>
+          <div class="pat-sub" id="pat_lucky_sub"></div>
+        </div>
+        <div class="pattern-block" id="block_ordinary">
+          <div class="pat-name">普通号 ordinary</div>
+          <div class="pat-status inactive" id="pat_ordinary">—</div>
+          <div class="pat-sub" id="pat_ordinary_sub"></div>
+        </div>
       </div>
     </div>
 
@@ -1388,6 +1465,174 @@ ${materialData}
 // ── MAIN ──
 let currentPack = '';
 
+// ── Stage1b: Pattern Detection for 5-digit numeric domains ──
+function detectPattern(sld) {
+  if (sld.length !== 5 || !/^\d{5}$/.test(sld)) return null;
+
+  const digits = sld.split('').map(Number);
+  const hasFour = digits.includes(4);
+  const hasZero = digits.includes(0);
+  const digitSet = new Set(digits);
+
+  // Check full_sequence: all 5 digits form consecutive sequence (ascending or descending)
+  const isFullSeq = (() => {
+    let asc = true, desc = true;
+    for (let i = 1; i < 5; i++) {
+      if (digits[i] !== digits[i-1] + 1) asc = false;
+      if (digits[i] !== digits[i-1] - 1) desc = false;
+    }
+    return asc || desc;
+  })();
+
+  // Check repeat: all digits same, OR leading 0 + trailing 4 same digits (lead0 leopard)
+  const isRepeat = digitSet.size === 1 ||
+    (digits[0] === 0 && digits[1] === digits[2] && digits[2] === digits[3] && digits[3] === digits[4]);
+
+  // Check tail_sequence: last 3+ consecutive digits form ascending/descending sequence
+  const isTailSeq = (() => {
+    // Check tail-3: digits[2],digits[3],digits[4] consecutive
+    if ((digits[2]+1===digits[3] && digits[3]+1===digits[4]) ||
+        (digits[2]-1===digits[3] && digits[3]-1===digits[4])) return true;
+    // Check tail-4: digits[1],digits[2],digits[3],digits[4] consecutive
+    if ((digits[1]+1===digits[2] && digits[2]+1===digits[3] && digits[3]+1===digits[4]) ||
+        (digits[1]-1===digits[2] && digits[2]-1===digits[3] && digits[3]-1===digits[4])) return true;
+    return false;
+  })();
+
+  // Check lucky: no 0, no 4, contains at least one lucky digit (6,8,9)
+  const isLucky = !hasZero && !hasFour && digits.some(d => [6,8,9].includes(d));
+
+  // Determine pattern
+  let pattern, patternBorder, fourBorder;
+  // When full_sequence is true, suppress tail_sequence (full seq already contains tail seq)
+  const effectiveIsTailSeq = isTailSeq && !isFullSeq;
+  
+  if (isFullSeq) {
+    pattern = 'full_sequence';
+    patternBorder = true;
+    fourBorder = hasFour;
+  } else if (isRepeat) {
+    pattern = 'repeat';
+    patternBorder = true;
+    fourBorder = hasFour;
+  } else if (effectiveIsTailSeq) {
+    pattern = 'tail_sequence';
+    patternBorder = true;
+    fourBorder = hasFour;
+  } else if (isLucky) {
+    pattern = 'lucky';
+    patternBorder = false;
+    fourBorder = false;
+  } else {
+    pattern = 'ordinary';
+    patternBorder = false;
+    fourBorder = false;
+  }
+
+  return { pattern, hasFour, hasZero, patternBorder, fourBorder, isFullSeq, isRepeat, isTailSeq: effectiveIsTailSeq, isLucky, digits };
+}
+
+function renderPattern(sld, patternInfo) {
+  const section = document.getElementById('patternSection');
+  if (!patternInfo || sld.length !== 5 || !/^\d{5}$/.test(sld)) {
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = 'block';
+
+  const pi = patternInfo;
+
+  // ── Block 1: full_sequence ──
+  const block1 = document.getElementById('block_fullseq');
+  const status1 = document.getElementById('pat_fullseq');
+  const sub1 = document.getElementById('pat_fullseq_sub');
+  if (pi.isFullSeq) {
+    status1.textContent = '✓ 命中';
+    status1.className = 'pat-status active';
+    sub1.textContent = pi.hasFour ? '含4' : '';
+    sub1.className = 'pat-sub' + (pi.fourBorder ? ' orange-sub' : '');
+    block1.className = 'pattern-block' + (pi.patternBorder ? ' orange-border' : '');
+  } else {
+    status1.textContent = '✗';
+    status1.className = 'pat-status inactive';
+    sub1.textContent = '';
+    sub1.className = 'pat-sub';
+    block1.className = 'pattern-block';
+  }
+
+  // ── Block 2: repeat ──
+  const block2 = document.getElementById('block_repeat');
+  const status2 = document.getElementById('pat_repeat');
+  const sub2 = document.getElementById('pat_repeat_sub');
+  if (pi.isRepeat) {
+    status2.textContent = '✓ 命中';
+    status2.className = 'pat-status active';
+    sub2.textContent = pi.hasFour ? '含4' : '';
+    sub2.className = 'pat-sub' + (pi.fourBorder ? ' orange-sub' : '');
+    block2.className = 'pattern-block' + (pi.patternBorder ? ' orange-border' : '');
+  } else {
+    status2.textContent = '✗';
+    status2.className = 'pat-status inactive';
+    sub2.textContent = '';
+    sub2.className = 'pat-sub';
+    block2.className = 'pattern-block';
+  }
+
+  // ── Block 3: tail_sequence ──
+  const block3 = document.getElementById('block_tailseq');
+  const status3 = document.getElementById('pat_tailseq');
+  const sub3 = document.getElementById('pat_tailseq_sub');
+  if (pi.isTailSeq) {
+    status3.textContent = '✓ 命中';
+    status3.className = 'pat-status active';
+    sub3.textContent = pi.hasFour ? '含4' : '';
+    sub3.className = 'pat-sub' + (pi.fourBorder ? ' orange-sub' : '');
+    block3.className = 'pattern-block' + (pi.patternBorder ? ' orange-border' : '');
+  } else {
+    status3.textContent = '✗';
+    status3.className = 'pat-status inactive';
+    sub3.textContent = '';
+    sub3.className = 'pat-sub';
+    block3.className = 'pattern-block';
+  }
+
+  // ── Block 4: lucky ──
+  const block4 = document.getElementById('block_lucky');
+  const status4 = document.getElementById('pat_lucky');
+  const sub4 = document.getElementById('pat_lucky_sub');
+  if (pi.isLucky) {
+    status4.textContent = '✓ 命中';
+    status4.className = 'pat-status active';
+    sub4.textContent = pi.hasFour ? '含4' : '';
+    sub4.className = 'pat-sub' + (pi.fourBorder ? ' orange-sub' : '');
+    block4.className = 'pattern-block' + (pi.patternBorder ? ' orange-border' : '');
+  } else {
+    status4.textContent = '✗';
+    status4.className = 'pat-status inactive';
+    sub4.textContent = '';
+    sub4.className = 'pat-sub';
+    block4.className = 'pattern-block';
+  }
+
+  // ── Block 5: ordinary ──
+  const block5 = document.getElementById('block_ordinary');
+  const status5 = document.getElementById('pat_ordinary');
+  const sub5 = document.getElementById('pat_ordinary_sub');
+  if (pi.pattern === 'ordinary') {
+    status5.textContent = '✓ 命中';
+    status5.className = 'pat-status active';
+    sub5.textContent = pi.hasFour ? '含4' : '';
+    sub5.className = 'pat-sub' + (pi.fourBorder ? ' orange-sub' : '');
+    block5.className = 'pattern-block' + (pi.patternBorder ? ' orange-border' : '');
+  } else {
+    status5.textContent = '✗';
+    status5.className = 'pat-status inactive';
+    sub5.textContent = '';
+    sub5.className = 'pat-sub';
+    block5.className = 'pattern-block';
+  }
+}
+
 function analyze() {
   const raw = document.getElementById('domainInput').value.trim();
   if (!raw) return;
@@ -1458,6 +1703,10 @@ function analyze() {
       ].map(d => `<div class="dim-item"><div class="dim-name">${d.name}</div><div class="dim-score" style="color:${d.score>=85?'var(--accent)':d.score>=70?'var(--gold)':'var(--muted)'}">${d.score}</div><div class="dim-weight">权重 ${d.weight}</div></div>`).join('');
 
       document.getElementById('riskList').innerHTML = risks.map(r => `<div class="risk-item"><span>${r}</span></div>`).join('');
+
+      // Stage1b: Pattern detection for NNNNN_COM
+      const patternInfo = detectPattern(parsed.sld);
+      renderPattern(parsed.sld, patternInfo);
 
     } catch(e) { document.getElementById('results').classList.add('visible'); }
 
