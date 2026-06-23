@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>域名估值物料包生成器 v6.5-R0b</title>
+<title>域名估值物料包生成器 v6.5-R0c</title>
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
 <style>
 /* ── TOKENS ── */
@@ -345,7 +345,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   color: #e8960a; font-weight: 700;
 }
 
-/* ── v6.5-R0b Expert Judgment ── */
+/* ── v6.5-R0c Expert Judgment ── */
 .expert-section {
   margin-bottom: var(--space-6);
   background: linear-gradient(135deg, rgba(232,150,10,0.04), rgba(232,150,10,0.01));
@@ -358,12 +358,95 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   margin-bottom: var(--space-4);
   display: flex; align-items: center; gap: var(--space-2);
 }
-.expert-grid {
-  display: grid; grid-template-columns: repeat(5, 1fr);
-  gap: var(--space-3);
+.expert-version {
+  font-size: 0.65rem; color: var(--muted); font-weight: 400;
+  background: rgba(232,150,10,0.1); padding: 1px 6px; border-radius: var(--radius-full);
+  margin-left: auto;
 }
-@media (max-width: 900px) { .expert-grid { grid-template-columns: repeat(3, 1fr); } }
-@media (max-width: 600px) { .expert-grid { grid-template-columns: 1fr; } }
+
+/* ── Layer Chips ── */
+.expert-layers {
+  display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-4);
+}
+.expert-layer-chip {
+  font-size: 0.7rem; font-weight: 600; padding: 3px 10px;
+  border-radius: var(--radius-full); border: 1px solid var(--border);
+  background: var(--surface-2); color: var(--muted);
+  display: flex; align-items: center; gap: 4px; transition: all var(--transition);
+}
+.expert-layer-chip.active {
+  color: #e8960a; border-color: rgba(232,150,10,0.4); background: rgba(232,150,10,0.08);
+}
+.expert-layer-chip .chip-count {
+  font-size: 0.6rem; background: var(--surface-3); color: var(--muted);
+  padding: 0 5px; border-radius: var(--radius-full); min-width: 16px; text-align: center;
+}
+.expert-layer-chip.active .chip-count {
+  background: rgba(232,150,10,0.15); color: #e8960a;
+}
+
+/* ── Rule Hits Grid ── */
+.expert-rule-hits {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-2); margin-bottom: var(--space-4);
+  max-height: 240px; overflow-y: auto;
+}
+.expert-rule-hit {
+  font-size: 0.68rem; background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: var(--space-2) var(--space-3);
+  line-height: 1.45;
+}
+.expert-rule-hit .hit-layer {
+  font-size: 0.58rem; font-weight: 700; color: #e8960a;
+  text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1px;
+}
+.expert-rule-hit .hit-id {
+  font-size: 0.58rem; color: var(--faint); margin-left: 4px;
+}
+.expert-rule-hit .hit-label {
+  font-weight: 600; color: var(--text); margin-bottom: 2px;
+}
+.expert-rule-hit .hit-effect {
+  color: var(--muted);
+}
+
+/* ── Buyer Fit Cards ── */
+.expert-buyer-fit {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--space-2); margin-bottom: var(--space-4);
+}
+.expert-buyer-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: var(--space-2) var(--space-3);
+  text-align: center;
+}
+.expert-buyer-card .bf-label {
+  font-size: 0.7rem; font-weight: 600; color: var(--text); margin-bottom: 2px;
+}
+.expert-buyer-card .bf-fit {
+  font-size: 0.6rem; padding: 1px 6px; border-radius: var(--radius-full);
+  display: inline-block;
+}
+.expert-buyer-card .bf-fit.high {
+  background: rgba(109,170,69,0.15); color: var(--green);
+}
+.expert-buyer-card .bf-fit.medium {
+  background: rgba(79,152,163,0.12); color: var(--accent);
+}
+.expert-buyer-card .bf-fit.low {
+  background: rgba(122,121,119,0.1); color: var(--muted);
+}
+.expert-buyer-card .bf-reason {
+  font-size: 0.6rem; color: var(--faint); margin-top: 1px;
+}
+
+/* ── Pattern Judgment (保留旧版标注) ── */
+.expert-pattern-grid {
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  gap: var(--space-3); margin-top: var(--space-4);
+}
+@media (max-width: 900px) { .expert-pattern-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 600px) { .expert-pattern-grid { grid-template-columns: 1fr; } }
 .expert-card {
   background: var(--surface); border: 1px solid var(--border);
   border-radius: var(--radius-lg); padding: var(--space-3) var(--space-4);
@@ -385,6 +468,11 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
 }
 .expert-has4-icon { font-size: 1.1rem; flex-shrink: 0; }
 .expert-has4-text { font-size: var(--text-xs); color: #e8960a; line-height: 1.5; }
+
+.expert-empty {
+  text-align: center; color: var(--faint); font-size: var(--text-xs);
+  padding: var(--space-4); font-style: italic;
+}
 
 /* ── MARKDOWN PACK ── */
 .pack-section {
@@ -504,7 +592,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <circle cx="27" cy="10" r="4" fill="var(--gold)"/>
       </svg>
       <span class="logo-text">域名估值</span>
-      <span class="logo-version">v6.5-R0b</span>
+      <span class="logo-version">v6.5-R0c</span>
     </div>
     <button class="theme-btn" data-theme-toggle aria-label="切换主题">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -671,15 +759,29 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
       </div>
     </div>
 
-    <!-- v6.5-R0b: Expert Judgment Layer -->
+    <!-- v6.5-R0c: Expert Judgment Layer — 5-layer chips + buyer_fit cards -->
     <div class="expert-section" id="expertSection" style="display:none;">
       <div class="expert-section-title">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e8960a" stroke-width="2.5">
           <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
         </svg>
-        专家判断层 Expert Judgment (v6.5-R0b)
+        专家判断层 Expert Judgment (v6.5-R0c)
+        <span class="expert-version" id="expVersion">67 rules</span>
       </div>
-      <div class="expert-grid" id="expertGrid">
+      <!-- Layer Chips -->
+      <div class="expert-layers" id="expertLayers">
+        <span class="expert-layer-chip" data-layer="L1">L1 数字结构 <span class="chip-count">0</span></span>
+        <span class="expert-layer-chip" data-layer="L2">L2 中文域名 <span class="chip-count">0</span></span>
+        <span class="expert-layer-chip" data-layer="L3">L3 英文单词 <span class="chip-count">0</span></span>
+        <span class="expert-layer-chip" data-layer="L4">L4 热门行业 <span class="chip-count">0</span></span>
+        <span class="expert-layer-chip" data-layer="L5">L5 AI工具组合 <span class="chip-count">0</span></span>
+      </div>
+      <!-- Rule Hits -->
+      <div class="expert-rule-hits" id="expertRuleHits"></div>
+      <!-- Buyer Fit -->
+      <div class="expert-buyer-fit" id="expertBuyerFit"></div>
+      <!-- Pattern Judgment -->
+      <div class="expert-pattern-grid" id="expertPatternGrid">
         <div class="expert-card" id="expPatternQuality">
           <div class="exp-label">品相判断 Pattern Quality</div>
           <div class="exp-value" id="expPatternQualityVal">—</div>
@@ -741,15 +843,221 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   </div>
 
   <footer class="footer">
-    静态规则库 CORE_RULES v2 · Domain AI Judge v6.5-R0b · domain_status · acquirable · LLLL_COM · Price Floor Guard · 估值仅供参考，最终价格以实际市场成交为准
+    静态规则库 CORE_RULES v2 · Domain AI Judge v6.5-R0c · domain_status · acquirable · LLLL_COM · Price Floor Guard · 估值仅供参考，最终价格以实际市场成交为准
   </footer>
 </div>
 
 <script>
-// ── v6.5-R0b 预埋开关（全部 false，零行为变化）──
+// ── v6.5-R0c 预埋开关（全部 false，零行为变化）──
 const V65_ENABLE_PATTERN_IN_PACK = false;
 const V65_ENABLE_HAS4_PENALTY = false;
 const V65_ENABLE_COMPARABLE_ANCHOR_PRICING = false;
+
+// ═══════════════════════════════════════════════════════════════
+// v6.5-R0c: EXPERTRULES 内联常量 — 67 条专家规则（5 层）
+// ═══════════════════════════════════════════════════════════════
+const EXPERTRULES = {
+  L1_digital_structure: [
+    { id:'L1-R001', cat:'digital_structure', label:'全顺子 full_sequence', trigger:'isFullSeq', effect:'pattern_quality 极稀缺·收藏级，liquidity_signal 高流动性', reason:'5位完全连续数字(12345/54321)，全球认知统一，五数字最高品相' },
+    { id:'L1-R002', cat:'digital_structure', label:'豹子号 repeat (全同)', trigger:'isRepeat&&!lead0', effect:'pattern_quality 极稀缺·豹子号，liquidity_signal 高流动性·收藏级', reason:'五同号全球仅10个，8豹子88888为终极财富符号' },
+    { id:'L1-R003', cat:'digital_structure', label:'前导0豹子 lead0_leopard', trigger:'isRepeat&&lead0', effect:'pattern_quality 稀有·前导0豹子，liquidity_signal 中高流动性', reason:'前导0+尾4同号(08888/09999)，折价0.6-0.8×于全位豹子' },
+    { id:'L1-R004', cat:'digital_structure', label:'回文号 palindrome', trigger:'isPalindrome', effect:'pattern_quality 稀缺·回文对称，liquidity_signal 中高流动性', reason:'前后对称结构(12321/98789)，视觉平衡记忆成本低' },
+    { id:'L1-R005', cat:'digital_structure', label:'尾顺子 tail_sequence', trigger:'isTailSeq', effect:'pattern_quality 良好·尾顺子，liquidity_signal 中高流动性', reason:'尾部3-4位连续数字(如xxx234/xxx3456)，溢价5-15×' },
+    { id:'L1-R006', cat:'digital_structure', label:'吉祥号 lucky', trigger:'isLucky', effect:'pattern_quality 中等·吉祥号，liquidity_signal 中等流动性', reason:'不含0/4且含吉祥数字(6/8/9)，华人市场偏好但供给量大' },
+    { id:'L1-R007', cat:'digital_structure', label:'含4 taboo_4', trigger:'hasFour', effect:'折价警告⚠️ 含4域名华人市场通常折价30-60%', reason:'中国文化中4=死，同行品相含4通常大幅折价' },
+    { id:'L1-R008', cat:'digital_structure', label:'含0 has_zero', trigger:'hasZero', effect:'中性标记，含0不一定折价但需注意组合上下文', reason:'0在中文市场中性(非禁忌)，需结合整体数字组合判断' },
+    { id:'L1-R009', cat:'digital_structure', label:'普通号 ordinary', trigger:'pattern===ordinary', effect:'pattern_quality 普通品相，liquidity_signal 基础流动性', reason:'无特殊数字结构规律，依靠价格优势非品相驱动' }
+  ],
+  L2_chinese_domain: [
+    { id:'L2-R001', cat:'chinese_domain', label:'声母 JF (解放/警方)', trigger:/^jf$/i, effect:'中文品牌/机构声母域名，终端价值显著', reason:'高频中文声母组合，可匹配多个行业含义' },
+    { id:'L2-R002', cat:'chinese_domain', label:'声母 SF (顺丰/司法)', trigger:/^sf$/i, effect:'中文品牌/机构声母域名，终端价值显著', reason:'SF=顺丰速运/司法/神父等多义，品牌联想丰富' },
+    { id:'L2-R003', cat:'chinese_domain', label:'声母 XM (厦门/小米)', trigger:/^xm$/i, effect:'中文品牌/地名声母，terminal_value高', reason:'XM=厦门/小米/熊猫/项目等多重含义' },
+    { id:'L2-R004', cat:'chinese_domain', label:'声母 JD (京东/酒店)', trigger:/^jd$/i, effect:'中文电商/服务声母域名，品牌溢价高', reason:'JD=京东/酒店/经典/鸡蛋，电商巨头联想强' },
+    { id:'L2-R005', cat:'chinese_domain', label:'声母 BJ (北京/编辑)', trigger:/^bj$/i, effect:'中文地名/行业声母域名，首都地理溢价', reason:'BJ=北京/编辑/搬家/笔记，一线城市地理绑定' },
+    { id:'L2-R006', cat:'chinese_domain', label:'声母 SH (上海)', trigger:/^sh$/i, effect:'中文地名声母域名，上海地理溢价', reason:'SH=上海，中国最大城市，国际化商业价值' },
+    { id:'L2-R007', cat:'chinese_domain', label:'声母 GZ (广州/关注)', trigger:/^gz$/i, effect:'中文地名/网络声母域名', reason:'GZ=广州/关注/工作，一线城市+高频动词' },
+    { id:'L2-R008', cat:'chinese_domain', label:'声母 SZ (深圳/数字)', trigger:/^sz$/i, effect:'中文地名/科技声母域名', reason:'SZ=深圳/数字/设置/苏州，科技重镇' },
+    { id:'L2-R009', cat:'chinese_domain', label:'声母 CD (成都/磁带)', trigger:/^cd$/i, effect:'中文地名声母域名', reason:'CD=成都/磁带/传导，新一线城市代表' },
+    { id:'L2-R010', cat:'chinese_domain', label:'声母 WH (武汉/文化)', trigger:/^wh$/i, effect:'中文地名/文化声母域名', reason:'WH=武汉/文化/外汇，华中中心城市' },
+    { id:'L2-R011', cat:'chinese_domain', label:'声母 NJ (南京)', trigger:/^nj$/i, effect:'中文地名声母域名', reason:'NJ=南京，六朝古都，历史+现代城市价值' },
+    { id:'L2-R012', cat:'chinese_domain', label:'声母 TJ (天津/统计)', trigger:/^tj$/i, effect:'中文地名/统计声母域名', reason:'TJ=天津/统计/推荐，直辖市+数据行业' },
+    { id:'L2-R013', cat:'chinese_domain', label:'声母 CQ (重庆/传奇)', trigger:/^cq$/i, effect:'中文地名/网络声母域名', reason:'CQ=重庆/传奇/春秋，西部最大直辖市' },
+    { id:'L2-R014', cat:'chinese_domain', label:'声母 DL (大连/代理)', trigger:/^dl$/i, effect:'中文地名/商业声母域名', reason:'DL=大连/代理/登录，东北门户+商业术语' },
+    { id:'L2-R015', cat:'chinese_domain', label:'声母 ZG (中国)', trigger:/^zg$/i, effect:'中文国家标识声母域名，极高品牌价值', reason:'ZG=中国，国家级缩写，品牌权威性最高' },
+    { id:'L2-R016', cat:'chinese_domain', label:'声母 YX (游戏/营销)', trigger:/^yx$/i, effect:'中文行业/动词声母域名', reason:'YX=游戏/营销/邮箱/英雄，互联网+娱乐行业' },
+    { id:'L2-R017', cat:'chinese_domain', label:'声母 XX (学习/信息)', trigger:/^xx$/i, effect:'中文通用声母域名', reason:'XX=学习/信息/消息/形象，高频通用词汇' },
+    { id:'L2-R018', cat:'chinese_domain', label:'声母 JS (江苏/技术)', trigger:/^js$/i, effect:'中文地名/技术声母域名', reason:'JS=江苏/技术/建设/结束，经济大省+IT行业' },
+    { id:'L2-R019', cat:'chinese_domain', label:'声母 HZ (杭州/合作)', trigger:/^hz$/i, effect:'中文地名/商务声母域名', reason:'HZ=杭州/合作/惠州/护照，互联网之都' },
+    { id:'L2-R020', cat:'chinese_domain', label:'声母 GD (广东/广电)', trigger:/^gd$/i, effect:'中文省份/媒体声母域名', reason:'GD=广东/广电/高度/固定，最大经济省份' },
+    { id:'L2-R021', cat:'chinese_domain', label:'双拼 shuangpin 全拼音', trigger:'shuangpin', effect:'中文完整拼音域名，记忆成本低brandable', reason:'完整拼音如fangdai/weixin，无缩写歧义，终端辨识度最高' },
+    { id:'L2-R022', cat:'chinese_domain', label:'数字谐音 520 (我爱你)', trigger:/520/, effect:'感情/社交行业高溢价数字谐音域名', reason:'520=我爱你，婚恋/社交/礼品行业有独特品牌价值' },
+    { id:'L2-R023', cat:'chinese_domain', label:'数字谐音 1314 (一生一世)', trigger:/1314/, effect:'婚恋/钟表/珠宝行业高溢价', reason:'1314=一生一世，顶级数字谐音组合' },
+    { id:'L2-R024', cat:'chinese_domain', label:'数字谐音 168 (一路发)', trigger:/168/, effect:'商业/贸易行业偏好，粤语文化圈溢价', reason:'168=一路发，广东/香港市场高溢价' },
+    { id:'L2-R025', cat:'chinese_domain', label:'数字谐音 995 (救救我)', trigger:/995/, effect:'公益/急救行业可匹配', reason:'995=救救我，网络用语谐音域名' }
+  ],
+  L3_english_word: [
+    { id:'L3-R001', cat:'english_word', label:'顶级短词 mom (3字母)', trigger:/^mom$/i, effect:'全球最高频家庭词汇，电商/母婴/社交均可', reason:'mom=母亲，全球最高频家庭词之一' },
+    { id:'L3-R002', cat:'english_word', label:'顶级短词 pedal (5字母)', trigger:/^pedal$/i, effect:'通用物理词汇，运动/交通行业匹配', reason:'pedal=踏板，自行车/汽车/音乐器材行业' },
+    { id:'L3-R003', cat:'english_word', label:'顶级短词 derm (4字母)', trigger:/^derm$/i, effect:'医学专业词汇，皮肤科/医美垂直行业', reason:'derm=皮肤(医学术语)，dermatology词根' },
+    { id:'L3-R004', cat:'english_word', label:'顶级短词 byte (4字母)', trigger:/^byte$/i, effect:'计算机基础词汇，全球科技行业通用', reason:'byte=字节，计算机科学基础单位' },
+    { id:'L3-R005', cat:'english_word', label:'顶级短词 nova (4字母)', trigger:/^nova$/i, effect:'通用品牌词汇，天文/科技/汽车行业均可', reason:'nova=新星，华为手机系列/雪佛兰车型共用词' },
+    { id:'L3-R006', cat:'english_word', label:'行业缩写 med (医疗)', trigger:/med/i, effect:'医疗行业缩写域名，医疗科技/健康管理终端', reason:'med=medical，全球医疗行业统一缩写' },
+    { id:'L3-R007', cat:'english_word', label:'行业缩写 fin (金融)', trigger:/fin/i, effect:'金融行业缩写域名，fintech垂直赛道', reason:'fin=finance，fin/tech组合高价值' },
+    { id:'L3-R008', cat:'english_word', label:'行业缩写 AI', trigger:/ai/i, effect:'AI缩写域名，全球最高科技热度', reason:'AI=artificial intelligence，2023-2026最强科技关键词' },
+    { id:'L3-R009', cat:'english_word', label:'行业缩写 dev (开发)', trigger:/dev/i, effect:'开发行业缩写域名，DevOps/SaaS行业', reason:'dev=developer/development，软件开发核心缩写' },
+    { id:'L3-R010', cat:'english_word', label:'行业缩写 bio (生物)', trigger:/bio/i, effect:'生物科技行业缩写域名', reason:'bio=biology/biotech，生物制药/基因工程行业' },
+    { id:'L3-R011', cat:'english_word', label:'行业缩写 IoT (物联网)', trigger:/iot/i, effect:'物联网行业缩写域名，智能设备赛道', reason:'IoT=Internet of Things，万物互联行业缩写' },
+    { id:'L3-R012', cat:'english_word', label:'可发音品牌 brandable', trigger:'brandable', effect:'CVC/VCV结构英文可发音短词，品牌可塑性高', reason:'符合英文音韵规则(如zola/miro/tiko)，可作全新品牌命名' }
+  ],
+  L4_hot_industry: [
+    { id:'L4-R001', cat:'hot_industry', label:'AGENT (AI代理)', trigger:/agent/i, effect:'2025-2026最热关键词，AI Agent赛道核心', reason:'AI Agent为2025-2026年AI领域最大叙事' },
+    { id:'L4-R002', cat:'hot_industry', label:'SKILLS (AI技能)', trigger:/skills/i, effect:'AI Agent生态关键词，插件/技能市场核心', reason:'Skills=AI Agent能力扩展体系，Agent技能市场' },
+    { id:'L4-R003', cat:'hot_industry', label:'EXCHANGE (交易所)', trigger:/exchange/i, effect:'金融/加密货币交易所行业词', reason:'Exchange=交易所，Crypto/DEX/CEX核心词汇' },
+    { id:'L4-R004', cat:'hot_industry', label:'LLM (大语言模型)', trigger:/llm/i, effect:'AI核心赛道词汇，2023-2026最强技术关键词', reason:'LLM=Large Language Model，所有AI公司核心' },
+    { id:'L4-R005', cat:'hot_industry', label:'RWA (真实世界资产)', trigger:/rwa/i, effect:'Web3/DeFi热门赛道关键词，RWA Tokenization', reason:'RWA=Real World Assets，2024-2026 DeFi最大叙事' },
+    { id:'L4-R006', cat:'hot_industry', label:'DEFI (去中心化金融)', trigger:/defi/i, effect:'Web3核心赛道关键词，DeFi为加密行业基础设施', reason:'DeFi=Decentralized Finance，加密行业核心赛道' },
+    { id:'L4-R007', cat:'hot_industry', label:'WALLET (钱包)', trigger:/wallet/i, effect:'金融/加密/支付核心词汇，覆盖面极广', reason:'Wallet=钱包，加密/数字支付/Apple Wallet多行业' },
+    { id:'L4-R008', cat:'hot_industry', label:'PAY (支付)', trigger:/pay/i, effect:'支付行业核心缩写，全球Fintech基础词汇', reason:'Pay=支付，Stripe/PayPal/Square等支付巨头核心词' },
+    { id:'L4-R009', cat:'hot_industry', label:'CLOUD (云)', trigger:/cloud/i, effect:'云计算核心词汇，AWS/GCP/Azure三大云', reason:'Cloud=云计算，全球企业IT基础设施核心概念' },
+    { id:'L4-R010', cat:'hot_industry', label:'CODE (代码)', trigger:/code/i, effect:'软件开发核心词汇，全球开发者生态基础', reason:'Code=代码，GitHub/GitLab/Cursor等开发者工具生态' },
+    { id:'L4-R011', cat:'hot_industry', label:'DATA (数据)', trigger:/data/i, effect:'数据行业核心词汇，AI/大数据/数据科学基础', reason:'Data=数据，AI训练/Databricks/数据基础设施' }
+  ],
+  L5_ai_tool_combo: [
+    { id:'L5-R001', cat:'ai_tool_combo', label:'codeai (编程AI工具)', trigger:/codeai/i, effect:'AI+编程工具组合域名，Developer AI赛道核心', reason:'codeai=AI编程助手，GitHub Copilot/Cursor等命名范式', combo:'{tool}+ai' },
+    { id:'L5-R002', cat:'ai_tool_combo', label:'bookai (阅读AI工具)', trigger:/bookai/i, effect:'AI+阅读/知识工具组合域名，Education AI赛道', reason:'bookai=AI阅读助手，Notion AI/Readwise等知识赛道', combo:'{tool}+ai' },
+    { id:'L5-R003', cat:'ai_tool_combo', label:'mapai (地图AI工具)', trigger:/mapai/i, effect:'AI+地理位置/导航组合域名，Spatial AI赛道', reason:'mapai=AI地图/AI导航，Google Maps AI/LBS AI赛道', combo:'{tool}+ai' },
+    { id:'L5-R004', cat:'ai_tool_combo', label:'phoneai (手机AI工具)', trigger:/phoneai/i, effect:'AI+通讯/手机组合域名，AI Phone赛道', reason:'phoneai=AI手机/AI通讯助手，Apple Intelligence趋势', combo:'{tool}+ai' },
+    { id:'L5-R005', cat:'ai_tool_combo', label:'penai (写作AI工具)', trigger:/penai/i, effect:'AI+写作/创作组合域名，Content AI赛道', reason:'penai=AI写作助手，Jasper/Copy.ai等AI内容创作赛道', combo:'{tool}+ai' },
+    { id:'L5-R006', cat:'ai_tool_combo', label:'docai (文档AI工具)', trigger:/docai/i, effect:'AI+文档/办公组合域名，Productivity AI赛道', reason:'docai=AI文档处理，Microsoft/Google Docs AI办公AI', combo:'{tool}+ai' },
+    { id:'L5-R007', cat:'ai_tool_combo', label:'videoai (视频AI工具)', trigger:/videoai/i, effect:'AI+视频/剪辑组合域名，Video AI赛道', reason:'videoai=AI视频生成，RunwayML/Sora/Pika等赛道', combo:'{tool}+ai' },
+    { id:'L5-R008', cat:'ai_tool_combo', label:'imageai (图片AI工具)', trigger:/imageai/i, effect:'AI+图像/设计组合域名，Image Generation AI赛道', reason:'imageai=AI图像生成，Midjourney/DALL-E/Stable Diffusion', combo:'{tool}+ai' },
+    { id:'L5-R009', cat:'ai_tool_combo', label:'ai+行业 ai_fintech', trigger:/(ai[a-z]|[a-z]{3,6}ai)/i, effect:'AI+行业垂直组合域名，Vertical AI赛道', reason:'AI+行业词命名模式(如aifin/aimed/ailegal)，垂直AI应用', combo:'ai+{vertical}' },
+    { id:'L5-R010', cat:'ai_tool_combo', label:'其他XYZai可发音组合', trigger:/[a-z]{3,5}ai/i, effect:'泛AI工具命名，{short English word}+AI模式', reason:'XYZai范式中XYZ为3-5字母英文实词+ai后缀，AI创业命名范式', combo:'{3-5 letter word}+ai' }
+  ]
+};
+
+// ═══════════════════════════════════════════════════════════════
+// v6.5-R0c: matchRules(sld, assetClass) → rule_hits[]
+// 遍历 EXPERTRULES 5 层，返回所有命中的规则
+// ═══════════════════════════════════════════════════════════════
+function matchRules(sld, assetClass) {
+  const hits = [];
+  const sldLower = sld.toLowerCase();
+  const patternInfo = detectPattern(sldLower);
+  const digits = patternInfo ? patternInfo.digits : null;
+
+  // ── L1: 数字结构识别层（需要 patternInfo）──
+  if (patternInfo && digits) {
+    const lead0 = digits[0] === 0;
+    const layerRules = EXPERTRULES.L1_digital_structure;
+    for (const r of layerRules) {
+      let matched = false;
+      if (r.id === 'L1-R001' && patternInfo.isFullSeq) matched = true;
+      else if (r.id === 'L1-R002' && patternInfo.isRepeat && !lead0) matched = true;
+      else if (r.id === 'L1-R003' && patternInfo.isRepeat && lead0) matched = true;
+      else if (r.id === 'L1-R004' && patternInfo.isPalindrome) matched = true;
+      else if (r.id === 'L1-R005' && patternInfo.isTailSeq) matched = true;
+      else if (r.id === 'L1-R006' && patternInfo.isLucky) matched = true;
+      else if (r.id === 'L1-R007' && patternInfo.hasFour) matched = true;
+      else if (r.id === 'L1-R008' && patternInfo.hasZero) matched = true;
+      else if (r.id === 'L1-R009' && patternInfo.pattern === 'ordinary') matched = true;
+      if (matched) hits.push({ layer: 'L1', ...r });
+    }
+  }
+
+  // ── L2: 中文域名识别层 ──
+  for (const r of EXPERTRULES.L2_chinese_domain) {
+    if (r.trigger === 'shuangpin') continue; // skip fuzzy — needs dictionary
+    if (r.trigger instanceof RegExp && r.trigger.test(sldLower)) {
+      hits.push({ layer: 'L2', ...r });
+    }
+  }
+
+  // ── L3: 英文单词识别层 ──
+  for (const r of EXPERTRULES.L3_english_word) {
+    if (r.trigger === 'brandable') continue; // skip fuzzy
+    if (r.trigger instanceof RegExp && r.trigger.test(sldLower)) {
+      hits.push({ layer: 'L3', ...r });
+    }
+  }
+
+  // ── L4: 热门行业词识别层 ──
+  for (const r of EXPERTRULES.L4_hot_industry) {
+    if (r.trigger instanceof RegExp && r.trigger.test(sldLower)) {
+      hits.push({ layer: 'L4', ...r });
+    }
+  }
+
+  // ── L5: AI工具组合识别层 ──
+  for (const r of EXPERTRULES.L5_ai_tool_combo) {
+    if (r.trigger instanceof RegExp && r.trigger.test(sldLower)) {
+      hits.push({ layer: 'L5', ...r });
+    }
+  }
+
+  return hits;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// v6.5-R0c: inferBuyerFit(rule_hits, assetClass) → buyer_fit[]
+// 从命中的规则推断买家画像适配度
+// ═══════════════════════════════════════════════════════════════
+function inferBuyerFit(ruleHits, assetClass) {
+  const profiles = [];
+  const layersHit = new Set(ruleHits.map(r => r.layer));
+
+  // 基础买家画像模板
+  const baseProfiles = {
+    digital_collector:  { label:'数字域名收藏家', fit:'medium', reason:'品类匹配' },
+    cn_investor:         { label:'中国域名投资人', fit:'medium', reason:'品类匹配' },
+    global_brand:        { label:'全球品牌终端', fit:'medium', reason:'品类匹配' },
+    ai_startup:          { label:'AI创业公司', fit:'low', reason:'需行业关键词匹配' },
+    web3_project:        { label:'Web3/加密项目', fit:'low', reason:'需行业关键词匹配' },
+    cn_enterprise:       { label:'中国企业终端', fit:'medium', reason:'品类匹配' },
+    domain_flipper:      { label:'域名短线交易者', fit:'medium', reason:'品类匹配' }
+  };
+
+  // L1 命中 → 数字收藏家/中国投资人加强
+  if (layersHit.has('L1')) {
+    profiles.push({ ...baseProfiles.digital_collector, fit:'high', reason:'数字结构命中·数字域名核心买家' });
+    profiles.push({ ...baseProfiles.cn_investor, fit:'high', reason:'中国数字域名市场活跃·核心买家' });
+    profiles.push({ ...baseProfiles.domain_flipper, fit:'high', reason:'数字域名流通性好·短线交易热门品类' });
+  }
+
+  // L2 命中 → 中国企业终端加强
+  if (layersHit.has('L2')) {
+    profiles.push({ ...baseProfiles.cn_enterprise, fit:'high', reason:'中文声母/拼音命中·中国企业品牌直接匹配' });
+    profiles.push({ ...baseProfiles.cn_investor, fit:'high', reason:'中文域名·中国投资人核心品类' });
+  }
+
+  // L3 命中 → 全球品牌终端加强
+  if (layersHit.has('L3')) {
+    profiles.push({ ...baseProfiles.global_brand, fit:'high', reason:'英文单词命中·全球品牌终端直接匹配' });
+    profiles.push({ ...baseProfiles.domain_flipper, fit:'medium', reason:'英文单词域名流通性中·精品域名' });
+  }
+
+  // L4 命中 → AI/Web3 创业公司加强
+  if (layersHit.has('L4')) {
+    profiles.push({ ...baseProfiles.ai_startup, fit:'high', reason:'热门行业词命中·AI赛道核心买家' });
+    profiles.push({ ...baseProfiles.web3_project, fit:'high', reason:'热门行业词命中·Web3赛道核心买家' });
+  }
+
+  // L5 命中 → AI创业公司加强
+  if (layersHit.has('L5')) {
+    profiles.push({ ...baseProfiles.ai_startup, fit:'high', reason:'AI工具组合命中·AI创业公司首选命名范式' });
+  }
+
+  // 补充缺失的默认画像
+  const added = new Set(profiles.map(p => p.label));
+  for (const [key, bp] of Object.entries(baseProfiles)) {
+    if (!added.has(bp.label)) {
+      profiles.push({ ...bp });
+      added.add(bp.label);
+    }
+  }
+
+  return profiles;
+}
 
 // ── THEME ──
 (function(){
@@ -1380,9 +1688,9 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
     regional_modifiers: null,  // [RESERVED v6.5] v6.4 恒为 null，任何代码路径读取此字段视为回归失败
     _regional_modifiers_note: '[RESERVED v6.5] v6.4: not active, not used in pricing. v6.5 only.',
     version_manifest: {
-      schema_version: '6.5-R0b',
-      core_rules_version: '6.5-R0b',
-      commit_hash: 'v65r0b',
+      schema_version: '6.5-R0c',
+      core_rules_version: '6.5-R0c',
+      commit_hash: 'v65r0c',
       release_date: '2026-06-24',
       baseline_regression_count: 27
     },
@@ -1397,7 +1705,18 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
     expert_judgment: (() => {
       const pi = detectPattern(sld);
       const has4 = pi ? pi.hasFour : /4/.test(sld);
-      return expertJudgment(sld, pi, has4);
+      const ruleHits = matchRules(sld, asset.id);
+      const buyerFit = inferBuyerFit(ruleHits, asset.id);
+      return {
+        version: 'v6.5-R0c',
+        auto_pricing_allowed: false,
+        review_level: 'manual_review_only',
+        rule_hits: ruleHits.map(r => ({ rule_id: r.id, layer: r.layer, label: r.label, effect: r.effect, reason: r.reason })),
+        rule_hit_count: ruleHits.length,
+        layers_hit: [...new Set(ruleHits.map(r => r.layer))],
+        buyer_fit: buyerFit,
+        pattern_judgment: expertJudgment(sld, pi, has4)
+      };
     })()
   }, null, 2);
 
@@ -1406,7 +1725,7 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
     : '';
 
   return `# DOMAIN_VALUATION_PACK.md
-> 生成时间：${now} | 系统：Domain AI Judge v6.5-R0b | 规则：CORE_RULES v2
+> 生成时间：${now} | 系统：Domain AI Judge v6.5-R0c | 规则：CORE_RULES v2
 > ⚠️ 本文档为系统初步判断，最终价格以实际市场成交为准
 > 📦 数据来源：静态规则库 / 用户录入 / 待人工复核（live_market_checked: false）
 ${activeBrandBanner}---
@@ -1569,7 +1888,7 @@ ${materialData}
 
 ---
 
-*DOMAIN_VALUATION_PACK.md · Domain AI Judge v6.5-R0b · CORE_RULES v2 · 静态规则库 · ${now}*
+*DOMAIN_VALUATION_PACK.md · Domain AI Judge v6.5-R0c · CORE_RULES v2 · 静态规则库 · ${now}*
 `;
 }
 
@@ -1650,7 +1969,7 @@ function detectPattern(sld) {
   return { pattern, hasFour, hasZero, patternBorder, fourBorder, isFullSeq, isRepeat, isPalindrome, isTailSeq: effectiveIsTailSeq, isLucky, digits };
 }
 
-// ── v6.5-R0b: Expert Judgment Layer ──
+// ── v6.5-R0c: Expert Judgment Layer ──
 function expertJudgment(sld, patternInfo, has4) {
   const judgments = {
     full_sequence: {
@@ -1829,30 +2148,79 @@ function renderPattern(sld, patternInfo) {
   }
 }
 
-// ── v6.5-R0b: Expert Judgment UI Render ──
-function renderExpertJudgment(sld, patternInfo) {
+// ── v6.5-R0c: Expert Judgment UI Render ──
+// 5-layer chips + rule_hits + buyer_fit cards
+function renderExpertJudgment(sld, patternInfo, asset) {
   const section = document.getElementById('expertSection');
-  if (!patternInfo || sld.length !== 5 || !/^\d{5}$/.test(sld)) {
-    section.style.display = 'none';
-    return;
+  
+  // Always show for all domains (not just 5-digit)
+  section.style.display = 'block';
+
+  const ruleHits = matchRules(sld, asset ? asset.id : null);
+  const buyerFit = inferBuyerFit(ruleHits, asset ? asset.id : null);
+
+  // ── Layer Chips ──
+  const layerCounts = { L1:0, L2:0, L3:0, L4:0, L5:0 };
+  ruleHits.forEach(r => { if (layerCounts[r.layer] !== undefined) layerCounts[r.layer]++; });
+  const layersEl = document.getElementById('expertLayers');
+  const chips = layersEl.querySelectorAll('.expert-layer-chip');
+  chips.forEach(chip => {
+    const layer = chip.getAttribute('data-layer');
+    const count = layerCounts[layer] || 0;
+    const countSpan = chip.querySelector('.chip-count');
+    countSpan.textContent = count;
+    chip.classList.toggle('active', count > 0);
+  });
+
+  // ── Rule Hits ──
+  const ruleHitsEl = document.getElementById('expertRuleHits');
+  if (ruleHits.length > 0) {
+    ruleHitsEl.innerHTML = ruleHits.map(r =>
+      `<div class="expert-rule-hit">
+        <span class="hit-layer">${r.layer}</span><span class="hit-id">${r.id}</span>
+        <div class="hit-label">${r.label}</div>
+        <div class="hit-effect">${r.effect}</div>
+      </div>`
+    ).join('');
+  } else {
+    ruleHitsEl.innerHTML = '<div class="expert-empty">无专家规则命中 — 该域名未匹配任何已知模式</div>';
   }
 
-  const has4 = patternInfo.hasFour;
-  const j = expertJudgment(sld, patternInfo, has4);
+  // ── Buyer Fit ──
+  const buyerFitEl = document.getElementById('expertBuyerFit');
+  buyerFitEl.innerHTML = buyerFit.map(bf =>
+    `<div class="expert-buyer-card">
+      <div class="bf-label">${bf.label}</div>
+      <span class="bf-fit ${bf.fit}">${bf.fit === 'high' ? '高适配' : bf.fit === 'medium' ? '中适配' : '低适配'}</span>
+      <div class="bf-reason">${bf.reason}</div>
+    </div>`
+  ).join('');
 
-  section.style.display = 'block';
-  document.getElementById('expPatternQualityVal').textContent = j.pattern_quality;
-  document.getElementById('expLiquidityVal').textContent = j.liquidity_signal;
-  document.getElementById('expCnBiasVal').textContent = j.cn_market_bias;
-  document.getElementById('expPositionVal').textContent = j.relative_position;
-  document.getElementById('expPricingVal').textContent = 'manual_review_only（禁止自动定价）';
+  // ── Version Badge ──
+  document.getElementById('expVersion').textContent = ruleHits.length > 0 ? `${ruleHits.length} hits / 67 rules` : '67 rules';
 
-  const has4El = document.getElementById('expHas4');
-  if (j.has4_annotation) {
-    has4El.style.display = 'flex';
-    document.getElementById('expHas4Text').textContent = j.has4_annotation;
+  // ── Pattern Judgment (5-digit only) ──
+  const patternGrid = document.getElementById('expertPatternGrid');
+  if (patternInfo && sld.length === 5 && /^\d{5}$/.test(sld)) {
+    patternGrid.style.display = '';
+    const has4 = patternInfo.hasFour;
+    const j = expertJudgment(sld, patternInfo, has4);
+    document.getElementById('expPatternQualityVal').textContent = j.pattern_quality;
+    document.getElementById('expLiquidityVal').textContent = j.liquidity_signal;
+    document.getElementById('expCnBiasVal').textContent = j.cn_market_bias;
+    document.getElementById('expPositionVal').textContent = j.relative_position;
+    document.getElementById('expPricingVal').textContent = 'manual_review_only（禁止自动定价）';
+
+    const has4El = document.getElementById('expHas4');
+    if (j.has4_annotation) {
+      has4El.style.display = 'flex';
+      document.getElementById('expHas4Text').textContent = j.has4_annotation;
+    } else {
+      has4El.style.display = 'none';
+    }
   } else {
-    has4El.style.display = 'none';
+    patternGrid.style.display = 'none';
+    document.getElementById('expHas4').style.display = 'none';
   }
 }
 
@@ -1933,8 +2301,8 @@ function analyze() {
       // Stage1b: Pattern detection for NNNNN_COM
       const patternInfo = detectPattern(parsed.sld);
       renderPattern(parsed.sld, patternInfo);
-      // v6.5-R0b: Expert Judgment
-      renderExpertJudgment(parsed.sld, patternInfo);
+      // v6.5-R0c: Expert Judgment (5-layer chips + rule_hits + buyer_fit)
+      renderExpertJudgment(parsed.sld, patternInfo, asset);
 
     } catch(e) { document.getElementById('results').classList.add('visible'); }
 

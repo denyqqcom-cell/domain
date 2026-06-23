@@ -1,0 +1,678 @@
+{
+  "$schema": "expert_rules/v1",
+  "version": "v6.5-R0c",
+  "description": "Expert rules skeleton — 5-layer domain valuation judgment engine. All rules require manual review; auto_pricing_allowed=false across all layers.",
+  "created": "2026-06-24",
+  "total_rules": 67,
+  "layers": {
+    "L1_digital_structure": {
+      "label": "数字结构识别层",
+      "description": "基于 detectPattern() 的 5-digit 数字结构模式识别，检测 full_sequence/repeat/palindrome/tail_sequence/lucky/has4/has0",
+      "source_basis": "detectPattern() in index.html — 已有成熟实现，可直接复用",
+      "rules": [
+        {
+          "rule_id": "L1-R001",
+          "label": "全顺子 full_sequence",
+          "effect": "pattern_quality 极稀缺·收藏级，liquidity_signal 高流动性，pricing_effect manual_review_only",
+          "reason": "5位完全连续数字（12345/54321等），全球认知统一，五数字最高品相，全顺子稀缺仅~10个",
+          "category": "digital_structure",
+          "source_basis": "detectPattern full_sequence — isFullSeq 判定逻辑",
+          "detect_logic": "digits[i] === digits[i-1] ± 1 for i=1..4",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L1-R002",
+          "label": "豹子号 repeat (全同)",
+          "effect": "pattern_quality 极稀缺·豹子号，liquidity_signal 高流动性·收藏级，pricing_effect manual_review_only",
+          "reason": "五同号全球仅10个(00000-99999)，8豹子88888为终极财富符号溢价50-200×",
+          "category": "digital_structure",
+          "source_basis": "detectPattern repeat — digitSet.size===1 判定逻辑",
+          "detect_logic": "digitSet.size === 1 || (digits[0]===0 && trailing 4 same)",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L1-R003",
+          "label": "前导0豹子 lead0_leopard",
+          "effect": "pattern_quality 稀有·前导0豹子，liquidity_signal 中高流动性，pricing_effect manual_review_only",
+          "reason": "前导0+尾4A同号(08888/09999等)，折价0.6-0.8×于全位豹子，但仍是豹子号子类",
+          "category": "digital_structure",
+          "source_basis": "detectPattern repeat — digits[0]===0 && trailing 4 same 判定路径",
+          "detect_logic": "digits[0]===0 && digits[1]===digits[2]===digits[3]===digits[4]",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L1-R004",
+          "label": "回文号 palindrome",
+          "effect": "pattern_quality 稀缺·回文对称，liquidity_signal 中高流动性，pricing_effect manual_review_only",
+          "reason": "前后对称结构(12321/98789)，视觉平衡记忆成本低，全球文化通用审美认可",
+          "category": "digital_structure",
+          "source_basis": "detectPattern palindrome — digits[0]===digits[4] && digits[1]===digits[3]",
+          "detect_logic": "digits[0]===digits[4] && digits[1]===digits[3]",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L1-R005",
+          "label": "尾顺子 tail_sequence",
+          "effect": "pattern_quality 良好·尾顺子，liquidity_signal 中高流动性，pricing_effect manual_review_only",
+          "reason": "尾部3-4位连续数字(如xxx234/xxx3456)，有一定视觉规整性，溢价5-15×",
+          "category": "digital_structure",
+          "source_basis": "detectPattern tail_sequence — last 3/4 consecutive digits",
+          "detect_logic": "tail-3 consecutive or tail-4 consecutive, suppressed when full_sequence",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L1-R006",
+          "label": "吉祥号 lucky",
+          "effect": "pattern_quality 中等·吉祥号，liquidity_signal 中等流动性，pricing_effect manual_review_only",
+          "reason": "不含0/4且含吉祥数字(6/8/9)，华人市场偏好，但供给量大溢价有限",
+          "category": "digital_structure",
+          "source_basis": "detectPattern lucky — !hasZero && !hasFour && digits.some(d=>[6,8,9].includes(d))",
+          "detect_logic": "no 0, no 4, at least one of {6,8,9}",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L1-R007",
+          "label": "含4 taboo_4",
+          "effect": "折价警告⚠️，含4域名在华人市场通常折价30-60%，pricing_effect manual_review_only",
+          "reason": "中国文化中4=死，含4域名需人工判断真实折价幅度，同行品相含4通常大幅折价",
+          "category": "digital_structure",
+          "source_basis": "detectPattern hasFour flag + expertJudgment has4_annotation",
+          "detect_logic": "digits.includes(4)",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L1-R008",
+          "label": "含0 has_zero",
+          "effect": "中性标记，含0不一定折价但需注意组合上下文，pricing_effect manual_review_only",
+          "reason": "0在中文市场中性（非禁忌），但含0的域名需结合整体数字组合判断价值",
+          "category": "digital_structure",
+          "source_basis": "detectPattern hasZero flag",
+          "detect_logic": "digits.includes(0)",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L1-R009",
+          "label": "普通号 ordinary",
+          "effect": "pattern_quality 普通品相，liquidity_signal 基础流动性，pricing_effect manual_review_only",
+          "reason": "无特殊数字结构规律，依靠价格优势非品相驱动流通，为五数字基础品相层级",
+          "category": "digital_structure",
+          "source_basis": "detectPattern ordinary — fallback when no special pattern matched",
+          "detect_logic": "no full_sequence/repeat/palindrome/tail_sequence/lucky",
+          "auto_pricing_allowed": false
+        }
+      ]
+    },
+    "L2_chinese_domain": {
+      "label": "中文域名识别层",
+      "description": "中文域名声母/双拼/谐音模式识别，覆盖20+常见声母组合、双拼输入法、数字谐音文化",
+      "source_basis": "中文互联网文化 + 拼音输入法体系 + 数字谐音民俗",
+      "rules": [
+        {
+          "rule_id": "L2-R001",
+          "label": "声母缩写 JF (解放/警方)",
+          "effect": "中文品牌/机构声母域名，终端价值显著，pricing_effect manual_review_only",
+          "reason": "高频中文声母组合，可匹配多个行业中文含义，品牌使用价值高",
+          "category": "chinese_domain",
+          "source_basis": "中文拼音声母缩写体系",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L2-R002",
+          "label": "声母缩写 SF (顺丰/司法)",
+          "effect": "中文品牌/机构声母域名，终端价值显著，pricing_effect manual_review_only",
+          "reason": "SF=顺丰速运/司法/神父等多义，品牌联想丰富",
+          "category": "chinese_domain",
+          "source_basis": "中文拼音声母缩写体系",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L2-R003",
+          "label": "声母缩写 XM (厦门/小米)",
+          "effect": "中文品牌/地名声母域名，terminal_value高，pricing_effect manual_review_only",
+          "reason": "XM=厦门/小米/熊猫/项目等多重含义，商业可塑性极强",
+          "category": "chinese_domain",
+          "source_basis": "中文拼音声母缩写体系",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L2-R004",
+          "label": "声母缩写 JD (京东/酒店)",
+          "effect": "中文电商/服务声母域名，品牌溢价高，pricing_effect manual_review_only",
+          "reason": "JD=京东/酒店/经典/鸡蛋，电商巨头联想强",
+          "category": "chinese_domain",
+          "source_basis": "中文拼音声母缩写体系",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L2-R005",
+          "label": "声母缩写 BJ (北京/编辑)",
+          "effect": "中文地名/行业声母域名，中国首都地理溢价，pricing_effect manual_review_only",
+          "reason": "BJ=北京/编辑/搬家/笔记，一線城市地理绑定",
+          "category": "chinese_domain",
+          "source_basis": "中文拼音声母缩写体系",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L2-R006",
+          "label": "声母缩写 SH (上海)",
+          "effect": "中文地名声母域名，上海地理溢价，pricing_effect manual_review_only",
+          "reason": "SH=上海，中国最大城市，国际化商业价值",
+          "category": "chinese_domain",
+          "source_basis": "中文拼音声母缩写体系",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L2-R007",
+          "label": "声母缩写 GZ (广州/关注)",
+          "effect": "中文地名/网络声母域名，pricing_effect manual_review_only",
+          "reason": "GZ=广州/关注/工作，一线城市+高频动词",
+          "category": "chinese_domain",
+          "source_basis": "中文拼音声母缩写体系",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L2-R008",
+          "label": "声母缩写 SZ (深圳/数字)",
+          "effect": "中文地名/科技声母域名，pricing_effect manual_review_only",
+          "reason": "SZ=深圳/数字/设置/苏州，科技重镇+数字化联想",
+          "category": "chinese_domain",
+          "source_basis": "中文拼音声母缩写体系",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L2-R009",
+          "label": "声母缩写 CD (成都/磁带)",
+          "effect": "中文地名声母域名，pricing_effect manual_review_only",
+          "reason": "CD=成都/磁带/传导，新一线城市代表",
+          "category": "chinese_domain",
+          "source_basis": "中文拼音声母缩写体系",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L2-R010",
+          "label": "声母缩写 WH (武汉/文化)",
+          "effect": "中文地名/文化声母域名，pricing_effect manual_review_only",
+          "reason": "WH=武汉/文化/外汇，华中中心城市",
+          "category": "chinese_domain",
+          "source_basis": "中文拼音声母缩写体系",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L2-R011",
+          "label": "声母缩写 NJ (南京)",
+          "effect": "中文地名声母域名，pricing_effect manual_review_only",
+          "reason": "NJ=南京，六朝古都，历史+现代城市价值",
+          "category": "chinese_domain",
+          "source_basis": "中文拼音声母缩写体系",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L2-R012",
+          "label": "声母缩写 TJ (天津/统计)",
+          "effect": "中文地名/统计声母域名，pricing_effect manual_review_only",
+          "reason": "TJ=天津/统计/推荐，直辖市+数据行业",
+          "category": "chinese_domain",
+          "source_basis": "中文拼音声母缩写体系",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L2-R013",
+          "label": "声母缩写 CQ (重庆/传奇)",
+          "effect": "中文地名/网络声母域名，pricing_effect manual_review_only",
+          "reason": "CQ=重庆/传奇/春秋，西部最大直辖市",
+          "category": "chinese_domain",
+          "source_basis": "中文拼音声母缩写体系",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L2-R014",
+          "label": "声母缩写 DL (大连/代理)",
+          "effect": "中文地名/商业声母域名，pricing_effect manual_review_only",
+          "reason": "DL=大连/代理/登录，东北门户+商业术语",
+          "category": "chinese_domain",
+          "source_basis": "中文拼音声母缩写体系",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L2-R015",
+          "label": "声母缩写 ZG (中国)",
+          "effect": "中文国家标识声母域名，极高品牌价值，pricing_effect manual_review_only",
+          "reason": "ZG=中国，国家级缩写，品牌权威性最高",
+          "category": "chinese_domain",
+          "source_basis": "中文拼音声母缩写体系",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L2-R016",
+          "label": "声母缩写 YX (游戏/营销)",
+          "effect": "中文行业/动词声母域名，pricing_effect manual_review_only",
+          "reason": "YX=游戏/营销/邮箱/英雄，互联网+娱乐行业",
+          "category": "chinese_domain",
+          "source_basis": "中文拼音声母缩写体系",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L2-R017",
+          "label": "声母缩写 XX (学习/信息)",
+          "effect": "中文通用声母域名，pricing_effect manual_review_only",
+          "reason": "XX=学习/信息/消息/形象，高频通用词汇",
+          "category": "chinese_domain",
+          "source_basis": "中文拼音声母缩写体系",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L2-R018",
+          "label": "声母缩写 JS (江苏/技术)",
+          "effect": "中文地名/技术声母域名，pricing_effect manual_review_only",
+          "reason": "JS=江苏/技术/建设/结束，经济大省+IT行业",
+          "category": "chinese_domain",
+          "source_basis": "中文拼音声母缩写体系",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L2-R019",
+          "label": "声母缩写 HZ (杭州/合作)",
+          "effect": "中文地名/商务声母域名，pricing_effect manual_review_only",
+          "reason": "HZ=杭州/合作/惠州/护照，互联网之都",
+          "category": "chinese_domain",
+          "source_basis": "中文拼音声母缩写体系",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L2-R020",
+          "label": "声母缩写 GD (广东/广电)",
+          "effect": "中文省份/媒体声母域名，pricing_effect manual_review_only",
+          "reason": "GD=广东/广电/高度/固定，最大经济省份",
+          "category": "chinese_domain",
+          "source_basis": "中文拼音声母缩写体系",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L2-R021",
+          "label": "双拼 shuangpin 全拼音域名",
+          "effect": "中文完整拼音域名，记忆成本低，brandable，pricing_effect manual_review_only",
+          "reason": "完整拼音如 fangdai(房贷)/weixin(微信)，无缩写歧义，终端辨识度最高",
+          "category": "chinese_domain",
+          "source_basis": "中文拼音输入法体系 — 双拼/全拼",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L2-R022",
+          "label": "数字谐音 520 (我爱你)",
+          "effect": "数字谐音域名，感情/社交行业高溢价，pricing_effect manual_review_only",
+          "reason": "520=我爱你，515=勿忘我，数字谐音域名在婚恋/社交/礼品行业有独特品牌价值",
+          "category": "chinese_domain",
+          "source_basis": "中文数字谐音民俗 — 520/1314/7456 等",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L2-R023",
+          "label": "数字谐音 1314 (一生一世)",
+          "effect": "数字谐音域名，婚恋/钟表/珠宝行业高溢价，pricing_effect manual_review_only",
+          "reason": "1314=一生一世，1314520=一生一世我爱你，顶级数字谐音组合",
+          "category": "chinese_domain",
+          "source_basis": "中文数字谐音民俗 — 1314/3344 等",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L2-R024",
+          "label": "数字谐音 168 (一路发)",
+          "effect": "数字谐音域名，商业/贸易行业偏好，pricing_effect manual_review_only",
+          "reason": "168=一路发，粤语文化圈商业吉祥号，广东/香港市场高溢价",
+          "category": "chinese_domain",
+          "source_basis": "中文数字谐音民俗 — 168/888 等",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L2-R025",
+          "label": "数字谐音 995 (救救我)",
+          "effect": "数字谐音域名，公益/急救行业可匹配，pricing_effect manual_review_only",
+          "reason": "995=救救我，9494=就是就是，网络用语谐音域名",
+          "category": "chinese_domain",
+          "source_basis": "中文数字谐音民俗",
+          "auto_pricing_allowed": false
+        }
+      ]
+    },
+    "L3_english_word": {
+      "label": "英文单词识别层",
+      "description": "英文顶级词典单词/行业缩写/可发音品牌识别",
+      "source_basis": "英文词典 + 行业术语 + 品牌命名惯例",
+      "rules": [
+        {
+          "rule_id": "L3-R001",
+          "label": "顶级短词 mom (3字母)",
+          "effect": "顶级英文单词域名，通用性强、全球搜索量高，pricing_effect manual_review_only",
+          "reason": "mom=母亲，全球最高频家庭词汇之一，电商/母婴/社交均可匹配",
+          "category": "english_word",
+          "source_basis": "英文词典词汇 — 高频短词分类",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L3-R002",
+          "label": "顶级短词 pedal (5字母)",
+          "effect": "通用物理词汇，运动/交通行业匹配，pricing_effect manual_review_only",
+          "reason": "pedal=踏板，自行车/汽车/音乐器材行业均有匹配",
+          "category": "english_word",
+          "source_basis": "英文词典词汇 — 物理/工具分类",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L3-R003",
+          "label": "顶级短词 derm (4字母)",
+          "effect": "医学专业词汇，皮肤科/医美垂直行业，pricing_effect manual_review_only",
+          "reason": "derm=皮肤(医学术语)，皮肤科学科缩写，dermatology词根",
+          "category": "english_word",
+          "source_basis": "英文词典词汇 — 医学术语分类",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L3-R004",
+          "label": "顶级短词 byte (4字母)",
+          "effect": "计算机基础词汇，全球科技行业通用，pricing_effect manual_review_only",
+          "reason": "byte=字节，计算机科学基础单位，IT行业最基础词汇之一",
+          "category": "english_word",
+          "source_basis": "英文词典词汇 — 科技术语分类",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L3-R005",
+          "label": "顶级短词 nova (4字母)",
+          "effect": "通用品牌词汇，天文/科技/汽车行业均可，pricing_effect manual_review_only",
+          "reason": "nova=新星，华为手机系列、雪佛兰车型、多品牌共用词",
+          "category": "english_word",
+          "source_basis": "英文词典词汇 — 品牌化通用词",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L3-R006",
+          "label": "行业缩写 med (医疗)",
+          "effect": "医疗行业缩写域名，医疗科技/健康管理终端，pricing_effect manual_review_only",
+          "reason": "med=medical，全球医疗行业统一缩写，medtech/medicare行业",
+          "category": "english_word",
+          "source_basis": "行业缩写体系 — 医疗 vertical",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L3-R007",
+          "label": "行业缩写 fintech (金融科技)",
+          "effect": "金融科技行业缩写，fin/tech组合高价值，pricing_effect manual_review_only",
+          "reason": "fin=finance，tech=technology，金融科技为全球最热门赛道之一",
+          "category": "english_word",
+          "source_basis": "行业缩写体系 — 金融科技 vertical",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L3-R008",
+          "label": "行业缩写 AI (人工智能)",
+          "effect": "AI缩写域名，全球最高科技热度，pricing_effect manual_review_only",
+          "reason": "AI=artificial intelligence，2023-2026最强科技关键词",
+          "category": "english_word",
+          "source_basis": "行业缩写体系 — AI vertical",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L3-R009",
+          "label": "行业缩写 dev (开发)",
+          "effect": "开发行业缩写域名，DevOps/SaaS行业，pricing_effect manual_review_only",
+          "reason": "dev=developer/development，软件开发行业核心缩写",
+          "category": "english_word",
+          "source_basis": "行业缩写体系 — 开发 vertical",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L3-R010",
+          "label": "行业缩写 bio (生物)",
+          "effect": "生物科技行业缩写域名，pricing_effect manual_review_only",
+          "reason": "bio=biology/biotech，生物制药/基因工程行业",
+          "category": "english_word",
+          "source_basis": "行业缩写体系 — 生物科技 vertical",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L3-R011",
+          "label": "行业缩写 IoT (物联网)",
+          "effect": "物联网行业缩写域名，IoT/智能设备赛道，pricing_effect manual_review_only",
+          "reason": "IoT=Internet of Things，万物互联行业统一缩写",
+          "category": "english_word",
+          "source_basis": "行业缩写体系 — 物联网 vertical",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L3-R012",
+          "label": "可发音品牌 brandable",
+          "effect": "英文可发音短词，CVC/VCV结构，品牌可塑性高，pricing_effect manual_review_only",
+          "reason": "符合英文音韵规则的短词(如zola/miro/tiko)，可作为全新品牌命名建立",
+          "category": "english_word",
+          "source_basis": "Brandable域名命名惯例 — CVC/VCV/品牌音韵",
+          "auto_pricing_allowed": false
+        }
+      ]
+    },
+    "L4_hot_industry": {
+      "label": "热门行业词识别层",
+      "description": "2024-2026年AI/Web3/Cloud/数据赛道最热门行业关键词识别",
+      "source_basis": "行业热度数据 + a16z/YC/红杉投资趋势 + Google Trends 2024-2026",
+      "rules": [
+        {
+          "rule_id": "L4-R001",
+          "label": "AGENT (AI代理)",
+          "effect": "2025-2026最热关键词，AI Agent赛道核心，pricing_effect manual_review_only",
+          "reason": "AI Agent为2025-2026年AI领域最大叙事，Anthropic/OpenAI/Google全面投入Agent生态",
+          "category": "hot_industry",
+          "source_basis": "行业热度 — AI Agent赛道 (2025-2026)",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L4-R002",
+          "label": "SKILLS (AI技能)",
+          "effect": "AI Agent生态关键词，插件/技能市场核心，pricing_effect manual_review_only",
+          "reason": "Skills=AI Agent能力扩展体系，Agent技能市场为关键基础设施",
+          "category": "hot_industry",
+          "source_basis": "行业热度 — Agent Skills ecosystem",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L4-R003",
+          "label": "EXCHANGE (交易所)",
+          "effect": "金融/加密货币交易所行业词，pricing_effect manual_review_only",
+          "reason": "Exchange=交易所，Crypto/DEX/CEX核心词汇，全球金融基础设施",
+          "category": "hot_industry",
+          "source_basis": "行业热度 — Crypto/金融交易所",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L4-R004",
+          "label": "LLM (大语言模型)",
+          "effect": "AI核心赛道词汇，LLM为2023-2026最强技术关键词，pricing_effect manual_review_only",
+          "reason": "LLM=Large Language Model，大语言模型/基础模型赛道，所有AI公司核心",
+          "category": "hot_industry",
+          "source_basis": "行业热度 — LLM/基础模型赛道",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L4-R005",
+          "label": "RWA (真实世界资产)",
+          "effect": "Web3/DeFi热门赛道关键词，RWA Tokenization，pricing_effect manual_review_only",
+          "reason": "RWA=Real World Assets，真实资产上链为2024-2026 DeFi最大叙事",
+          "category": "hot_industry",
+          "source_basis": "行业热度 — RWA/Tokenization赛道",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L4-R006",
+          "label": "DEFI (去中心化金融)",
+          "effect": "Web3核心赛道关键词，DeFi为加密行业基础设施，pricing_effect manual_review_only",
+          "reason": "DeFi=Decentralized Finance，加密行业核心赛道，DEX/借贷/衍生品",
+          "category": "hot_industry",
+          "source_basis": "行业热度 — DeFi赛道",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L4-R007",
+          "label": "WALLET (钱包)",
+          "effect": "金融/加密/支付核心词汇，Wallet覆盖多行业，pricing_effect manual_review_only",
+          "reason": "Wallet=钱包，加密钱包/数字支付/Apple Wallet，覆盖面极广",
+          "category": "hot_industry",
+          "source_basis": "行业热度 — 数字钱包/支付",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L4-R008",
+          "label": "PAY (支付)",
+          "effect": "支付行业核心缩写，全球Fintech基础词汇，pricing_effect manual_review_only",
+          "reason": "Pay=支付，Stripe/PayPal/Square等全球支付巨头核心词汇",
+          "category": "hot_industry",
+          "source_basis": "行业热度 — 支付/Fintech",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L4-R009",
+          "label": "CLOUD (云)",
+          "effect": "云计算核心词汇，AWS/GCP/Azure三大云，pricing_effect manual_review_only",
+          "reason": "Cloud=云计算，全球企业IT基础设施核心概念",
+          "category": "hot_industry",
+          "source_basis": "行业热度 — 云计算赛道",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L4-R010",
+          "label": "CODE (代码)",
+          "effect": "软件开发核心词汇，全球开发者生态基础，pricing_effect manual_review_only",
+          "reason": "Code=代码，GitHub/GitLab/Cursor等开发者工具生态核心词",
+          "category": "hot_industry",
+          "source_basis": "行业热度 — 开发者工具赛道",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L4-R011",
+          "label": "DATA (数据)",
+          "effect": "数据行业核心词汇，AI/大数据/数据科学基础，pricing_effect manual_review_only",
+          "reason": "Data=数据，AI训练数据/Databricks/Snowflake/数据基础设施",
+          "category": "hot_industry",
+          "source_basis": "行业热度 — 数据基础设施赛道",
+          "auto_pricing_allowed": false
+        }
+      ]
+    },
+    "L5_ai_tool_combo": {
+      "label": "AI工具组合识别层",
+      "description": "codeai/bookai/mapai/phoneai/penai 等 [工具]+ai 组合模式识别，2024-2026 AI应用命名范式",
+      "source_basis": "AI产品命名趋势 — X+AI/Specific-domain+AI 命名范式",
+      "rules": [
+        {
+          "rule_id": "L5-R001",
+          "label": "codeai (编程AI工具)",
+          "effect": "AI+编程工具组合域名，Developer AI赛道核心，pricing_effect manual_review_only",
+          "reason": "codeai=AI编程助手，GitHub Copilot/Cursor/Windsurf等AI编程工具热潮下的命名范式",
+          "category": "ai_tool_combo",
+          "source_basis": "AI工具命名范式 — {domain}+AI pattern",
+          "combo_pattern": "{tool}+ai",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L5-R002",
+          "label": "bookai (阅读AI工具)",
+          "effect": "AI+阅读/知识工具组合域名，Education AI赛道，pricing_effect manual_review_only",
+          "reason": "bookai=AI阅读助手/AI知识管理，Notion AI/Readwise等AI+知识赛道",
+          "category": "ai_tool_combo",
+          "source_basis": "AI工具命名范式 — {domain}+AI pattern",
+          "combo_pattern": "{tool}+ai",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L5-R003",
+          "label": "mapai (地图AI工具)",
+          "effect": "AI+地理位置/导航组合域名，Spatial AI赛道，pricing_effect manual_review_only",
+          "reason": "mapai=AI地图/AI导航，Google Maps AI/自动驾驶/LBS AI赛道",
+          "category": "ai_tool_combo",
+          "source_basis": "AI工具命名范式 — {domain}+AI pattern",
+          "combo_pattern": "{tool}+ai",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L5-R004",
+          "label": "phoneai (手机AI工具)",
+          "effect": "AI+通讯/手机组合域名，AI Phone/通讯AI赛道，pricing_effect manual_review_only",
+          "reason": "phoneai=AI手机/AI通讯助手，Apple Intelligence/三星Galaxy AI/手机AI Agent趋势",
+          "category": "ai_tool_combo",
+          "source_basis": "AI工具命名范式 — {domain}+AI pattern",
+          "combo_pattern": "{tool}+ai",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L5-R005",
+          "label": "penai (写作AI工具)",
+          "effect": "AI+写作/创作组合域名，Content AI赛道，pricing_effect manual_review_only",
+          "reason": "penai=AI写作助手，Jasper/Copy.ai/Writer等AI内容创作赛道",
+          "category": "ai_tool_combo",
+          "source_basis": "AI工具命名范式 — {domain}+AI pattern",
+          "combo_pattern": "{tool}+ai",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L5-R006",
+          "label": "docai (文档AI工具)",
+          "effect": "AI+文档/办公组合域名，Productivity AI赛道，pricing_effect manual_review_only",
+          "reason": "docai=AI文档处理，Microsoft Copilot/Google Docs AI/Notion AI等办公AI",
+          "category": "ai_tool_combo",
+          "source_basis": "AI工具命名范式 — {domain}+AI pattern",
+          "combo_pattern": "{tool}+ai",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L5-R007",
+          "label": "videoai (视频AI工具)",
+          "effect": "AI+视频/剪辑组合域名，Video AI赛道，pricing_effect manual_review_only",
+          "reason": "videoai=AI视频生成/剪辑，RunwayML/Sora/Pika等AI视频赛道",
+          "category": "ai_tool_combo",
+          "source_basis": "AI工具命名范式 — {domain}+AI pattern",
+          "combo_pattern": "{tool}+ai",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L5-R008",
+          "label": "imageai (图片AI工具)",
+          "effect": "AI+图像/设计组合域名，Image Generation AI赛道，pricing_effect manual_review_only",
+          "reason": "imageai=AI图像生成/编辑，Midjourney/DALL-E/Stable Diffusion等AI图像赛道",
+          "category": "ai_tool_combo",
+          "source_basis": "AI工具命名范式 — {domain}+AI pattern",
+          "combo_pattern": "{tool}+ai",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L5-R009",
+          "label": "ai+行业 ai_fintech",
+          "effect": "AI+行业垂直组合域名，Vertical AI赛道，pricing_effect manual_review_only",
+          "reason": "AI+行业词命名模式(如aifin/aimed/ailegal)，垂直AI应用命名范式",
+          "category": "ai_tool_combo",
+          "source_basis": "AI工具命名范式 — ai+{industry} or {industry}+ai pattern",
+          "combo_pattern": "ai+{vertical}",
+          "auto_pricing_allowed": false
+        },
+        {
+          "rule_id": "L5-R010",
+          "label": "其他XYZai可发音short组合",
+          "effect": "泛AI工具命名，遵循{short English word}+AI模式，pricing_effect manual_review_only",
+          "reason": "XYZai范式中XYZ为3-5字母英文实词+ai后缀，AI时代创业公司最主流命名范式",
+          "category": "ai_tool_combo",
+          "source_basis": "AI工具命名范式 — 泛{word}+AI 通用模式",
+          "combo_pattern": "{3-5 letter English word}+ai",
+          "auto_pricing_allowed": false
+        }
+      ]
+    }
+  },
+  "global_constraints": {
+    "auto_pricing_allowed": false,
+    "review_level": "manual_review_only",
+    "note": "所有规则禁止自动定价。每一条命中规则都需要人工审核 context + market_conditions + comparable_sales 后方可定价。"
+  },
+  "integration_points": {
+    "detectPattern": "L1 数字结构层直接复用 detectPattern() 函数 (index.html L1580-1651)",
+    "expertJudgment": "L1 规则联动 expertJudgment() 函数 (index.html L1654-1711) 提供 pattern_quality/liquidity/cn_bias 标注",
+    "comparable_anchors": "所有规则应联动 comparable_anchors 可比成交数据库 (market_sales_engine.js)",
+    "cn_numeric_samples": "L1 参考 cn_numeric_samples.jsonl 真实成交样本进行规则校准",
+    "regional_modifiers": "L2 中文域名层与 v6.5 regional_modifiers 联动，提供中国市场需求侧加权"
+  }
+}
