@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>域名估值物料包生成器 v6.5-R0</title>
+<title>域名估值物料包生成器 v6.5-R0b</title>
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
 <style>
 /* ── TOKENS ── */
@@ -345,6 +345,47 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   color: #e8960a; font-weight: 700;
 }
 
+/* ── v6.5-R0b Expert Judgment ── */
+.expert-section {
+  margin-bottom: var(--space-6);
+  background: linear-gradient(135deg, rgba(232,150,10,0.04), rgba(232,150,10,0.01));
+  border: 1px solid rgba(232,150,10,0.2);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5);
+}
+.expert-section-title {
+  font-size: var(--text-sm); font-weight: 700; color: #e8960a;
+  margin-bottom: var(--space-4);
+  display: flex; align-items: center; gap: var(--space-2);
+}
+.expert-grid {
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  gap: var(--space-3);
+}
+@media (max-width: 900px) { .expert-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 600px) { .expert-grid { grid-template-columns: 1fr; } }
+.expert-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: var(--space-3) var(--space-4);
+}
+.expert-card .exp-label {
+  font-size: 0.7rem; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;
+}
+.expert-card .exp-value {
+  font-size: var(--text-xs); color: var(--text); line-height: 1.5;
+}
+.expert-has4 {
+  margin-top: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: rgba(232,150,10,0.08);
+  border: 1px solid rgba(232,150,10,0.25);
+  border-radius: var(--radius-md);
+  display: flex; align-items: flex-start; gap: var(--space-2);
+}
+.expert-has4-icon { font-size: 1.1rem; flex-shrink: 0; }
+.expert-has4-text { font-size: var(--text-xs); color: #e8960a; line-height: 1.5; }
+
 /* ── MARKDOWN PACK ── */
 .pack-section {
   background: var(--surface); border: 1px solid var(--border);
@@ -463,7 +504,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <circle cx="27" cy="10" r="4" fill="var(--gold)"/>
       </svg>
       <span class="logo-text">域名估值</span>
-      <span class="logo-version">v6.5-R0</span>
+      <span class="logo-version">v6.5-R0b</span>
     </div>
     <button class="theme-btn" data-theme-toggle aria-label="切换主题">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -630,6 +671,42 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
       </div>
     </div>
 
+    <!-- v6.5-R0b: Expert Judgment Layer -->
+    <div class="expert-section" id="expertSection" style="display:none;">
+      <div class="expert-section-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e8960a" stroke-width="2.5">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+        </svg>
+        专家判断层 Expert Judgment (v6.5-R0b)
+      </div>
+      <div class="expert-grid" id="expertGrid">
+        <div class="expert-card" id="expPatternQuality">
+          <div class="exp-label">品相判断 Pattern Quality</div>
+          <div class="exp-value" id="expPatternQualityVal">—</div>
+        </div>
+        <div class="expert-card" id="expLiquidity">
+          <div class="exp-label">流动性信号 Liquidity Signal</div>
+          <div class="exp-value" id="expLiquidityVal">—</div>
+        </div>
+        <div class="expert-card" id="expCnBias">
+          <div class="exp-label">中国市场偏好 CN Market Bias</div>
+          <div class="exp-value" id="expCnBiasVal">—</div>
+        </div>
+        <div class="expert-card" id="expPosition">
+          <div class="exp-label">相对定位 Relative Position</div>
+          <div class="exp-value" id="expPositionVal">—</div>
+        </div>
+        <div class="expert-card" id="expPricing">
+          <div class="exp-label">定价指令 Pricing Directive</div>
+          <div class="exp-value" id="expPricingVal">—</div>
+        </div>
+      </div>
+      <div class="expert-has4" id="expHas4" style="display:none;">
+        <span class="exp-has4-icon">⚠️</span>
+        <span class="exp-has4-text" id="expHas4Text"></span>
+      </div>
+    </div>
+
     <div class="pack-section">
       <div class="pack-header">
         <div class="pack-title">
@@ -664,12 +741,12 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   </div>
 
   <footer class="footer">
-    静态规则库 CORE_RULES v2 · Domain AI Judge v6.5-R0 · domain_status · acquirable · LLLL_COM · Price Floor Guard · 估值仅供参考，最终价格以实际市场成交为准
+    静态规则库 CORE_RULES v2 · Domain AI Judge v6.5-R0b · domain_status · acquirable · LLLL_COM · Price Floor Guard · 估值仅供参考，最终价格以实际市场成交为准
   </footer>
 </div>
 
 <script>
-// ── v6.5-R0 预埋开关（全部 false，零行为变化）──
+// ── v6.5-R0b 预埋开关（全部 false，零行为变化）──
 const V65_ENABLE_PATTERN_IN_PACK = false;
 const V65_ENABLE_HAS4_PENALTY = false;
 const V65_ENABLE_COMPARABLE_ANCHOR_PRICING = false;
@@ -1168,7 +1245,7 @@ function score6D(sld, tld, asset) {
     : asset.id === 'NNNNN_COM' ? 65
     : asset.id === 'GENERIC' ? 20
     : 60;
-  // v6.5-R0: has4 penalty (方案A: 内部自检测 sld.includes('4'))
+  // v6.5-R0b: has4 penalty (方案A: 内部自检测 sld.includes('4'))
   let has4 = false;
   let has4Penalty = false;
   if (V65_ENABLE_HAS4_PENALTY) {
@@ -1303,9 +1380,9 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
     regional_modifiers: null,  // [RESERVED v6.5] v6.4 恒为 null，任何代码路径读取此字段视为回归失败
     _regional_modifiers_note: '[RESERVED v6.5] v6.4: not active, not used in pricing. v6.5 only.',
     version_manifest: {
-      schema_version: '6.5-R0',
-      core_rules_version: '6.5-R0',
-      commit_hash: 'v65r0',
+      schema_version: '6.5-R0b',
+      core_rules_version: '6.5-R0b',
+      commit_hash: 'v65r0b',
       release_date: '2026-06-24',
       baseline_regression_count: 27
     },
@@ -1316,7 +1393,12 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
     potential_industries: industries,
     missing_data: ['NameBio历史成交','Whois持有人联系状态','商标查询','当前平台挂牌价'],
     risk_flags: risks,
-    ...(V65_ENABLE_PATTERN_IN_PACK ? { numeric_pattern: detectPattern(sld) } : {})
+    ...(V65_ENABLE_PATTERN_IN_PACK ? { numeric_pattern: detectPattern(sld) } : {}),
+    expert_judgment: (() => {
+      const pi = detectPattern(sld);
+      const has4 = pi ? pi.hasFour : /4/.test(sld);
+      return expertJudgment(sld, pi, has4);
+    })()
   }, null, 2);
 
   const activeBrandBanner = statusInfo.domain_status === 'active_brand'
@@ -1324,7 +1406,7 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
     : '';
 
   return `# DOMAIN_VALUATION_PACK.md
-> 生成时间：${now} | 系统：Domain AI Judge v6.5-R0 | 规则：CORE_RULES v2
+> 生成时间：${now} | 系统：Domain AI Judge v6.5-R0b | 规则：CORE_RULES v2
 > ⚠️ 本文档为系统初步判断，最终价格以实际市场成交为准
 > 📦 数据来源：静态规则库 / 用户录入 / 待人工复核（live_market_checked: false）
 ${activeBrandBanner}---
@@ -1487,7 +1569,7 @@ ${materialData}
 
 ---
 
-*DOMAIN_VALUATION_PACK.md · Domain AI Judge v6.5-R0 · CORE_RULES v2 · 静态规则库 · ${now}*
+*DOMAIN_VALUATION_PACK.md · Domain AI Judge v6.5-R0b · CORE_RULES v2 · 静态规则库 · ${now}*
 `;
 }
 
@@ -1566,6 +1648,66 @@ function detectPattern(sld) {
   }
 
   return { pattern, hasFour, hasZero, patternBorder, fourBorder, isFullSeq, isRepeat, isPalindrome, isTailSeq: effectiveIsTailSeq, isLucky, digits };
+}
+
+// ── v6.5-R0b: Expert Judgment Layer ──
+function expertJudgment(sld, patternInfo, has4) {
+  const judgments = {
+    full_sequence: {
+      pattern_quality: '纯顺子·极稀缺——五数字最高品相，12345/54321等完全顺子全球认知统一，流通性顶级',
+      liquidity_signal: '高流动性·收藏级——全顺子为数字域名硬通货，国内外买家共识强，变现周期短',
+      cn_market_bias: '中国买家偏好顺子号·硬通货——顺子在中国文化中代表"顺遂"，12345为典型象征，溢价空间大',
+      relative_position: '全顺子为五数字最优品相层级，高于尾顺子/豹子号/回文/吉祥/普通'
+    },
+    repeat: {
+      pattern_quality: '豹子号·极稀缺——五同号全球仅10个(00000-99999)，重复数字视觉冲击力强，记忆成本极低',
+      liquidity_signal: '高流动性·收藏级——豹子号为数字域名顶级品类，尤其8豹子溢价极高',
+      cn_market_bias: '中国文化最爱·豹子号溢价极高——88888为终极财富符号，66666为大顺，99999为长久',
+      relative_position: '豹子号为五数字顶级品相，与全顺子并列最优层级（8豹子商业价值最高）'
+    },
+    palindrome: {
+      pattern_quality: '回文号·稀缺规整——前后对称结构，视觉平衡，记忆成本低，全球文化通用审美认同',
+      liquidity_signal: '中高流动性·品相好——回文号在数字域名市场有稳定需求，变现难度低于普通号',
+      cn_market_bias: '回文在中国市场有额外认可——对称美学与中式审美契合，如12321寓意"来回顺"',
+      relative_position: '回文品相优于普通号及吉祥号，低于全顺子/豹子号'
+    },
+    tail_sequence: {
+      pattern_quality: '尾顺子·良好品相——尾部3-4位连续数字，有一定视觉规整性，记忆成本较低',
+      liquidity_signal: '中高流动性——尾顺子在市场中较常见但仍有溢价，流通性好于普通号',
+      cn_market_bias: '中国买家偏好顺子·尾顺有溢价——尾部顺子暗示"尾顺/一路顺"，有市场认知基础',
+      relative_position: '尾顺子品相优于普通号及吉祥号，低于全顺子/豹子号/回文'
+    },
+    lucky: {
+      pattern_quality: '吉祥号·不含0/4——全部由吉祥数字(6/8/9等)或中性数字组成，无禁忌数字',
+      liquidity_signal: '中等流动性——吉祥号在华人市场受青睐，但供给量大，溢价有限',
+      cn_market_bias: '中国买家偏好吉祥数字(6/8/9)——6=顺、8=发、9=久，但不含0/4是基本门槛而非加分项',
+      relative_position: '吉祥号品相优于含4域名，但低于有结构规律的全顺子/豹子/回文/尾顺子'
+    },
+    ordinary: {
+      pattern_quality: '普通品相——无特殊数字结构规律，记忆成本中等',
+      liquidity_signal: '基础流动性——普通号供给量大，依靠价格优势而非品相驱动流通',
+      cn_market_bias: '普通品相·无特殊溢价——需依靠系统规则定价，品相本身不产生额外市场加成',
+      relative_position: '普通号为五数字基础品相层级，所有结构规律品种均高于此'
+    }
+  };
+
+  const pattern = patternInfo ? patternInfo.pattern : 'ordinary';
+  const base = judgments[pattern] || judgments.ordinary;
+
+  let has4_annotation = null;
+  if (has4) {
+    has4_annotation = '⚠️ 含数字4·在中国市场中4被视为不吉利数字，同类品相中含4域名通常折价30-60%，需人工判断真实折价幅度';
+  }
+
+  return {
+    pattern_quality: base.pattern_quality,
+    liquidity_signal: base.liquidity_signal,
+    cn_market_bias: base.cn_market_bias,
+    relative_position: base.relative_position,
+    has4_annotation: has4_annotation,
+    pricing_effect: 'manual_review_only',
+    auto_pricing_allowed: false
+  };
 }
 
 function renderPattern(sld, patternInfo) {
@@ -1687,6 +1829,33 @@ function renderPattern(sld, patternInfo) {
   }
 }
 
+// ── v6.5-R0b: Expert Judgment UI Render ──
+function renderExpertJudgment(sld, patternInfo) {
+  const section = document.getElementById('expertSection');
+  if (!patternInfo || sld.length !== 5 || !/^\d{5}$/.test(sld)) {
+    section.style.display = 'none';
+    return;
+  }
+
+  const has4 = patternInfo.hasFour;
+  const j = expertJudgment(sld, patternInfo, has4);
+
+  section.style.display = 'block';
+  document.getElementById('expPatternQualityVal').textContent = j.pattern_quality;
+  document.getElementById('expLiquidityVal').textContent = j.liquidity_signal;
+  document.getElementById('expCnBiasVal').textContent = j.cn_market_bias;
+  document.getElementById('expPositionVal').textContent = j.relative_position;
+  document.getElementById('expPricingVal').textContent = 'manual_review_only（禁止自动定价）';
+
+  const has4El = document.getElementById('expHas4');
+  if (j.has4_annotation) {
+    has4El.style.display = 'flex';
+    document.getElementById('expHas4Text').textContent = j.has4_annotation;
+  } else {
+    has4El.style.display = 'none';
+  }
+}
+
 function analyze() {
   const raw = document.getElementById('domainInput').value.trim();
   if (!raw) return;
@@ -1764,6 +1933,8 @@ function analyze() {
       // Stage1b: Pattern detection for NNNNN_COM
       const patternInfo = detectPattern(parsed.sld);
       renderPattern(parsed.sld, patternInfo);
+      // v6.5-R0b: Expert Judgment
+      renderExpertJudgment(parsed.sld, patternInfo);
 
     } catch(e) { document.getElementById('results').classList.add('visible'); }
 
