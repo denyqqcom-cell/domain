@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>域名估值物料包生成器 v6.4.1-stage1</title>
+<title>域名估值物料包生成器 v6.5-R0</title>
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
 <style>
 /* ── TOKENS ── */
@@ -463,7 +463,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <circle cx="27" cy="10" r="4" fill="var(--gold)"/>
       </svg>
       <span class="logo-text">域名估值</span>
-      <span class="logo-version">v6.4.1-stage1</span>
+      <span class="logo-version">v6.5-R0</span>
     </div>
     <button class="theme-btn" data-theme-toggle aria-label="切换主题">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -664,11 +664,16 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   </div>
 
   <footer class="footer">
-    静态规则库 CORE_RULES v2 · Domain AI Judge v6.4.1-stage1 · domain_status · acquirable · LLLL_COM · Price Floor Guard · 估值仅供参考，最终价格以实际市场成交为准
+    静态规则库 CORE_RULES v2 · Domain AI Judge v6.5-R0 · domain_status · acquirable · LLLL_COM · Price Floor Guard · 估值仅供参考，最终价格以实际市场成交为准
   </footer>
 </div>
 
 <script>
+// ── v6.5-R0 预埋开关（全部 false，零行为变化）──
+const V65_ENABLE_PATTERN_IN_PACK = false;
+const V65_ENABLE_HAS4_PENALTY = false;
+const V65_ENABLE_COMPARABLE_ANCHOR_PRICING = false;
+
 // ── THEME ──
 (function(){
   const btn = document.querySelector('[data-theme-toggle]');
@@ -1163,9 +1168,22 @@ function score6D(sld, tld, asset) {
     : asset.id === 'NNNNN_COM' ? 65
     : asset.id === 'GENERIC' ? 20
     : 60;
+  // v6.5-R0: has4 penalty (方案A: 内部自检测 sld.includes('4'))
+  let has4 = false;
+  let has4Penalty = false;
+  if (V65_ENABLE_HAS4_PENALTY) {
+    has4 = sld.includes('4');
+    if (has4) {
+      d3 = Math.max(0, d3 - 5);
+      d6 = Math.max(0, d6 - 3);
+      has4Penalty = true;
+    }
+  }
+
   const weighted = d1*0.20 + d2*0.25 + d3*0.20 + d4*0.20 + d5*0.10 + d6*0.05;
   const final = Math.max(asset.scoreFloor || 0, Math.round(weighted));
-  return { d1, d2, d3, d4, d5, d6, final };
+
+  return { d1, d2, d3, d4, d5, d6, final, has4, has4Penalty };
 }
 
 function getRisks(sld, tld, asset, full) {
@@ -1285,10 +1303,10 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
     regional_modifiers: null,  // [RESERVED v6.5] v6.4 恒为 null，任何代码路径读取此字段视为回归失败
     _regional_modifiers_note: '[RESERVED v6.5] v6.4: not active, not used in pricing. v6.5 only.',
     version_manifest: {
-      schema_version: '6.4.1-stage1',
-      core_rules_version: '6.4.1-stage1',
-      commit_hash: 'e1e83e0',
-      release_date: '2026-06-23',
+      schema_version: '6.5-R0',
+      core_rules_version: '6.5-R0',
+      commit_hash: 'v65r0',
+      release_date: '2026-06-24',
       baseline_regression_count: 27
     },
     data_source_level: 'static_rule_pack',
@@ -1297,7 +1315,8 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
     price_reference: { p1_investor: asset.p1, p2_brand: asset.p2, p3_enduser: asset.p3 },
     potential_industries: industries,
     missing_data: ['NameBio历史成交','Whois持有人联系状态','商标查询','当前平台挂牌价'],
-    risk_flags: risks
+    risk_flags: risks,
+    ...(V65_ENABLE_PATTERN_IN_PACK ? { numeric_pattern: detectPattern(sld) } : {})
   }, null, 2);
 
   const activeBrandBanner = statusInfo.domain_status === 'active_brand'
@@ -1305,7 +1324,7 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
     : '';
 
   return `# DOMAIN_VALUATION_PACK.md
-> 生成时间：${now} | 系统：Domain AI Judge v6.4.1-stage1 | 规则：CORE_RULES v2
+> 生成时间：${now} | 系统：Domain AI Judge v6.5-R0 | 规则：CORE_RULES v2
 > ⚠️ 本文档为系统初步判断，最终价格以实际市场成交为准
 > 📦 数据来源：静态规则库 / 用户录入 / 待人工复核（live_market_checked: false）
 ${activeBrandBanner}---
@@ -1468,7 +1487,7 @@ ${materialData}
 
 ---
 
-*DOMAIN_VALUATION_PACK.md · Domain AI Judge v6.4.1-stage1 · CORE_RULES v2 · 静态规则库 · ${now}*
+*DOMAIN_VALUATION_PACK.md · Domain AI Judge v6.5-R0 · CORE_RULES v2 · 静态规则库 · ${now}*
 `;
 }
 

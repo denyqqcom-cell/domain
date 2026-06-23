@@ -435,8 +435,8 @@ function determinePricingMethod(asset, comparableResult) {
     };
   }
   
-  // Layer 2: COMPARABLE_ANCHORS
-  if (comparableResult && comparableResult.usable) {
+  // Layer 2: COMPARABLE_ANCHORS（v6.5-R0: V65_ENABLE_COMPARABLE_ANCHOR_PRICING 门禁）
+  if (typeof V65_ENABLE_COMPARABLE_ANCHOR_PRICING !== 'undefined' && V65_ENABLE_COMPARABLE_ANCHOR_PRICING && comparableResult && comparableResult.usable) {
     return {
       method: 'comparable_anchor',
       pricing: {
@@ -595,11 +595,14 @@ function resolveMixedPricing(sld, tld, full) {
       };
     }
     
-    // Step 5: 三层决策
+    // Step 5: 三层决策（v6.5-R0: V65_ENABLE_COMPARABLE_ANCHOR_PRICING 门禁）
     let pricing;
     let method;
-    
-    if (aggregate.method === 'comparable_anchor' || aggregate.method === 'class_floor_guarded') {
+
+    // v6.5-R0: 开关关闭时，comparable_anchor 不参与定价，强制回退 static_class
+    const comparableEnabled = typeof V65_ENABLE_COMPARABLE_ANCHOR_PRICING !== 'undefined' && V65_ENABLE_COMPARABLE_ANCHOR_PRICING;
+
+    if (comparableEnabled && (aggregate.method === 'comparable_anchor' || aggregate.method === 'class_floor_guarded')) {
       pricing = {
         p1Low: aggregate.p1Low,
         p1High: aggregate.p1High,
