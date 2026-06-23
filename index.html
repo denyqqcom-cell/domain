@@ -568,7 +568,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M12 5v14M5 12l7 7 7-7"/>
       </svg>
-      AI 结构化提示词
+      六维评分 · 风险标记
     </div>
     <div id="advanced-panel">
       <div class="advanced-inner">
@@ -1557,7 +1557,7 @@ function copyPack() {
       btn.innerHTML = iconOk + ' 已复制！';
       setTimeout(() => {
         btn.classList.remove('copied');
-        btn.innerHTML = iconCopy + ' 复制全文';
+        btn.innerHTML = iconCopy + ' 复制管理层报告';
       }, 2000);
     })
     .catch(() => {
@@ -1565,7 +1565,7 @@ function copyPack() {
       btn.innerHTML = '⚠️ 复制失败，请手动复制';
       setTimeout(() => {
         btn.classList.remove('failed');
-        btn.innerHTML = iconCopy + ' 复制全文';
+        btn.innerHTML = iconCopy + ' 复制管理层报告';
       }, 3000);
     });
 }
