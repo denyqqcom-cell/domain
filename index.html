@@ -607,6 +607,11 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
           <div class="pat-status inactive" id="pat_repeat">—</div>
           <div class="pat-sub" id="pat_repeat_sub"></div>
         </div>
+        <div class="pattern-block" id="block_palindrome">
+          <div class="pat-name">回文 palindrome</div>
+          <div class="pat-status inactive" id="pat_palindrome">—</div>
+          <div class="pat-sub" id="pat_palindrome_sub"></div>
+        </div>
         <div class="pattern-block" id="block_tailseq">
           <div class="pat-name">尾顺子 tail_sequence</div>
           <div class="pat-status inactive" id="pat_tailseq">—</div>
@@ -1504,6 +1509,9 @@ function detectPattern(sld) {
     return false;
   })();
 
+  // Check palindrome: reads same forwards and backwards (e.g. 12321, 98789)
+  const isPalindrome = digits[0] === digits[4] && digits[1] === digits[3];
+
   // Check lucky: no 0, no 4, contains at least one lucky digit (6,8,9)
   const isLucky = !hasZero && !hasFour && digits.some(d => [6,8,9].includes(d));
 
@@ -1520,6 +1528,10 @@ function detectPattern(sld) {
     pattern = 'repeat';
     patternBorder = true;
     fourBorder = hasFour;
+  } else if (isPalindrome) {
+    pattern = 'palindrome';
+    patternBorder = true;
+    fourBorder = hasFour;
   } else if (effectiveIsTailSeq) {
     pattern = 'tail_sequence';
     patternBorder = true;
@@ -1531,10 +1543,10 @@ function detectPattern(sld) {
   } else {
     pattern = 'ordinary';
     patternBorder = false;
-    fourBorder = false;
+    fourBorder = hasFour;
   }
 
-  return { pattern, hasFour, hasZero, patternBorder, fourBorder, isFullSeq, isRepeat, isTailSeq: effectiveIsTailSeq, isLucky, digits };
+  return { pattern, hasFour, hasZero, patternBorder, fourBorder, isFullSeq, isRepeat, isPalindrome, isTailSeq: effectiveIsTailSeq, isLucky, digits };
 }
 
 function renderPattern(sld, patternInfo) {
@@ -1556,7 +1568,7 @@ function renderPattern(sld, patternInfo) {
     status1.className = 'pat-status active';
     sub1.textContent = pi.hasFour ? '含4' : '';
     sub1.className = 'pat-sub' + (pi.fourBorder ? ' orange-sub' : '');
-    block1.className = 'pattern-block' + (pi.patternBorder ? ' orange-border' : '');
+    block1.className = 'pattern-block' + (pi.pattern === 'full_sequence' ? ' orange-border' : '');
   } else {
     status1.textContent = '✗';
     status1.className = 'pat-status inactive';
@@ -1574,7 +1586,7 @@ function renderPattern(sld, patternInfo) {
     status2.className = 'pat-status active';
     sub2.textContent = pi.hasFour ? '含4' : '';
     sub2.className = 'pat-sub' + (pi.fourBorder ? ' orange-sub' : '');
-    block2.className = 'pattern-block' + (pi.patternBorder ? ' orange-border' : '');
+    block2.className = 'pattern-block' + (pi.pattern === 'repeat' ? ' orange-border' : '');
   } else {
     status2.textContent = '✗';
     status2.className = 'pat-status inactive';
@@ -1583,16 +1595,16 @@ function renderPattern(sld, patternInfo) {
     block2.className = 'pattern-block';
   }
 
-  // ── Block 3: tail_sequence ──
-  const block3 = document.getElementById('block_tailseq');
-  const status3 = document.getElementById('pat_tailseq');
-  const sub3 = document.getElementById('pat_tailseq_sub');
-  if (pi.isTailSeq) {
+  // ── Block 3: palindrome ──
+  const block3 = document.getElementById('block_palindrome');
+  const status3 = document.getElementById('pat_palindrome');
+  const sub3 = document.getElementById('pat_palindrome_sub');
+  if (pi.isPalindrome) {
     status3.textContent = '✓ 命中';
     status3.className = 'pat-status active';
     sub3.textContent = pi.hasFour ? '含4' : '';
     sub3.className = 'pat-sub' + (pi.fourBorder ? ' orange-sub' : '');
-    block3.className = 'pattern-block' + (pi.patternBorder ? ' orange-border' : '');
+    block3.className = 'pattern-block' + (pi.pattern === 'palindrome' ? ' orange-border' : '');
   } else {
     status3.textContent = '✗';
     status3.className = 'pat-status inactive';
@@ -1601,16 +1613,16 @@ function renderPattern(sld, patternInfo) {
     block3.className = 'pattern-block';
   }
 
-  // ── Block 4: lucky ──
-  const block4 = document.getElementById('block_lucky');
-  const status4 = document.getElementById('pat_lucky');
-  const sub4 = document.getElementById('pat_lucky_sub');
-  if (pi.isLucky) {
+  // ── Block 4: tail_sequence ──
+  const block4 = document.getElementById('block_tailseq');
+  const status4 = document.getElementById('pat_tailseq');
+  const sub4 = document.getElementById('pat_tailseq_sub');
+  if (pi.isTailSeq) {
     status4.textContent = '✓ 命中';
     status4.className = 'pat-status active';
     sub4.textContent = pi.hasFour ? '含4' : '';
     sub4.className = 'pat-sub' + (pi.fourBorder ? ' orange-sub' : '');
-    block4.className = 'pattern-block' + (pi.patternBorder ? ' orange-border' : '');
+    block4.className = 'pattern-block' + (pi.pattern === 'tail_sequence' ? ' orange-border' : '');
   } else {
     status4.textContent = '✗';
     status4.className = 'pat-status inactive';
@@ -1619,22 +1631,40 @@ function renderPattern(sld, patternInfo) {
     block4.className = 'pattern-block';
   }
 
-  // ── Block 5: ordinary ──
-  const block5 = document.getElementById('block_ordinary');
-  const status5 = document.getElementById('pat_ordinary');
-  const sub5 = document.getElementById('pat_ordinary_sub');
-  if (pi.pattern === 'ordinary') {
+  // ── Block 5: lucky ──
+  const block5 = document.getElementById('block_lucky');
+  const status5 = document.getElementById('pat_lucky');
+  const sub5 = document.getElementById('pat_lucky_sub');
+  if (pi.isLucky) {
     status5.textContent = '✓ 命中';
     status5.className = 'pat-status active';
     sub5.textContent = pi.hasFour ? '含4' : '';
     sub5.className = 'pat-sub' + (pi.fourBorder ? ' orange-sub' : '');
-    block5.className = 'pattern-block' + (pi.patternBorder ? ' orange-border' : '');
+    block5.className = 'pattern-block' + (pi.pattern === 'lucky' ? ' orange-border' : '');
   } else {
     status5.textContent = '✗';
     status5.className = 'pat-status inactive';
     sub5.textContent = '';
     sub5.className = 'pat-sub';
     block5.className = 'pattern-block';
+  }
+
+  // ── Block 6: ordinary ──
+  const block6 = document.getElementById('block_ordinary');
+  const status6 = document.getElementById('pat_ordinary');
+  const sub6 = document.getElementById('pat_ordinary_sub');
+  if (pi.pattern === 'ordinary') {
+    status6.textContent = '✓ 命中';
+    status6.className = 'pat-status active';
+    sub6.textContent = pi.hasFour ? '含4' : '';
+    sub6.className = 'pat-sub' + (pi.fourBorder ? ' orange-sub' : '');
+    block6.className = 'pattern-block' + ((pi.pattern === 'ordinary' && pi.hasFour) ? ' orange-border' : '');
+  } else {
+    status6.textContent = '✗';
+    status6.className = 'pat-status inactive';
+    sub6.textContent = '';
+    sub6.className = 'pat-sub';
+    block6.className = 'pattern-block';
   }
 }
 
