@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>域名估值物料包生成器 v6.4</title>
+<title>域名估值物料包生成器 v6.4.1-stage1</title>
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
 <style>
 /* ── TOKENS ── */
@@ -463,7 +463,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <circle cx="27" cy="10" r="4" fill="var(--gold)"/>
       </svg>
       <span class="logo-text">域名估值</span>
-      <span class="logo-version">v6.4</span>
+      <span class="logo-version">v6.4.1-stage1</span>
     </div>
     <button class="theme-btn" data-theme-toggle aria-label="切换主题">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -659,7 +659,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   </div>
 
   <footer class="footer">
-    静态规则库 CORE_RULES v2 · Domain AI Judge v6.4 · domain_status · acquirable · LLLL_COM · Price Floor Guard · 估值仅供参考，最终价格以实际市场成交为准
+    静态规则库 CORE_RULES v2 · Domain AI Judge v6.4.1-stage1 · domain_status · acquirable · LLLL_COM · Price Floor Guard · 估值仅供参考，最终价格以实际市场成交为准
   </footer>
 </div>
 
@@ -799,7 +799,7 @@ const ANCHORS = {
   // a1.com：2字符字母+数字混合.COM，全球仅约520个，无公开成交价，按类别稀缺性估值
   'a1.com':       { usd: null,     type: 'inventory',     source: '2-char alphanumeric .COM; only ~520 globally, no public sale record', verified: false, confidence: 'medium', anchor_relation: 'exact_domain_listing', pricing_use: 'reference_only',
                     domain_status: 'investment_inventory', status_note: '2字符字母+数字混合.COM，全球仅~520个，极度稀缺',
-                    priceTag: '价格口径', p1Label: '投资人流通价', p3Label: '战略终端上限',
+                    priceTag: '价格口径', p3Label: '战略终端上限',
                     anchor_note: '该域名为2字符字母+数字混合.COM，全球仅约520个，稀缺度介于LL_COM与MIXED_SHORT之间。当前无公开成交记录，估值基于类别稀缺性' },
   // vjn.com：listing 非 sale，改为 exact_domain_listing
   'vjn.com':      { usd: 39000,    type: 'listing',       source: 'Afternic via DomainNameWire',      verified: false, confidence: 'medium', anchor_relation: 'exact_domain_listing',           pricing_use: 'reference_only',
@@ -1280,8 +1280,8 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
     regional_modifiers: null,  // [RESERVED v6.5] v6.4 恒为 null，任何代码路径读取此字段视为回归失败
     _regional_modifiers_note: '[RESERVED v6.5] v6.4: not active, not used in pricing. v6.5 only.',
     version_manifest: {
-      schema_version: '6.4',
-      core_rules_version: '6.4',
+      schema_version: '6.4.1-stage1',
+      core_rules_version: '6.4.1-stage1',
       commit_hash: 'e1e83e0',
       release_date: '2026-06-23',
       baseline_regression_count: 27
@@ -1300,7 +1300,7 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
     : '';
 
   return `# DOMAIN_VALUATION_PACK.md
-> 生成时间：${now} | 系统：Domain AI Judge v6.4 | 规则：CORE_RULES v2
+> 生成时间：${now} | 系统：Domain AI Judge v6.4.1-stage1 | 规则：CORE_RULES v2
 > ⚠️ 本文档为系统初步判断，最终价格以实际市场成交为准
 > 📦 数据来源：静态规则库 / 用户录入 / 待人工复核（live_market_checked: false）
 ${activeBrandBanner}---
@@ -1463,7 +1463,7 @@ ${materialData}
 
 ---
 
-*DOMAIN_VALUATION_PACK.md · Domain AI Judge v6.4 · CORE_RULES v2 · 静态规则库 · ${now}*
+*DOMAIN_VALUATION_PACK.md · Domain AI Judge v6.4.1-stage1 · CORE_RULES v2 · 静态规则库 · ${now}*
 `;
 }
 
@@ -1664,10 +1664,10 @@ function analyze() {
       document.getElementById('cardScore').textContent = scores.final;
       document.getElementById('cardScoreLabel').textContent = scores.final >= 90 ? '顶级资产' : scores.final >= 80 ? '优质资产' : scores.final >= 70 ? '良好资产' : '普通域名';
 
-      const isNotAcquirable = acquirableInfo.acquirable === false;
+      const isReferenceOnly = asset.anchorMeta?.pricing_use === 'reference_only';
       const anchorCustomP1 = asset.anchorMeta?.p1Label;
       const anchorCustomP3 = asset.anchorMeta?.p3Label;
-      const p1Label = anchorCustomP1 || (isNotAcquirable ? 'P1 历史类别参考价' : 'P1 投资人流通价');
+      const p1Label = anchorCustomP1 || (isReferenceOnly ? '投资人参考区间' : '投资人流通价');
       const p3Label = anchorCustomP3 || 'P3 战略终端上限';
       document.getElementById('cardPriceTier').innerHTML = [
         { label: p1Label, val: asset.p1 || '—' },
