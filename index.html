@@ -1324,7 +1324,7 @@ ${risks.map(r => '- ' + r).join('\n')}
 8. anchor_relation === 'exact_domain_historical_sale' 表示本域名自身历史成交；'exact_domain_listing' 表示挂牌报价；'ambiguous_report'/'exact_domain_unverified_report' 表示来源不可靠，不得用于定价依据
 9. anchor_note 不为 null 时必须在 key_reasons 中引用说明，不得忽略
 10. acquirable 为三态：true（可收购）/ false（不可收购）/ "unknown"（字符串，需人工确认）。acquirable===false 时必须注明估值仅供类别参考，不得输出收购建议价
-11. key_reasons 每条须加标签前缀：[anchor] 锚点依据 / [class] 类别规则 / [score6D] 六维评分 / [market] 市场数据。key_reasons_v2 为结构化版本，tag 字段取同一值，与 key_reasons 一一对应
+11. key_reasons 每条须加标签前缀：[anchor] 锚点依据 / [class] 类别规则 / [score6D] 六维评分 / [market] 市场数据 / [risk] 风险提示。key_reasons_v2 为结构化版本，tag 字段取同一值，与 key_reasons 一一对应
 12. **final_score 锁定**：直接使用材料包中提供的 final_score，禁止重新计算或修改
 13. **禁止裸 JSON 输出**：JSON 数据仅作附录置于报告末尾，不作为首屏主体内容。非技术场景禁止用代码块包裹大段 JSON
 14. **Markdown 报告结构**：固定 5 段式输出 — ①价格区间（含定价方法说明）→ ②核心依据（key_reasons 展开）→ ③风险提示 → ④待核实项 → ⑤信息分层（事实 / 推断 / 缺失）
