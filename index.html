@@ -295,6 +295,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
 .acquirable-false { color: #e05555; background: rgba(224,85,85,0.08); border: 1px solid rgba(224,85,85,0.2); }
 .acquirable-true { color: #4caf50; background: rgba(76,175,80,0.08); border: 1px solid rgba(76,175,80,0.2); }
 .acquirable-unknown { color: var(--gold); background: rgba(232,175,52,0.08); border: 1px solid rgba(232,175,52,0.2); }
+.acquirable-unverified_brand { color: #e05555; background: rgba(224,85,85,0.08); border: 1px solid rgba(224,85,85,0.2); }
 .conf-bar-wrap {
   margin-top: var(--space-3); background: var(--surface-2);
   border-radius: var(--radius-full); height: 6px; overflow: hidden;
@@ -920,7 +921,23 @@ const EXPERTRULES = {
     { id:'L4-R008', cat:'hot_industry', label:'PAY (支付)', trigger:/pay/i, effect:'支付行业核心缩写，全球Fintech基础词汇', reason:'Pay=支付，Stripe/PayPal/Square等支付巨头核心词' },
     { id:'L4-R009', cat:'hot_industry', label:'CLOUD (云)', trigger:/cloud/i, effect:'云计算核心词汇，AWS/GCP/Azure三大云', reason:'Cloud=云计算，全球企业IT基础设施核心概念' },
     { id:'L4-R010', cat:'hot_industry', label:'CODE (代码)', trigger:/code/i, effect:'软件开发核心词汇，全球开发者生态基础', reason:'Code=代码，GitHub/GitLab/Cursor等开发者工具生态' },
-    { id:'L4-R011', cat:'hot_industry', label:'DATA (数据)', trigger:/data/i, effect:'数据行业核心词汇，AI/大数据/数据科学基础', reason:'Data=数据，AI训练/Databricks/数据基础设施' }
+    { id:'L4-R011', cat:'hot_industry', label:'DATA (数据)', trigger:/data/i, effect:'数据行业核心词汇，AI/大数据/数据科学基础', reason:'Data=数据，AI训练/Databricks/数据基础设施' },
+    // v6.5-R0c: 已知企业品牌词 — 匹配到触发 UNVERIFIED_BRAND 红色阻断
+    { id:'L4-R012', cat:'enterprise_brand', label:'TEXT (企业通讯品牌)', trigger:/^text$/i, effect:'⚠️ 疑似运营品牌域名 — Text S.A.(WSE:TXT)企业通讯平台，30K+客户，不在出售', reason:'Text S.A.为波兰证券交易所上市企业通讯公司，该域名极可能为其品牌资产' },
+    { id:'L4-R013', cat:'enterprise_brand', label:'GRAB (东南亚超级App)', trigger:/^grab$/i, effect:'⚠️ 疑似运营品牌域名 — Grab Holdings(NASDAQ:GRAB)，东南亚超级App，运营中', reason:'Grab为纳斯达克上市企业，东南亚出行/支付/外卖超级App' },
+    { id:'L4-R014', cat:'enterprise_brand', label:'BROOKS (知名消费品牌)', trigger:/^brooks$/i, effect:'⚠️ 疑似运营品牌域名 — Brooks Running/Brooks Brothers，知名消费品牌', reason:'Brooks为美国体育/服装知名品牌，长期运营中' },
+    { id:'L4-R015', cat:'enterprise_brand', label:'ETIQA (保险集团品牌)', trigger:/^etiqa$/i, effect:'⚠️ 疑似运营品牌域名 — Etiqa Insurance，马来西亚/新加坡保险集团', reason:'Etiqa为Maybank旗下保险品牌，东南亚知名' },
+    { id:'L4-R016', cat:'enterprise_brand', label:'BOLT (出行/电商品牌)', trigger:/^bolt$/i, effect:'⚠️ 疑似运营品牌域名 — Bolt，欧洲出行/电商多品牌运营中', reason:'Bolt为欧洲知名出行及电商平台品牌' },
+    { id:'L4-R017', cat:'enterprise_brand', label:'MONZO (数字银行品牌)', trigger:/^monzo$/i, effect:'⚠️ 疑似运营品牌域名 — Monzo Bank(UK)，数字银行运营中', reason:'Monzo为英国知名数字银行品牌' },
+    { id:'L4-R018', cat:'enterprise_brand', label:'REVOLUT (金融科技品牌)', trigger:/^revolut$/i, effect:'⚠️ 疑似运营品牌域名 — Revolut，全球金融科技品牌', reason:'Revolut为全球知名金融科技品牌' },
+    { id:'L4-R019', cat:'enterprise_brand', label:'STRIPE (支付巨头品牌)', trigger:/^stripe$/i, effect:'⚠️ 疑似运营品牌域名 — Stripe，支付基础设施巨头', reason:'Stripe为全球支付基础设施领域的领导者' },
+    { id:'L4-R020', cat:'enterprise_brand', label:'NOTION (生产力工具品牌)', trigger:/^notion$/i, effect:'⚠️ 疑似运营品牌域名 — Notion Labs，生产力工具品牌', reason:'Notion为全球知名生产力工具品牌' },
+    { id:'L4-R021', cat:'enterprise_brand', label:'CANVA (设计工具品牌)', trigger:/^canva$/i, effect:'⚠️ 疑似运营品牌域名 — Canva，在线设计工具品牌', reason:'Canva为澳大利亚知名在线设计工具品牌' },
+    { id:'L4-R022', cat:'enterprise_brand', label:'VERCEL (前端云平台)', trigger:/^vercel$/i, effect:'⚠️ 疑似运营品牌域名 — Vercel，前端云平台品牌', reason:'Vercel为前端部署云平台知名品牌' },
+    { id:'L4-R023', cat:'enterprise_brand', label:'LINEAR (项目管理品牌)', trigger:/^linear$/i, effect:'⚠️ 疑似运营品牌域名 — Linear，项目管理工具品牌', reason:'Linear为知名项目管理SaaS品牌' },
+    { id:'L4-R024', cat:'enterprise_brand', label:'FIGMA (设计协作品牌)', trigger:/^figma$/i, effect:'⚠️ 疑似运营品牌域名 — Figma，设计协作工具', reason:'Figma为Adobe收购的设计协作工具品牌' },
+    { id:'L4-R025', cat:'enterprise_brand', label:'DATADOG (监控平台品牌)', trigger:/^datadog$/i, effect:'⚠️ 疑似运营品牌域名 — Datadog(NASDAQ:DDOG)，云监控平台', reason:'Datadog为纳斯达克上市云监控平台' },
+    { id:'L4-R026', cat:'enterprise_brand', label:'HUBSPOT (CRM品牌)', trigger:/^hubspot$/i, effect:'⚠️ 疑似运营品牌域名 — HubSpot(NYSE:HUBS)，CRM/SaaS品牌', reason:'HubSpot为纽交所上市CRM及营销SaaS品牌' }
   ],
   L5_ai_tool_combo: [
     { id:'L5-R001', cat:'ai_tool_combo', label:'codeai (编程AI工具)', trigger:/codeai/i, effect:'AI+编程工具组合域名，Developer AI赛道核心', reason:'codeai=AI编程助手，GitHub Copilot/Cursor等命名范式', combo:'{tool}+ai' },
@@ -1118,10 +1135,35 @@ const ACTIVE_BRAND_BLACKLIST = {
   '3m.com':        '3M 公司核心品牌域名（NYSE: MMM），全球500强，市值~$70B，已建站运营，不存在二级市场收购场景'
 };
 
+// v6.5-R0c: 已知企业品牌SLD集合 — 匹配到则触发 UNVERIFIED_BRAND 红色阻断
+// 这些品牌词作为超短词.com可能被误判为普通ULTRA_WORD_COM，实际为运营中企业
+const SUSPECTED_ENTERPRISE_BRAND_SLDS = new Set([
+  'text',    // Text S.A. (WSE:TXT), 30K+客户, 企业通讯平台, 不在出售
+  'grab',    // Grab Holdings (NASDAQ:GRAB), 东南亚超级App, 运营中
+  'brooks',  // Brooks Running / Brooks Brothers, 知名消费品牌
+  'etiqa',   // Etiqa Insurance, 马来西亚/新加坡保险集团
+  'bolt',    // Bolt ( ride-hailing / e-commerce ), 多个活跃品牌
+  'monzo',   // Monzo Bank (UK), 数字银行运营中
+  'revolut', // Revolut, 全球金融科技品牌
+  'stripe',  // Stripe, 支付基础设施巨头
+  'notion',  // Notion Labs, 生产力工具品牌
+  'canva',   // Canva, 设计工具品牌
+  'vercel',  // Vercel, 前端云平台
+  'linear',  // Linear, 项目管理工具品牌
+  'figma',   // Figma, 设计协作工具
+  'datadog', // Datadog (NASDAQ:DDOG), 监控平台
+  'hubspot', // HubSpot (NYSE:HUBS), CRM品牌
+]);
+
 function resolveDomainStatus(full) {
   const key = full.toLowerCase();
+  const sld = key.split('.')[0];
   if (ACTIVE_BRAND_BLACKLIST[key]) {
     return { domain_status: 'active_brand', status_note: ACTIVE_BRAND_BLACKLIST[key], source: 'known_brand_blacklist' };
+  }
+  // v6.5-R0c: 疑似企业品牌检测 — 已知品牌SLD但未在黑名单中（非FAANG级已确认品牌）
+  if (SUSPECTED_ENTERPRISE_BRAND_SLDS.has(sld)) {
+    return { domain_status: 'unverified_brand', status_note: '疑似运营品牌域名，该SLD匹配已知企业品牌词汇（存在运营中企业），通常不在二级市场流通', source: 'suspected_enterprise_brand' };
   }
   const anchor = ANCHORS[key];
   if (anchor && anchor.domain_status) {
@@ -1133,6 +1175,10 @@ function resolveDomainStatus(full) {
 function resolveAcquirable(statusInfo, anchorMeta) {
   if (statusInfo.domain_status === 'active_brand') {
     return { acquirable: false, acquirable_note: statusInfo.status_note || '活跃品牌域名，通常不在二级市场流通' };
+  }
+  // v6.5-R0c: 疑似企业品牌 → UNVERIFIED_BRAND 红色阻断
+  if (statusInfo.domain_status === 'unverified_brand') {
+    return { acquirable: 'UNVERIFIED_BRAND', acquirable_note: '疑似运营品牌域名 — 该SLD匹配已知企业品牌词，存在运营中企业终端，通常不在二级市场流通，估值仅供类别参考' };
   }
   if (anchorMeta && anchorMeta.pricing_use === 'reference_only') {
     return { acquirable: true, acquirable_note: anchorMeta.anchor_note || '投资人持有，挂牌参考' };
@@ -1155,6 +1201,9 @@ function updateDomainStatusHint(raw) {
   const status = resolveDomainStatus(parsed.full);
   if (status.domain_status === 'active_brand') {
     hint.textContent = '⚠️ 该域名为活跃品牌网站（' + status.domain_status + '），估值仅供学术/类别参考，不代表当前可收购。' + (status.status_note ? ' ' + status.status_note : '');
+    hint.classList.add('visible');
+  } else if (status.domain_status === 'unverified_brand') {
+    hint.textContent = '⚠️ 疑似运营品牌域名 — 该SLD匹配已知企业品牌词，存在运营中企业，通常不在二级市场流通。' + (status.status_note ? ' ' + status.status_note : '');
     hint.classList.add('visible');
   } else {
     hint.classList.remove('visible');
@@ -2271,6 +2320,9 @@ function analyze() {
       if (acquirableInfo.acquirable === false) {
         acqEl.textContent = '🚫 ' + (acquirableInfo.acquirable_note || '不可收购，估值仅供类别参考');
         acqEl.className = 'acquirable-line acquirable-false';
+      } else if (acquirableInfo.acquirable === 'UNVERIFIED_BRAND') {
+        acqEl.textContent = '⚠️ ' + (acquirableInfo.acquirable_note || '疑似运营品牌域名，不可收购');
+        acqEl.className = 'acquirable-line acquirable-unverified_brand';
       } else if (acquirableInfo.acquirable === true) {
         acqEl.textContent = '✅ ' + (acquirableInfo.acquirable_note || '可收购场景');
         acqEl.className = 'acquirable-line acquirable-true';
