@@ -1,4 +1,4 @@
-# Domain Investment Expert System v6.6-R0b
+# Domain Investment Expert System v6.6-R0c-0
 
 > 域名投资专家系统 · 系统专家出价 → AI 审计复核 · 资产类别优先
 
@@ -47,7 +47,8 @@
 v6.5-R0f / R1-hotfix   ACCEPTED  价格引擎底座
 v6.6-R0                ACCEPTED  产品契约（Expert + Auditor）
 v6.6-R0a               ACCEPTED  数字品相 2N–5N + 锚点过滤
-v6.6-R0b               CURRENT   UX/文案/辅文档/NNN reference 锚点
+v6.6-R0b               ACCEPTED  UX/文案/辅文档/NNN reference 锚点
+v6.6-R0c-0             CURRENT   Buyer Persona 文案分类
 v6.5-R1.1 / R2         暂缓
 ```
 
@@ -55,7 +56,7 @@ v6.5-R1.1 / R2         暂缓
 
 ## 验收门禁
 
-运行：`node test/v66_r0_gate.js`（**42/42**，主门禁）
+运行：`node test/v66_r0_gate.js`（42/42）+ `node test/v66_r0c0_gate.js`（23/23）
 
 | 域名 | 关键验收 |
 |------|----------|

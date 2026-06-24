@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>域名投资专家系统 v6.6-R0b</title>
+<title>域名投资专家系统 v6.6-R0c-0</title>
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
 <style>
 /* ── TOKENS ── */
@@ -434,13 +434,13 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
 
 /* ── Buyer Fit Cards ── */
 .expert-buyer-fit {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: var(--space-2); margin-bottom: var(--space-4);
 }
 .expert-buyer-card {
   background: var(--surface); border: 1px solid var(--border);
   border-radius: var(--radius-md); padding: var(--space-2) var(--space-3);
-  text-align: center;
+  text-align: left;
 }
 .expert-buyer-card .bf-label {
   font-size: 0.7rem; font-weight: 600; color: var(--text); margin-bottom: 2px;
@@ -459,7 +459,13 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   background: rgba(122,121,119,0.1); color: var(--muted);
 }
 .expert-buyer-card .bf-reason {
-  font-size: 0.6rem; color: var(--faint); margin-top: 1px;
+  font-size: 0.6rem; color: var(--faint); margin-top: 4px; line-height: 1.35;
+}
+.expert-buyer-card .bf-audit {
+  font-size: 0.58rem; color: var(--accent); margin-top: 4px; line-height: 1.3;
+}
+.expert-buyer-card .bf-impact {
+  font-size: 0.58rem; color: var(--muted); margin-top: 2px;
 }
 
 /* ── Pattern Judgment (保留旧版标注) ── */
@@ -634,7 +640,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <circle cx="27" cy="10" r="4" fill="var(--gold)"/>
       </svg>
       <span class="logo-text">域名估值</span>
-      <span class="logo-version">v6.6-R0b</span>
+      <span class="logo-version">v6.6-R0c-0</span>
     </div>
     <button class="theme-btn" data-theme-toggle aria-label="切换主题">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -830,13 +836,13 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e8960a" stroke-width="2.5">
           <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
         </svg>
-        专家判断层 Expert Judgment (v6.6-R0b)
+        专家判断层 Expert Judgment (v6.6-R0c-0)
         <span class="expert-version" id="expVersion">67 rules</span>
       </div>
       <!-- Layer Chips -->
       <div class="expert-layers" id="expertLayers">
         <span class="expert-layer-chip" data-layer="L1">L1 数字结构 <span class="chip-count">0</span></span>
-        <span class="expert-layer-chip" data-layer="L2">L2 中文域名 <span class="chip-count">0</span></span>
+        <span class="expert-layer-chip" data-layer="L2">L2 拼音声母 <span class="chip-count">0</span></span>
         <span class="expert-layer-chip" data-layer="L3">L3 英文单词 <span class="chip-count">0</span></span>
         <span class="expert-layer-chip" data-layer="L4">L4 热门行业 <span class="chip-count">0</span></span>
         <span class="expert-layer-chip" data-layer="L5">L5 AI工具组合 <span class="chip-count">0</span></span>
@@ -910,7 +916,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   </div>
 
   <footer class="footer">
-    Domain Investment Expert System v6.6-R0b · 系统专家出价 → AI 审计复核 · 估值仅供参考
+    Domain Investment Expert System v6.6-R0c-0 · 系统专家出价 → AI 审计复核 · 估值仅供参考
   </footer>
 </div>
 
@@ -1083,64 +1089,150 @@ function matchRules(sld, assetClass) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// v6.5-R0e: inferBuyerFit(rule_hits, assetClass) → buyer_fit[]
-// 从命中的规则推断买家画像适配度
+// v6.6-R0c-0: Buyer Persona Taxonomy — 展示/Memo 专用，不改定价
 // ═══════════════════════════════════════════════════════════════
-function inferBuyerFit(ruleHits, assetClass) {
-  const profiles = [];
-  const layersHit = new Set(ruleHits.map(r => r.layer));
+const PINYIN_INITIAL_SLDS = new Set(['jf','sf','xm','jd','bj','sh','gz','sz','cd','wh','nj','tj','cq','dl','zg']);
 
-  // 基础买家画像模板
-  const baseProfiles = {
-    digital_collector:  { label:'数字域名收藏家', fit:'medium', reason:'品类匹配' },
-    cn_investor:         { label:'中国域名投资人', fit:'medium', reason:'品类匹配' },
-    global_brand:        { label:'全球品牌终端', fit:'medium', reason:'品类匹配' },
-    ai_startup:          { label:'AI创业公司', fit:'low', reason:'需行业关键词匹配' },
-    web3_project:        { label:'Web3/加密项目', fit:'low', reason:'需行业关键词匹配' },
-    cn_enterprise:       { label:'中国企业终端', fit:'medium', reason:'品类匹配' },
-    domain_flipper:      { label:'域名短线交易者', fit:'medium', reason:'品类匹配' }
-  };
+function buyerPersona(label, fit, reason, ai_audit_task, price_impact) {
+  return { label, fit, reason, ai_audit_task, price_impact };
+}
 
-  // L1 命中 → 数字收藏家/中国投资人加强
-  if (layersHit.has('L1')) {
-    profiles.push({ ...baseProfiles.digital_collector, fit:'high', reason:'数字结构命中·数字域名核心买家' });
-    profiles.push({ ...baseProfiles.cn_investor, fit:'high', reason:'中国数字域名市场活跃·核心买家' });
-    profiles.push({ ...baseProfiles.domain_flipper, fit:'high', reason:'数字域名流通性好·短线交易热门品类' });
+function ruleHitsMatch(ruleHits, re) {
+  return ruleHits.some(r => re.test((r.label || '') + (r.effect || '') + (r.id || '')));
+}
+
+function hasAiSemantic(sld, ruleHits) {
+  return ruleHits.some(r => r.layer === 'L5') || ruleHitsMatch(ruleHits, /ai|gpt|llm|agent|model|tool/i)
+    || /ai|gpt|bot|llm|agent|code|model/i.test(sld);
+}
+
+function hasWeb3Semantic(sld, ruleHits) {
+  return ruleHitsMatch(ruleHits, /web3|crypto|defi|nft|btc|eth|wallet|exchange|chain/i)
+    || /btc|eth|wallet|exchange|chain|crypto|defi|nft/i.test(sld);
+}
+
+function aiWeb3Personas(sld, ruleHits) {
+  const out = [];
+  if (hasAiSemantic(sld, ruleHits)) {
+    out.push(buyerPersona('AI创业公司', 'high', '命中 AI/工具/模型相关语义或规则',
+      '核实同类 AI 创业域名成交与终端建站', '真实终端可抬 P3'));
+  } else {
+    out.push(buyerPersona('AI创业公司', 'low', '未命中 AI/agent/code/model/tool 等语义',
+      '—', '不影响定价'));
+  }
+  if (hasWeb3Semantic(sld, ruleHits)) {
+    out.push(buyerPersona('Web3/加密项目', 'high', '命中 Web3/加密行业关键词',
+      '核实链上/交易所/钱包类终端是否使用该缩写', '真实终端可抬 P3'));
+  } else {
+    out.push(buyerPersona('Web3/加密项目', 'low', '未命中 BTC/ETH/wallet/exchange/chain 等语义',
+      '—', '不影响定价'));
+  }
+  return out;
+}
+
+function buildBuyerPersonas(sld, asset, ruleHits) {
+  const id = asset?.id || 'GENERIC';
+  const up = sld.toUpperCase();
+  const sl = sld.toLowerCase();
+  const layersHit = new Set((ruleHits || []).map(r => r.layer));
+
+  if (id === 'LLL_COM') {
+    const pinyinNote = PINYIN_INITIAL_SLDS.has(sl)
+      ? '符合常见汉语拼音声母缩写模式'
+      : '非标准拼音声母组合，不宜按纯声母域名加价';
+    return [
+      buyerPersona('三字母短域投资人', 'high', 'LLL.COM 属高流通短资产，投资人市场有稳定承接',
+        '核实近12个月 LLL.COM 成交与 Afternic/Sedo 挂牌', '主要支撑 P1/P2'),
+      buyerPersona('华语市场短字母投资人', 'medium', '三字母 .COM 在华语短域市场有流通性；' + pinyinNote,
+        '核实华语买家池对该字母组合的接受度与挂牌', '影响 P1/P2'),
+      buyerPersona('全球缩写/品牌终端', 'medium', up + ' 可作企业/产品/组织缩写，但需确认真实终端存在',
+        '搜索 ' + up + ' company / brand / product / trademark（USPTO/WIPO）', '仅真实终端时支撑 P3'),
+      buyerPersona('域名经纪/交易商', 'medium', 'LLL.COM 属可经纪流通资产',
+        '核实经纪人挂牌与同品类成交价', '支撑 P2'),
+      ...aiWeb3Personas(sl, ruleHits)
+    ];
   }
 
-  // L2 命中 → 中国企业终端加强
-  if (layersHit.has('L2')) {
-    profiles.push({ ...baseProfiles.cn_enterprise, fit:'high', reason:'中文声母/拼音命中·中国企业品牌直接匹配' });
-    profiles.push({ ...baseProfiles.cn_investor, fit:'high', reason:'中文域名·中国投资人核心品类' });
+  if (id === 'LLLL_PRONOUNCEABLE_COM') {
+    return [
+      buyerPersona('可发音四字母品牌终端', 'high', '可发音 4L 适合消费/科技品牌命名',
+        '搜索 ' + up + ' brand / trademark / 同级 4L .COM 成交', '真实品牌终端支撑 P3'),
+      buyerPersona('短字母域名投资人', 'high', '4L 可发音 .COM 投资人流通性好',
+        '核实 NameBio/DNJournal 同级可发音 4L 成交', '支撑 P1/P2'),
+      buyerPersona('全球缩写/品牌终端', 'medium', up + ' 可能为产品/项目缩写，需核验',
+        '搜索 ' + up + ' company / product / app store listing', '仅确认终端时支撑 P3'),
+      ...aiWeb3Personas(sl, ruleHits)
+    ];
   }
 
-  // L3 命中 → 全球品牌终端加强
-  if (layersHit.has('L3')) {
-    profiles.push({ ...baseProfiles.global_brand, fit:'high', reason:'英文单词命中·全球品牌终端直接匹配' });
-    profiles.push({ ...baseProfiles.domain_flipper, fit:'medium', reason:'英文单词域名流通性中·精品域名' });
+  if (id === 'ULTRA_WORD_COM') {
+    return [
+      buyerPersona('全球单词品牌终端', 'high', '顶级英文单词 .COM，全球品牌/产品命名直接匹配',
+        '核实同级单词 .COM 成交、建站与商标', '支撑 P2/P3'),
+      buyerPersona('行业垂直终端', 'high', '单词具备明确行业语义，终端收购意愿强',
+        '核实该词在目标行业的商标与产品使用', '支撑 P3'),
+      buyerPersona('域名经纪/交易商', 'medium', '顶级单词属精品流通资产',
+        '核实 Sedo/Afternic 挂牌与经纪人报价', '支撑 P2'),
+      ...aiWeb3Personas(sl, ruleHits)
+    ];
   }
 
-  // L4 命中 → AI/Web3 创业公司加强
-  if (layersHit.has('L4')) {
-    profiles.push({ ...baseProfiles.ai_startup, fit:'high', reason:'热门行业词命中·AI赛道核心买家' });
-    profiles.push({ ...baseProfiles.web3_project, fit:'high', reason:'热门行业词命中·Web3赛道核心买家' });
-  }
-
-  // L5 命中 → AI创业公司加强
-  if (layersHit.has('L5')) {
-    profiles.push({ ...baseProfiles.ai_startup, fit:'high', reason:'AI工具组合命中·AI创业公司首选命名范式' });
-  }
-
-  // 补充缺失的默认画像
-  const added = new Set(profiles.map(p => p.label));
-  for (const [key, bp] of Object.entries(baseProfiles)) {
-    if (!added.has(bp.label)) {
-      profiles.push({ ...bp });
-      added.add(bp.label);
+  if (id === 'NNN_COM' || id === 'NNNN_COM' || id === 'NNNNN_COM' || id === 'NN_COM') {
+    const numericLabel = id.replace('_COM', '').replace('N', 'N') + ' 纯数字';
+    const personas = [
+      buyerPersona('数字域名投资人', 'high', numericLabel + ' .COM 投资人市场有稳定需求',
+        '核实 NameBio/DNJournal 同类数字成交', '主要支撑 P1/P2'),
+      buyerPersona('华语市场数字投资人', 'medium', '华人市场参与数字 .COM 流通（非 punycode/IDN 域名）',
+        '核实华语买家池对该数字组合的偏好', '影响 P1/P2 流动性判断')
+    ];
+    if (asset?.subtypeDetail) {
+      personas.push(buyerPersona('吉祥/规律数字收藏家', 'high', '命中数字品相 ' + asset.subtypeDetail,
+        '核实同类品相成交是否支持系统折价/溢价假设', '支撑 P1/P2'));
     }
+    if (layersHit.has('L1') || /4/.test(sl)) {
+      personas.push(buyerPersona('含4折价核验（AI）', 'medium', '含4或普通结构需核验华人市场接受度',
+        '核实含4同类成交是否支持系统折价假设', '影响 P1 审计 verdict'));
+    }
+    personas.push(buyerPersona('全球缩写/品牌终端', 'low', '纯数字域名作品牌缩写场景有限，需个案核验',
+      '搜索该数字是否对应产品型号/地区区号/企业编号', '仅强终端时支撑 P3'));
+    personas.push(...aiWeb3Personas(sl, ruleHits));
+    return personas;
   }
 
-  return profiles;
+  if (id === 'LL_COM') {
+    return [
+      buyerPersona('两字母短域投资人', 'high', 'LL.COM 极度稀缺，投资人硬通货',
+        '核实近12个月 LL.COM 成交', '支撑 P1/P2'),
+      buyerPersona('全球缩写/品牌终端', 'medium', up + ' 常为知名缩写（如 HD/TV/AI），需核验终端',
+        '搜索 ' + up + ' company / brand / trademark', '仅真实终端支撑 P3'),
+      buyerPersona('华语市场短字母投资人', 'medium', '两字母在华语市场有流通（非 punycode/IDN）',
+        '核实华语买家兴趣与挂牌', '影响 P1/P2'),
+      ...aiWeb3Personas(sl, ruleHits)
+    ];
+  }
+
+  // 通用兜底（无「中文域名」标签）
+  const personas = [
+    buyerPersona('域名投资人', 'medium', id + ' 品类投资人市场',
+      '核实同类 asset_class 成交与挂牌', '支撑 P1/P2'),
+    buyerPersona('全球缩写/品牌终端', 'medium', up + ' 终端场景待 AI 核验',
+      '搜索 ' + up + ' brand / company / trademark', '仅终端确认时支撑 P3')
+  ];
+  if (layersHit.has('L2')) {
+    personas.unshift(buyerPersona('拼音/声母终端', 'high', '命中 L2 拼音声母规则（非 IDN 中文域名）',
+      '核实该声母/拼音是否对应真实企业或品牌', '终端确认可抬 P3'));
+  }
+  if (layersHit.has('L3')) {
+    personas.unshift(buyerPersona('英文单词/品牌终端', 'high', '命中 L3 英文单词规则',
+      '核实单词商标与建站使用', '支撑 P2/P3'));
+  }
+  personas.push(...aiWeb3Personas(sl, ruleHits));
+  return personas;
+}
+
+/** @deprecated use buildBuyerPersonas */
+function inferBuyerFit(ruleHits, assetClass) {
+  return buildBuyerPersonas('', { id: assetClass }, ruleHits);
 }
 
 // ── THEME ──
@@ -2204,6 +2296,12 @@ function buildExpertMemo(parsed, asset, scores, valuation, ruleHits, patternInfo
   if (has4 && sld[0] === '4') assumptions.push('4开头弱于中间含4，额外折让已计入');
   if (asset.subtypeDetail) assumptions.push('Top Numeric 拆桶定价，锚点仅作参照');
   if (!assumptions.length) assumptions.push('依据资产类别 Price Lens 与六维评分');
+  const buyerPersonas = buildBuyerPersonas(sld, asset, ruleHits);
+  const personaAudits = buyerPersonas
+    .map(p => p.ai_audit_task)
+    .filter(t => t && t !== '—');
+  const aiTasks = [...buildAiAuditTasks(sld, asset, pi)];
+  personaAudits.forEach(t => { if (!aiTasks.includes(t)) aiTasks.push(t); });
   return {
     memo_type: 'DOMAIN_EXPERT_MEMO_v1',
     expert_role: 'Domain Investment Expert System',
@@ -2215,12 +2313,13 @@ function buildExpertMemo(parsed, asset, scores, valuation, ruleHits, patternInfo
       pattern_judgment: pj,
       quality: pj.pattern_quality,
       liquidity: pj.liquidity_signal,
-      enduser_fit: ruleHits.length ? '见 buyer_fit / rule_hits' : '待 AI 核验终端场景'
+      enduser_fit: '见 buyer_personas'
     },
+    buyer_personas: buyerPersonas,
     system_valuation: valuation.price_lens,
     valuation_assumptions: assumptions,
     comparable_anchors: pickComparableAnchors(asset.id, 5),
-    ai_audit_tasks: buildAiAuditTasks(sld, asset, pi),
+    ai_audit_tasks: aiTasks,
     risk_flags: risks
   };
 }
@@ -2263,7 +2362,7 @@ function buildAnalysisBundle(parsed, asset, scores, conf, risks, industries) {
   return { valuation, memo, auditorBrief, statusInfo, acquirableInfo };
 }
 
-/** @deprecated v6.6-R0b — legacy Markdown export; use buildAnalysisBundle() */
+/** @deprecated v6.6-R0c-0 — legacy Markdown export; use buildAnalysisBundle() */
 function generatePack(parsed, asset, scores, conf, risks, industries) {
   const now = new Date().toISOString().split('T')[0];
   const bundle = buildAnalysisBundle(parsed, asset, scores, conf, risks, industries);
@@ -2271,8 +2370,8 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
   const auditorJson = JSON.stringify(bundle.auditorBrief, null, 2);
   const v = bundle.valuation;
   const pl = v.price_lens;
-  return `# Expert Memo + AI Auditor Brief (v6.6-R0b)
-> 生成时间：${now} | Domain Investment Expert System v6.6-R0b
+  return `# Expert Memo + AI Auditor Brief (v6.6-R0c-0)
+> 生成时间：${now} | Domain Investment Expert System v6.6-R0c-0
 > 主输出：专家 Memo + AI 审计合同 | Legacy Pack 已降级为附录
 
 ---
@@ -2329,7 +2428,7 @@ ${JSON.stringify(bundle.auditorBrief.output_schema, null, 2)}
 
 > 六维明细、全量锚点表、67 条规则命中见高级展开区 UI。
 
-*v6.6-R0b · Domain Investment Expert System · ${now}*
+*v6.6-R0c-0 · Domain Investment Expert System · ${now}*
 `;
 }
 
@@ -2754,7 +2853,7 @@ function renderExpertJudgment(sld, patternInfo, asset, scores) {
   section.style.display = 'block';
 
   const ruleHits = matchRules(sld, asset ? asset.id : null);
-  const buyerFit = inferBuyerFit(ruleHits, asset ? asset.id : null);
+  const buyerFit = buildBuyerPersonas(sld, asset, ruleHits);
 
   // ── Layer Chips ──
   const layerCounts = { L1:0, L2:0, L3:0, L4:0, L5:0 };
@@ -2792,18 +2891,22 @@ function renderExpertJudgment(sld, patternInfo, asset, scores) {
 
   // ── Buyer Fit ──
   const buyerFitEl = document.getElementById('expertBuyerFit');
-  buyerFitEl.innerHTML = buyerFit.map(bf =>
-    `<div class="expert-buyer-card">
+  buyerFitEl.innerHTML = buyerFit.map(bf => {
+    const fitLabel = bf.fit === 'high' ? '高适配' : bf.fit === 'medium' ? '中适配' : '低适配';
+    const audit = bf.ai_audit_task && bf.ai_audit_task !== '—'
+      ? `<div class="bf-audit">AI核验：${bf.ai_audit_task}</div>` : '';
+    const impact = bf.price_impact ? `<div class="bf-impact">价格影响：${bf.price_impact}</div>` : '';
+    return `<div class="expert-buyer-card">
       <div class="bf-label">${bf.label}</div>
-      <span class="bf-fit ${bf.fit}">${bf.fit === 'high' ? '高适配' : bf.fit === 'medium' ? '中适配' : '低适配'}</span>
-      <div class="bf-reason">${bf.reason}</div>
-    </div>`
-  ).join('');
+      <span class="bf-fit ${bf.fit}">${fitLabel}</span>
+      <div class="bf-reason">${bf.reason}</div>${audit}${impact}
+    </div>`;
+  }).join('');
 
   // ── Version Badge ──
   document.getElementById('expVersion').textContent = asset.subtypeDetail
-    ? `v6.6-R0b · ${asset.subtypeDetail}`
-    : (ruleHits.length > 0 ? `v6.6-R0b · ${ruleHits.length} hits` : 'v6.6-R0b · 67 rules');
+    ? `v6.6-R0c-0 · ${asset.subtypeDetail}`
+    : (ruleHits.length > 0 ? `v6.6-R0c-0 · ${ruleHits.length} hits` : 'v6.6-R0c-0 · buyer persona');
 
   // ── Pattern Judgment (5-digit or numeric subtype_detail) ──
   const patternGrid = document.getElementById('expertPatternGrid');
