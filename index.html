@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>域名估值物料包生成器 v6.5-R0d</title>
+<title>域名估值物料包生成器 v6.5-R0e</title>
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
 <style>
 /* ── TOKENS ── */
@@ -346,7 +346,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   color: #e8960a; font-weight: 700;
 }
 
-/* ── v6.5-R0d Expert Judgment ── */
+/* ── v6.5-R0e Expert Judgment ── */
 .expert-section {
   margin-bottom: var(--space-6);
   background: linear-gradient(135deg, rgba(232,150,10,0.04), rgba(232,150,10,0.01));
@@ -593,7 +593,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <circle cx="27" cy="10" r="4" fill="var(--gold)"/>
       </svg>
       <span class="logo-text">域名估值</span>
-      <span class="logo-version">v6.5-R0d</span>
+      <span class="logo-version">v6.5-R0e</span>
     </div>
     <button class="theme-btn" data-theme-toggle aria-label="切换主题">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -760,13 +760,13 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
       </div>
     </div>
 
-    <!-- v6.5-R0d: Expert Judgment Layer — 5-layer chips + buyer_fit cards -->
+    <!-- v6.5-R0e: Expert Judgment Layer — 5-layer chips + buyer_fit cards -->
     <div class="expert-section" id="expertSection" style="display:none;">
       <div class="expert-section-title">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e8960a" stroke-width="2.5">
           <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
         </svg>
-        专家判断层 Expert Judgment (v6.5-R0d)
+        专家判断层 Expert Judgment (v6.5-R0e)
         <span class="expert-version" id="expVersion">67 rules</span>
       </div>
       <!-- Layer Chips -->
@@ -844,18 +844,18 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   </div>
 
   <footer class="footer">
-    静态规则库 CORE_RULES v2 · Domain AI Judge v6.5-R0d · domain_status · acquirable · LLLL_COM · Price Floor Guard · 估值仅供参考，最终价格以实际市场成交为准
+    静态规则库 CORE_RULES v2 · Domain AI Judge v6.5-R0e · domain_status · acquirable · LLLL_COM · Price Floor Guard · 估值仅供参考，最终价格以实际市场成交为准
   </footer>
 </div>
 
 <script>
-// ── v6.5-R0d 预埋开关（全部 false，零行为变化）──
+// ── v6.5-R0e 预埋开关（全部 false，零行为变化）──
 const V65_ENABLE_PATTERN_IN_PACK = false;
 const V65_ENABLE_HAS4_PENALTY = false;
 const V65_ENABLE_COMPARABLE_ANCHOR_PRICING = false;
 
 // ═══════════════════════════════════════════════════════════════
-// v6.5-R0d: EXPERTRULES 内联常量 — 67 条专家规则（5 层）
+// v6.5-R0e: EXPERTRULES 内联常量 — 67 条专家规则（5 层）
 // ═══════════════════════════════════════════════════════════════
 const EXPERTRULES = {
   L1_digital_structure: [
@@ -922,7 +922,7 @@ const EXPERTRULES = {
     { id:'L4-R009', cat:'hot_industry', label:'CLOUD (云)', trigger:/cloud/i, effect:'云计算核心词汇，AWS/GCP/Azure三大云', reason:'Cloud=云计算，全球企业IT基础设施核心概念' },
     { id:'L4-R010', cat:'hot_industry', label:'CODE (代码)', trigger:/code/i, effect:'软件开发核心词汇，全球开发者生态基础', reason:'Code=代码，GitHub/GitLab/Cursor等开发者工具生态' },
     { id:'L4-R011', cat:'hot_industry', label:'DATA (数据)', trigger:/data/i, effect:'数据行业核心词汇，AI/大数据/数据科学基础', reason:'Data=数据，AI训练/Databricks/数据基础设施' },
-    // v6.5-R0d: 已知企业品牌词 — 匹配到触发 UNVERIFIED_BRAND 红色阻断
+    // v6.5-R0e: 已知企业品牌词 — 匹配到触发 UNVERIFIED_BRAND 红色阻断
     { id:'L4-R012', cat:'enterprise_brand', label:'TEXT (企业通讯品牌)', trigger:/^text$/i, effect:'⚠️ 疑似运营品牌域名 — Text S.A.(WSE:TXT)企业通讯平台，30K+客户，不在出售', reason:'Text S.A.为波兰证券交易所上市企业通讯公司，该域名极可能为其品牌资产' },
     { id:'L4-R013', cat:'enterprise_brand', label:'GRAB (东南亚超级App)', trigger:/^grab$/i, effect:'⚠️ 疑似运营品牌域名 — Grab Holdings(NASDAQ:GRAB)，东南亚超级App，运营中', reason:'Grab为纳斯达克上市企业，东南亚出行/支付/外卖超级App' },
     { id:'L4-R014', cat:'enterprise_brand', label:'BROOKS (知名消费品牌)', trigger:/^brooks$/i, effect:'⚠️ 疑似运营品牌域名 — Brooks Running/Brooks Brothers，知名消费品牌', reason:'Brooks为美国体育/服装知名品牌，长期运营中' },
@@ -954,7 +954,7 @@ const EXPERTRULES = {
 };
 
 // ═══════════════════════════════════════════════════════════════
-// v6.5-R0d: matchRules(sld, assetClass) → rule_hits[]
+// v6.5-R0e: matchRules(sld, assetClass) → rule_hits[]
 // 遍历 EXPERTRULES 5 层，返回所有命中的规则
 // ═══════════════════════════════════════════════════════════════
 function matchRules(sld, assetClass) {
@@ -1016,7 +1016,7 @@ function matchRules(sld, assetClass) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// v6.5-R0d: inferBuyerFit(rule_hits, assetClass) → buyer_fit[]
+// v6.5-R0e: inferBuyerFit(rule_hits, assetClass) → buyer_fit[]
 // 从命中的规则推断买家画像适配度
 // ═══════════════════════════════════════════════════════════════
 function inferBuyerFit(ruleHits, assetClass) {
@@ -1135,7 +1135,7 @@ const ACTIVE_BRAND_BLACKLIST = {
   '3m.com':        '3M 公司核心品牌域名（NYSE: MMM），全球500强，市值~$70B，已建站运营，不存在二级市场收购场景'
 };
 
-// v6.5-R0d: 已知企业品牌SLD集合 — 匹配到则触发 UNVERIFIED_BRAND 红色阻断
+// v6.5-R0e: 已知企业品牌SLD集合 — 匹配到则触发 UNVERIFIED_BRAND 红色阻断
 // 这些品牌词作为超短词.com可能被误判为普通ULTRA_WORD_COM，实际为运营中企业
 const SUSPECTED_ENTERPRISE_BRAND_SLDS = new Set([
   'text',    // Text S.A. (WSE:TXT), 30K+客户, 企业通讯平台, 不在出售
@@ -1161,7 +1161,7 @@ function resolveDomainStatus(full) {
   if (ACTIVE_BRAND_BLACKLIST[key]) {
     return { domain_status: 'active_brand', status_note: ACTIVE_BRAND_BLACKLIST[key], source: 'known_brand_blacklist' };
   }
-  // v6.5-R0d: 疑似企业品牌检测 — 已知品牌SLD但未在黑名单中（非FAANG级已确认品牌）
+  // v6.5-R0e: 疑似企业品牌检测 — 已知品牌SLD但未在黑名单中（非FAANG级已确认品牌）
   if (SUSPECTED_ENTERPRISE_BRAND_SLDS.has(sld)) {
     return { domain_status: 'unverified_brand', status_note: '疑似运营品牌域名，该SLD匹配已知企业品牌词汇（存在运营中企业），通常不在二级市场流通', source: 'suspected_enterprise_brand' };
   }
@@ -1176,7 +1176,7 @@ function resolveAcquirable(statusInfo, anchorMeta) {
   if (statusInfo.domain_status === 'active_brand') {
     return { acquirable: false, acquirable_note: statusInfo.status_note || '活跃品牌域名，通常不在二级市场流通' };
   }
-  // v6.5-R0d: 疑似企业品牌 → UNVERIFIED_BRAND 红色阻断
+  // v6.5-R0e: 疑似企业品牌 → UNVERIFIED_BRAND 红色阻断
   if (statusInfo.domain_status === 'unverified_brand') {
     return { acquirable: 'UNVERIFIED_BRAND', acquirable_note: '疑似运营品牌域名 — 该SLD匹配已知企业品牌词，存在运营中企业终端，通常不在二级市场流通，估值仅供类别参考' };
   }
@@ -1312,7 +1312,7 @@ const SCORE_FLOOR_MAP = {
   GENERIC:                  0
 };
 
-// v6.5-R0d: 类别 P1/P2/P3 静态下限（基于真实成交数据，非机械倍数）
+// v6.5-R0e: 类别 P1/P2/P3 静态下限（基于真实成交数据，非机械倍数）
 const CLASS_P1_FLOOR = {
   L_COM: 5000000, LL_COM: 300000, LLL_COM: 100000,
   ULTRA_WORD_COM: 500000, LLLL_PRONOUNCEABLE_COM: 8000, LLLL_COM: 50000,
@@ -1320,7 +1320,7 @@ const CLASS_P1_FLOOR = {
   MIXED_2C_COM: 30000, NNNN_COM: 5000, NNNNN_COM: 1000, MIXED_SHORT_COM: 30000,
   AI_KEYWORD_TLD: 1000, VERIFIED_HIGH_VALUE_COM: 10000, GENERIC: 0
 };
-// v6.5-R0d: P2 下限不再机械 = P1 × 3，而是基于实际挂牌/议价区间
+// v6.5-R0e: P2 下限不再机械 = P1 × 3，而是基于实际挂牌/议价区间
 const CLASS_P2_FLOOR = {
   L_COM: 15000000, LL_COM: 800000, LLL_COM: 250000,
   ULTRA_WORD_COM: 1200000, LLLL_PRONOUNCEABLE_COM: 20000, LLLL_COM: 120000,
@@ -1328,7 +1328,7 @@ const CLASS_P2_FLOOR = {
   MIXED_2C_COM: 60000, NNNN_COM: 12000, NNNNN_COM: 2500, MIXED_SHORT_COM: 70000,
   AI_KEYWORD_TLD: 2500, VERIFIED_HIGH_VALUE_COM: 25000, GENERIC: 0
 };
-// v6.5-R0d: P3 不再机械 = P1 × 5，高价值类别默认 manual_review_only
+// v6.5-R0e: P3 不再机械 = P1 × 5，高价值类别默认 manual_review_only
 const CLASS_P3_FLOOR = {
   L_COM: 25000000, LL_COM: 2000000, LLL_COM: 400000,
   ULTRA_WORD_COM: 2000000, LLLL_PRONOUNCEABLE_COM: 35000, LLLL_COM: 200000,
@@ -1336,13 +1336,13 @@ const CLASS_P3_FLOOR = {
   MIXED_2C_COM: 100000, NNNN_COM: 20000, NNNNN_COM: 4000, MIXED_SHORT_COM: 120000,
   AI_KEYWORD_TLD: 4000, VERIFIED_HIGH_VALUE_COM: 40000, GENERIC: 0
 };
-// v6.5-R0d: P1/P2 区间宽度硬约束（高/低比上限）
+// v6.5-R0e: P1/P2 区间宽度硬约束（高/低比上限）
 const MAX_RANGE_RATIO = {
   LL_COM: 4, LLL_COM: 4, NN_COM: 4, L_COM: 4,          // 高流通稀缺类：最多 4x
-  LLLL_PRONOUNCEABLE_COM: 6, MIXED_2C_COM: 5, NNNN_COM: 6, MIXED_SHORT_COM: 6, // 中等流通类：最多 5-6x
-  NNNNN_COM: 30, WORD_COM: 13, LLLL_COM: 10               // 长组合/普通类：允许较宽
+  LLLL_PRONOUNCEABLE_COM: 6, MIXED_2C_COM: 5, NNNN_COM: 4, MIXED_SHORT_COM: 5, // NNNN 按子类型定价，基准 4x
+  NNNNN_COM: 5, WORD_COM: 13, LLLL_COM: 10               // NNNNN 按子类型定价，基准 5x
 };
-// v6.5-R0d: P3 默认需人工复核的类别（不自动出大数字）
+// v6.5-R0e: P3 默认需人工复核的类别（不自动出大数字）
 const P3_MANUAL_REVIEW_CLASSES = ['LL_COM', 'L_COM', 'ULTRA_WORD_COM', 'GENERIC'];
 
 const PRICING_BADGE_LABELS = {
@@ -1472,7 +1472,7 @@ function buildAnchorDealsTable(anchors) {
     .map(({ d, p, note }) => ({ d, p, note }));
 }
 
-// v6.5-R0d: 价格区间宽度硬约束 — 防止机械 10x 区间
+// v6.5-R0e: 价格区间宽度硬约束 — 防止机械 10x 区间
 // 输入: "$300,000 – $1,200,000", 输出: 原样或 "需人工复核"
 function clampRangeWidth(rangeStr, maxRatio) {
   if (!rangeStr || rangeStr === '—' || rangeStr === '需人工复核') return rangeStr;
@@ -1487,7 +1487,7 @@ function clampRangeWidth(rangeStr, maxRatio) {
   }
   return rangeStr;
 }
-// v6.5-R0d: P3 是否应显示为 "需人工复核"
+// v6.5-R0e: P3 是否应显示为 "需人工复核"
 function p3ManualReview(assetId) {
   return P3_MANUAL_REVIEW_CLASSES.includes(assetId);
 }
@@ -1499,6 +1499,58 @@ function parseDomain(raw) {
   const sld = parts[0];
   return { full, tld, sld };
 }
+
+// ── 纯数字域名子类型检测（v6.5-R0e）──
+// 4 不是 lucky，用 /[68]/ 判断吉利数字
+function detectNumericSubtype(sld) {
+  const has68 = /[68]/.test(sld);
+  const has4 = sld.includes('4');
+  const starts0 = sld[0] === '0';
+  const zeroCount = (sld.match(/0/g) || []).length;
+  // 重复数字（非 0）：1888(尾), 8881(头), 88888 — 任意位置连续 2+ 重复，且重复的不是 0
+  const hasRepeat = /([1-9])\1{1,}/.test(sld);
+  // 连续递增：12345, 56789 — 原始顺序严格递增
+  const sequential = sld.length >= 3 && sld.split('').every((d, i) => i === 0 || Number(d) === Number(sld[i-1]) + 1);
+  // 严格递减：9876, 321 — 排除 clean_lucky 误判
+  const descending = sld.length >= 3 && sld.split('').every((d, i) => i === 0 || Number(d) === Number(sld[i-1]) - 1);
+  // 回文（非 0 版本）：12321, 808 — 排除含 0 的伪回文
+  const palindromeNoZero = !sld.includes('0') && sld === sld.split('').reverse().join('');
+
+  // 优先级：pattern(强信号) > zero_heavy(弱 penalty) > clean_lucky > has4 > neutral
+  // repeat/seq/palindrome 优先于 starts0，因为 08888 的 8888 是强吉利信号
+  if (hasRepeat || sequential || palindromeNoZero) return 'premium_pattern';
+  if (starts0 || zeroCount >= 2) return 'zero_heavy';
+  if (has68 && !has4 && !descending) return 'clean_lucky';
+  if (has4) return 'has4_penalty';
+  return 'neutral_clean';
+}
+
+// 子类型 -> 中文标签
+const NUMERIC_SUBTYPE_LABEL = {
+  premium_pattern: '吉利/规律组合',
+  clean_lucky: '含6/8，无4',
+  neutral_clean: '中性组合',
+  has4_penalty: '含4（折价）',
+  zero_heavy: '含前导0或多0（折价）',
+};
+
+// 子类型 -> P1 价格区间（N=4 / N=5 分别定义）
+const NUMERIC_SUBTYPE_P1 = {
+  NNNN: {
+    premium_pattern: '$15,000 – $150,000',
+    clean_lucky:     '$10,000 – $80,000',
+    neutral_clean:   '$5,000 – $30,000',
+    has4_penalty:    '$3,000 – $15,000',
+    zero_heavy:      '$2,000 – $10,000',
+  },
+  NNNNN: {
+    premium_pattern: '$5,000 – $30,000',
+    clean_lucky:     '$3,000 – $15,000',
+    neutral_clean:   '$1,000 – $5,000',
+    has4_penalty:    '$500 – $3,000',
+    zero_heavy:      '$300 – $2,000',
+  },
+};
 
 function classifyAsset(sld, tld, full) {
   const key = full;
@@ -1546,7 +1598,7 @@ function classifyAsset(sld, tld, full) {
   const isMixedShort = /^[a-z0-9]{3,4}$/.test(sld) && /[0-9]/.test(sld) && /[a-z]/.test(sld);
   const isMixed2C = /^[a-z0-9]{2}$/.test(sld) && /[0-9]/.test(sld) && /[a-z]/.test(sld);
 
-  // v6.5-R0d: apply range width clamp + P3 manual review override
+  // v6.5-R0e: apply range width clamp + P3 manual review override
   const make = (id, priceTag, p1, p2, p3, rationale) => {
     const maxRatio = MAX_RANGE_RATIO[id] ?? 6;
     const clampedP1 = clampRangeWidth(p1, maxRatio);
@@ -1567,12 +1619,22 @@ function classifyAsset(sld, tld, full) {
     if (isNumeric && len === 3) return make('NNN_COM', '投资人流通底价',
       '$50,000 – $800,000', '$100,000 – $1,500,000', '$200,000 – $3,000,000',
       '3位纯数字.COM — 全球仅1,000个，稀缺资产（参照：360.com、888.com）');
-    if (isNumeric && len === 4) return make('NNNN_COM', '投资人流通底价',
-      '$5,000 – $150,000', '$15,000 – $400,000', '$50,000 – $800,000',
-      '4位纯数字.COM — 全球仅10,000个（参照：1888.com 等吉利数字）');
-    if (isNumeric && len === 5) return make('NNNNN_COM', '投资人流通底价',
-      '$1,000 – $30,000', '$5,000 – $80,000', '$20,000 – $200,000',
-      '5位纯数字.COM — 全球仅100,000个（参照：12345.com 等）');
+    if (isNumeric && len === 4) {
+      const sub = detectNumericSubtype(sld);
+      const subLabel = NUMERIC_SUBTYPE_LABEL[sub];
+      const subP1 = NUMERIC_SUBTYPE_P1.NNNN[sub];
+      return make('NNNN_COM', '投资人流通底价',
+        subP1, '$15,000 – $400,000', '$50,000 – $800,000',
+        `4位纯数字.COM — 全球仅10,000个｜子类型：${subLabel}（参照：1888.com 等吉利数字）`);
+    }
+    if (isNumeric && len === 5) {
+      const sub = detectNumericSubtype(sld);
+      const subLabel = NUMERIC_SUBTYPE_LABEL[sub];
+      const subP1 = NUMERIC_SUBTYPE_P1.NNNNN[sub];
+      return make('NNNNN_COM', '投资人流通底价',
+        subP1, '$5,000 – $80,000', '$20,000 – $200,000',
+        `5位纯数字.COM — 全球仅100,000个｜子类型：${subLabel}（参照：12345.com 等）`);
+    }
     if (isAlpha && len === 1) return make('L_COM', '战略级稀缺资产',
       '$5,000,000 – $20,000,000', '$10,000,000 – $30,000,000', '需人工复核；仅限战略终端',
       '单字母.COM — 全球最顶级域名资产（参照：we.com $8M, ig.com $4.7M）');
@@ -1794,7 +1856,7 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
       const ruleHits = matchRules(sld, asset.id);
       const buyerFit = inferBuyerFit(ruleHits, asset.id);
       return {
-        version: 'v6.5-R0d',
+        version: 'v6.5-R0e',
         auto_pricing_allowed: false,
         review_level: 'manual_review_only',
         rule_hits: ruleHits.map(r => ({ rule_id: r.id, layer: r.layer, label: r.label, effect: r.effect, reason: r.reason })),
@@ -1811,7 +1873,7 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
     : '';
 
   return `# DOMAIN_VALUATION_PACK.md
-> 生成时间：${now} | 系统：Domain AI Judge v6.5-R0d | 规则：CORE_RULES v2
+> 生成时间：${now} | 系统：Domain AI Judge v6.5-R0e | 规则：CORE_RULES v2
 > ⚠️ 本文档为系统初步判断，最终价格以实际市场成交为准
 > 📦 数据来源：静态规则库 / 用户录入 / 待人工复核（live_market_checked: false）
 ${activeBrandBanner}---
@@ -1845,7 +1907,7 @@ ${asset.listingNote ? `| 锚点说明 | ${asset.listingNote} |` : ''}
 |------|------|---------|
 ${anchorTableMd}
 
-### 2.2 当前资产类别价格区间参考（v6.5-R0d Price Lens）
+### 2.2 当前资产类别价格区间参考（v6.5-R0e Price Lens）
 
 - **P1 投资人流通价**：${asset.p1 || '需人工估算'}
 - **P2 挂牌/议价参考**：${asset.p2 || '需人工估算'}
@@ -1976,7 +2038,7 @@ ${materialData}
 
 ---
 
-*DOMAIN_VALUATION_PACK.md · Domain AI Judge v6.5-R0d · CORE_RULES v2 · 静态规则库 · ${now}*
+*DOMAIN_VALUATION_PACK.md · Domain AI Judge v6.5-R0e · CORE_RULES v2 · 静态规则库 · ${now}*
 `;
 }
 
@@ -2057,7 +2119,7 @@ function detectPattern(sld) {
   return { pattern, hasFour, hasZero, patternBorder, fourBorder, isFullSeq, isRepeat, isPalindrome, isTailSeq: effectiveIsTailSeq, isLucky, digits };
 }
 
-// ── v6.5-R0d: Expert Judgment Layer ──
+// ── v6.5-R0e: Expert Judgment Layer ──
 function expertJudgment(sld, patternInfo, has4) {
   const judgments = {
     full_sequence: {
@@ -2236,7 +2298,7 @@ function renderPattern(sld, patternInfo) {
   }
 }
 
-// ── v6.5-R0d: Expert Judgment UI Render ──
+// ── v6.5-R0e: Expert Judgment UI Render ──
 // 5-layer chips + rule_hits + buyer_fit cards
 function renderExpertJudgment(sld, patternInfo, asset) {
   const section = document.getElementById('expertSection');
@@ -2392,7 +2454,7 @@ function analyze() {
       // Stage1b: Pattern detection for NNNNN_COM
       const patternInfo = detectPattern(parsed.sld);
       renderPattern(parsed.sld, patternInfo);
-      // v6.5-R0d: Expert Judgment (5-layer chips + rule_hits + buyer_fit)
+      // v6.5-R0e: Expert Judgment (5-layer chips + rule_hits + buyer_fit)
       renderExpertJudgment(parsed.sld, patternInfo, asset);
 
     } catch(e) { document.getElementById('results').classList.add('visible'); }
