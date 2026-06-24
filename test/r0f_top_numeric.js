@@ -17,14 +17,17 @@ function extract(name) {
 // Pull constants + helpers used by classifyAsset top-numeric branch
 const detailConst = html.match(/const TOP_NUMERIC_SUBTYPE_DETAIL = \{[\s\S]*?\};/m);
 const ratioConst = html.match(/const TOP_NUMERIC_MAX_RATIO = \d+;/m);
+const lenSuffixConst = html.match(/const NUMERIC_LEN_SUFFIX = \{[\s\S]*?\};/m);
 const clampFn = html.match(/function clampRangeWidth\(rangeStr, maxRatio\) \{[\s\S]*?^\}/m);
-if (!detailConst || !ratioConst || !clampFn) { console.error('ERROR: missing R0f constants'); process.exit(1); }
+if (!detailConst || !ratioConst || !lenSuffixConst || !clampFn) { console.error('ERROR: missing R0f constants'); process.exit(1); }
 
 const toVar = s => s.replace(/^const /gm, 'var ');
-var TOP_NUMERIC_SUBTYPE_DETAIL, TOP_NUMERIC_MAX_RATIO, clampRangeWidth, detectTopNumericSubtypeDetail, detectNumericSubtype;
+var TOP_NUMERIC_SUBTYPE_DETAIL, TOP_NUMERIC_MAX_RATIO, NUMERIC_LEN_SUFFIX, clampRangeWidth, detectTopNumericSubtypeDetail, detectNumericSubtypeDetail, detectNumericSubtype;
 eval(toVar(detailConst[0]));
 eval(toVar(ratioConst[0]));
+eval(toVar(lenSuffixConst[0]));
 eval(toVar(clampFn[0]));
+eval(extract('detectNumericSubtypeDetail'));
 eval(extract('detectTopNumericSubtypeDetail'));
 eval(extract('detectNumericSubtype'));
 

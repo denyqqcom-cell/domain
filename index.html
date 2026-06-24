@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>域名投资专家系统 v6.6-R0</title>
+<title>域名投资专家系统 v6.6-R0a</title>
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
 <style>
 /* ── TOKENS ── */
@@ -634,7 +634,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <circle cx="27" cy="10" r="4" fill="var(--gold)"/>
       </svg>
       <span class="logo-text">域名估值</span>
-      <span class="logo-version">v6.6-R0</span>
+      <span class="logo-version">v6.6-R0a</span>
     </div>
     <button class="theme-btn" data-theme-toggle aria-label="切换主题">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -910,7 +910,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   </div>
 
   <footer class="footer">
-    Domain Investment Expert System v6.6-R0 · 系统专家出价 → AI 审计复核 · 估值仅供参考
+    Domain Investment Expert System v6.6-R0a · 系统专家出价 → AI 审计复核 · 估值仅供参考
   </footer>
 </div>
 
@@ -1573,14 +1573,34 @@ function parseDomain(raw) {
   return { full, tld, sld };
 }
 
-// v6.5-R0f: Top Numeric Price Lens — 顶级豹子拆桶（5N only）
-// 命中则脱离 premium_pattern 大桶，使用独立 P1/P2 区间
+// v6.6-R0a: 数字品相识别 2N–5N（Top Numeric 拆桶 + 顺子/整百/168 等）
+const NUMERIC_LEN_SUFFIX = { 2: '_nn', 3: '_nnn', 4: '_nnnn', 5: '' };
+
+function detectNumericSubtypeDetail(sld) {
+  if (!/^\d{2,5}$/.test(sld)) return null;
+  const len = sld.length;
+  const suf = NUMERIC_LEN_SUFFIX[len];
+
+  if (/^8+$/.test(sld)) return len === 5 ? 'all_8_repeat' : 'all_8_repeat' + suf;
+  if (/^([689])\1+$/.test(sld)) return len === 5 ? 'all_lucky_repeat' : 'all_lucky_repeat' + suf;
+  if (len === 5 && /^0[689]{4}$/.test(sld)) return 'lead0_lucky_repeat';
+
+  if (len === 3 && sld === '100') return 'round_hundred_nnn';
+  if (len === 3 && sld === '168') return 'lucky_168_nnn';
+
+  if (len >= 3) {
+    const asc = sld.split('').every((d, i) => i === 0 || Number(d) === Number(sld[i - 1]) + 1);
+    if (asc) return 'full_sequence' + suf;
+  }
+  return null;
+}
+
+// v6.5-R0f compat: 5N 顶级豹子拆桶
 function detectTopNumericSubtypeDetail(sld) {
   if (sld.length !== 5 || !/^\d{5}$/.test(sld)) return null;
-  if (/^8{5}$/.test(sld)) return 'all_8_repeat';
-  if (/^([689])\1{4}$/.test(sld)) return 'all_lucky_repeat';
-  if (/^0[689]{4}$/.test(sld)) return 'lead0_lucky_repeat';
-  return null;
+  const d = detectNumericSubtypeDetail(sld);
+  if (!d || d === 'full_sequence') return null;
+  return d;
 }
 
 const TOP_NUMERIC_SUBTYPE_DETAIL = {
@@ -1729,19 +1749,35 @@ function classifyAsset(sld, tld, full) {
   };
 
   if (tld === '.com') {
-    if (isNumeric && len <= 2) return make('NN_COM', '投资人流通底价',
-      '$500,000 – $2,500,000', '$1,200,000 – $5,000,000', '$3,000,000 – $10,000,000',
-      '1-2位纯数字.COM — 全球仅100个，稀缺度对标LL_COM（参照：12.com $2.5M，01.com ~$1.82M reported）');
-    if (isNumeric && len === 3) return make('NNN_COM', '投资人流通底价',
-      '$50,000 – $800,000', '$100,000 – $1,500,000', '$200,000 – $3,000,000',
-      '3位纯数字.COM — 全球仅1,000个，稀缺资产（参照：360.com、888.com）');
+    if (isNumeric && len <= 2) {
+      const subDetail = detectNumericSubtypeDetail(sld);
+      const result = make('NN_COM', '投资人流通底价',
+        '$500,000 – $2,500,000', '$1,200,000 – $5,000,000', '$3,000,000 – $10,000,000',
+        '1-2位纯数字.COM — 全球仅100个，稀缺度对标LL_COM（参照：12.com $2.5M，01.com ~$1.82M reported）');
+      if (subDetail) { result.subtypeDetail = subDetail; result.pricingMethod = 'top_numeric_price_lens'; }
+      return result;
+    }
+    if (isNumeric && len === 3) {
+      const subDetail = detectNumericSubtypeDetail(sld);
+      const result = make('NNN_COM', '投资人流通底价',
+        '$50,000 – $800,000', '$100,000 – $1,500,000', '$200,000 – $3,000,000',
+        '3位纯数字.COM — 全球仅1,000个，稀缺资产（参照：360.com、888.com）');
+      if (subDetail) {
+        result.subtypeDetail = subDetail;
+        result.pricingMethod = 'top_numeric_price_lens';
+      }
+      return result;
+    }
     if (isNumeric && len === 4) {
+      const subDetail = detectNumericSubtypeDetail(sld);
       const sub = detectNumericSubtype(sld);
       const subLabel = NUMERIC_SUBTYPE_LABEL[sub];
       const subP1 = NUMERIC_SUBTYPE_P1.NNNN[sub];
-      return make('NNNN_COM', '投资人流通底价',
+      const result = make('NNNN_COM', '投资人流通底价',
         subP1, '$15,000 – $400,000', '$50,000 – $800,000',
         `4位纯数字.COM — 全球仅10,000个｜子类型：${subLabel}（参照：1888.com 等吉利数字）`);
+      if (subDetail) { result.subtypeDetail = subDetail; result.pricingMethod = 'top_numeric_price_lens'; }
+      return result;
     }
     if (isNumeric && len === 5) {
       const subDetail = detectTopNumericSubtypeDetail(sld);
@@ -1988,7 +2024,7 @@ function getConfidence(asset) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// v6.6-R0: Expert Memo + AI Auditor Contract
+// v6.6-R0a: Expert Memo + AI Auditor Contract + Numeric 2N–5N
 // ═══════════════════════════════════════════════════════════════
 const AI_AUDITOR_OUTPUT_SCHEMA = {
   audit_score: 0,
@@ -1996,7 +2032,12 @@ const AI_AUDITOR_OUTPUT_SCHEMA = {
   p2_verdict: '偏低 | 合理 | 偏高 | 数据不足',
   p3_verdict: '偏低 | 合理 | 偏高 | 数据不足',
   market_reality_check: '',
-  top_evidence: [{ domain: '', price: '', source: '', year: '', relevance: '' }],
+  top_evidence: [{
+    domain: '', price: '', source: '', source_url: '',
+    source_tier: 'verified_sale | marketplace_listing | forum_claim | unverified',
+    verified_status: 'verified | partial | unverified',
+    year: '', relevance: ''
+  }],
   correction_suggestion: '',
   confidence: 'high | medium | low'
 };
@@ -2059,6 +2100,9 @@ function buildAiAuditTasks(sld, asset, patternInfo) {
   if (asset.subtypeDetail === 'all_8_repeat' || sld === '88888') {
     tasks.push('核实88888.com历史成交$245K(DNJournal 2013-12-04)与近年顶级5N成交');
   }
+  if (asset.id === 'NNN_COM' && asset.subtypeDetail) {
+    tasks.push('核实 NNN_COM / AAA数字 同类成交、888.com 历史成交与当前挂牌');
+  }
   if (asset.id === 'LL_COM') {
     tasks.push('核实两字母.COM近期成交与缩写终端场景');
   }
@@ -2071,39 +2115,68 @@ function buildAiAuditTasks(sld, asset, patternInfo) {
   return tasks;
 }
 
+function anchorAssetClassForDomain(domain) {
+  const key = domain.toLowerCase();
+  const sld = key.split('.')[0];
+  const tld = '.' + key.split('.').slice(1).join('.');
+  return detectAssetClassId(sld, tld, true);
+}
+
 function pickComparableAnchors(assetClass, limit) {
-  const rows = buildAnchorDealsTable(ANCHORS);
-  const classHints = {
-    NNNNN_COM: ['5', '数字', '88888', '12345'],
-    LL_COM: ['iz.com', 'oa.com', 'LL'],
-    ULTRA_WORD_COM: ['cloud', 'derm', 'goka', 'word'],
-    LLLL_COM: ['nfts'],
-  };
-  const hints = classHints[assetClass] || [];
-  const picked = rows.filter(r => hints.some(h => r.d.toLowerCase().includes(h.toLowerCase()) || r.note.includes(h)));
-  return (picked.length ? picked : rows.slice(0, 3)).slice(0, limit || 5).map(r => ({
-    domain: r.d, price: r.p, note: r.note, use: 'class_comparable'
-  }));
+  const auditRows = [];
+  for (const [domain, anchor] of Object.entries(ANCHORS)) {
+    const cls = anchorAssetClassForDomain(domain);
+    if (cls !== assetClass) continue;
+    auditRows.push({
+      domain: ANCHOR_DISPLAY_NAMES[domain] || domain,
+      price: formatAnchorDisplayPrice(anchor),
+      note: buildAnchorDisplayNote(domain, anchor),
+      use: 'class_comparable',
+      allowed_for_audit: true,
+      asset_class: cls
+    });
+  }
+  return auditRows.slice(0, limit || 5);
 }
 
 function buildExpertOneLiner(sld, asset, patternInfo) {
+  if (asset.subtypeDetail === 'all_8_repeat_nnn') return 'AAA全8三数字豹子，NNN_COM 第一梯队品相，华人市场硬通货。';
   if (asset.subtypeDetail === 'all_8_repeat') return '全8五数字豹子，中文市场顶级数字品相，投资人收货看二十万美元量级。';
+  if (asset.subtypeDetail === 'all_lucky_repeat_nnn') return 'AAA豹子三数字，6/9 吉祥组合，NNN_COM 高流动性品类。';
   if (asset.id === 'NNNNN_COM' && /4/.test(sld)) return '含4五数字普通结构' + (sld[0] === '4' ? '且4开头' : '') + '，系统折价假设已计入，宜捡漏收货。';
   if (asset.id === 'LL_COM') return '两字母.COM稀缺缩写，终端语义依赖具体字母组合。';
   if (asset.id === 'ULTRA_WORD_COM') return '顶级英文单词.COM，行业覆盖广，战略终端溢价显著。';
   return asset.rationale || asset.priceTag || '依据品类规则与六维评分。';
 }
 
+function buildNumericProfileTags(sld, asset) {
+  const tags = [];
+  if (!/^\d+$/.test(sld)) return tags;
+  if (asset.id === 'NNN_COM') tags.push('3位纯数字.COM');
+  if (asset.id === 'NNNN_COM') tags.push('4位纯数字.COM');
+  if (asset.id === 'NNNNN_COM') tags.push('5位纯数字.COM');
+  if (asset.id === 'NN_COM') tags.push('2位纯数字.COM');
+  const sd = asset.subtypeDetail;
+  if (!sd) return tags;
+  tags.push('top_numeric');
+  if (/^all_8_repeat/.test(sd)) tags.push('AAA豹子号', '全8吉利号', '中文市场强偏好');
+  else if (/^all_lucky_repeat/.test(sd)) tags.push('AAA豹子号', '6/9吉祥号');
+  else if (/^full_sequence/.test(sd)) tags.push('全顺子');
+  else if (sd === 'round_hundred_nnn') tags.push('整百号');
+  else if (sd === 'lucky_168_nnn') tags.push('168一路发');
+  return tags;
+}
+
 function buildExpertMemo(parsed, asset, scores, valuation, ruleHits, patternInfo, risks) {
   const { sld } = parsed;
   const pi = patternInfo;
   const has4 = pi ? pi.hasFour : /4/.test(sld);
-  const pj = expertJudgment(sld, pi, has4);
-  const tags = [asset.id];
-  if (asset.subtypeDetail) tags.push(asset.subtypeDetail);
+  const pj = expertJudgment(sld, pi, has4, asset.subtypeDetail);
+  const tags = [asset.id, ...buildNumericProfileTags(sld, asset)];
+  if (asset.subtypeDetail && !tags.includes(asset.subtypeDetail)) tags.push(asset.subtypeDetail);
   if (has4) tags.push('含4');
   if (has4 && sld[0] === '4') tags.push('4开头');
-  if (pi && pi.pattern) tags.push(pi.pattern);
+  if (pi && pi.pattern && !asset.subtypeDetail) tags.push(pi.pattern);
   if (asset.id === 'LL_COM' && LL_ABBREVIATION_HINTS[sld.toLowerCase()]) {
     tags.push(...LL_ABBREVIATION_HINTS[sld.toLowerCase()]);
   }
@@ -2142,6 +2215,11 @@ function buildAiAuditorBrief(expertMemo) {
       '不得复述系统规则',
       '不得输出长篇报告（≤300字）',
       '不得使用无来源百分比',
+      '不得输出独立 price_range；只能给 p1/p2/p3_verdict 与 correction_suggestion',
+      'top_evidence 每条必须含 source_url、source_tier、verified_status',
+      '无 source_url 不得 confidence: high',
+      'source_tier 为 forum_claim / unverified 不得作为主要价格锚点',
+      '仅使用 comparable_anchors 中 allowed_for_audit: true 的锚点',
       '数据不足时降低 confidence 并标注数据不足'
     ],
     expert_memo: expertMemo,
@@ -2166,7 +2244,7 @@ function buildAnalysisBundle(parsed, asset, scores, conf, risks, industries) {
   return { valuation, memo, auditorBrief, statusInfo, acquirableInfo };
 }
 
-/** @deprecated v6.6-R0 — legacy Markdown export; use buildAnalysisBundle() */
+/** @deprecated v6.6-R0a — legacy Markdown export; use buildAnalysisBundle() */
 function generatePack(parsed, asset, scores, conf, risks, industries) {
   const now = new Date().toISOString().split('T')[0];
   const bundle = buildAnalysisBundle(parsed, asset, scores, conf, risks, industries);
@@ -2174,8 +2252,8 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
   const auditorJson = JSON.stringify(bundle.auditorBrief, null, 2);
   const v = bundle.valuation;
   const pl = v.price_lens;
-  return `# Expert Memo + AI Auditor Brief (v6.6-R0)
-> 生成时间：${now} | Domain Investment Expert System v6.6-R0
+  return `# Expert Memo + AI Auditor Brief (v6.6-R0a)
+> 生成时间：${now} | Domain Investment Expert System v6.6-R0a
 > 主输出：专家 Memo + AI 审计合同 | Legacy Pack 已降级为附录
 
 ---
@@ -2232,7 +2310,7 @@ ${JSON.stringify(bundle.auditorBrief.output_schema, null, 2)}
 
 > 六维明细、全量锚点表、67 条规则命中见高级展开区 UI。
 
-*v6.6-R0 · Domain Investment Expert System · ${now}*
+*v6.6-R0a · Domain Investment Expert System · ${now}*
 `;
 }
 
@@ -2343,8 +2421,81 @@ function detectPattern(sld) {
   return { pattern, hasFour, hasZero, patternBorder, fourBorder, isFullSeq, isRepeat, isPalindrome, isTailSeq: effectiveIsTailSeq, isLucky: effectiveIsLucky, isDescSeq, digits };
 }
 
+// ── v6.6-R0a: 2N–5N 数字品相专家判断（优先于 5N ordinary 兜底）──
+const NUMERIC_SUBTYPE_JUDGMENTS = {
+  all_8_repeat_nnn: {
+    pattern_quality: '顶级品相·AAA豹子号·全8吉利组合',
+    liquidity_signal: '高流动性·三数字.COM硬通货',
+    cn_market_bias: '强溢价·数字8在华人市场具备显著偏好',
+    relative_position: 'NNN_COM第一梯队数字品相'
+  },
+  all_lucky_repeat_nnn: {
+    pattern_quality: '顶级品相·AAA豹子号·6/9吉祥组合',
+    liquidity_signal: '高流动性·三数字.COM收藏级',
+    cn_market_bias: '华人市场偏好6顺9久，豹子结构溢价显著',
+    relative_position: 'NNN_COM第一梯队数字品相'
+  },
+  full_sequence_nnn: {
+    pattern_quality: '全顺子·三数字稀缺规律组合',
+    liquidity_signal: '高流动性·顺子号硬通货',
+    cn_market_bias: '顺子寓意顺遂，中国买家偏好明显',
+    relative_position: 'NNN_COM高品相层级'
+  },
+  round_hundred_nnn: {
+    pattern_quality: '整百号·极简记忆成本',
+    liquidity_signal: '中高流动性·企业编号/品牌常用',
+    cn_market_bias: '100为整数关口，企业终端偏好',
+    relative_position: 'NNN_COM优质数字品相'
+  },
+  lucky_168_nnn: {
+    pattern_quality: '168一路发·粤语/华人市场吉祥组合',
+    liquidity_signal: '中高流动性·商业/贸易终端偏好',
+    cn_market_bias: '168=一路发，华人商业文化强信号',
+    relative_position: 'NNN_COM吉祥号第一梯队'
+  },
+  all_8_repeat_nn: {
+    pattern_quality: '顶级品相·双8豹子·NN_COM稀缺',
+    liquidity_signal: '极高流动性·两数字硬通货',
+    cn_market_bias: '双8在华人市场为顶级财富符号',
+    relative_position: 'NN_COM第一梯队'
+  },
+  all_8_repeat_nnnn: {
+    pattern_quality: '顶级品相·四8豹子·NNNN_COM稀缺',
+    liquidity_signal: '高流动性·四数字吉利组合',
+    cn_market_bias: '四8叠加，华人市场强溢价',
+    relative_position: 'NNNN_COM第一梯队'
+  },
+  all_8_repeat: {
+    pattern_quality: '顶级品相·五8豹子·全位重复',
+    liquidity_signal: '高流动性·五数字收藏级',
+    cn_market_bias: '88888为终极财富符号，华人市场顶级认知',
+    relative_position: 'NNNNN_COM第一梯队'
+  },
+  all_lucky_repeat: {
+    pattern_quality: '顶级品相·五同吉祥豹子',
+    liquidity_signal: '高流动性·五数字收藏级',
+    cn_market_bias: '666/999等吉祥豹子在华人市场溢价显著',
+    relative_position: 'NNNNN_COM第一梯队'
+  },
+  lead0_lucky_repeat: {
+    pattern_quality: '前导0吉祥豹子·折价于全位豹子',
+    liquidity_signal: '中高流动性',
+    cn_market_bias: '前导0略折价，尾豹子仍具吉利信号',
+    relative_position: 'NNNNN_COM高品相（低于全位豹子）'
+  }
+};
+
 // ── v6.5-R0e: Expert Judgment Layer ──
-function expertJudgment(sld, patternInfo, has4) {
+function expertJudgment(sld, patternInfo, has4, subtypeDetail) {
+  if (subtypeDetail && NUMERIC_SUBTYPE_JUDGMENTS[subtypeDetail]) {
+    const base = NUMERIC_SUBTYPE_JUDGMENTS[subtypeDetail];
+    let has4_annotation = null;
+    if (has4) {
+      has4_annotation = '⚠️ 含数字4·系统折价假设已计入三档价格；AI核验项：请联网核实同类含4成交是否支持该折价。';
+    }
+    return { ...base, has4_annotation };
+  }
+
   const judgments = {
     full_sequence: {
       pattern_quality: '纯顺子·极稀缺——五数字最高品相，12345/6789等递增完全顺子全球认知统一，流通性顶级',
@@ -2592,12 +2743,13 @@ function renderExpertJudgment(sld, patternInfo, asset, scores) {
   // ── Version Badge ──
   document.getElementById('expVersion').textContent = ruleHits.length > 0 ? `${ruleHits.length} hits / 67 rules` : '67 rules';
 
-  // ── Pattern Judgment (5-digit only) ──
+  // ── Pattern Judgment (5-digit or numeric subtype_detail) ──
   const patternGrid = document.getElementById('expertPatternGrid');
-  if (patternInfo && sld.length === 5 && /^\d{5}$/.test(sld)) {
+  const showPattern = asset.subtypeDetail || (patternInfo && sld.length === 5 && /^\d{5}$/.test(sld));
+  if (showPattern) {
     patternGrid.style.display = '';
-    const has4 = patternInfo.hasFour;
-    const j = expertJudgment(sld, patternInfo, has4);
+    const has4 = patternInfo ? patternInfo.hasFour : /4/.test(sld);
+    const j = expertJudgment(sld, patternInfo, has4, asset.subtypeDetail);
     document.getElementById('expPatternQualityVal').textContent = j.pattern_quality;
     document.getElementById('expLiquidityVal').textContent = j.liquidity_signal;
     document.getElementById('expCnBiasVal').textContent = j.cn_market_bias;

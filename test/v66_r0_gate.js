@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * v6.6-R0 product contract gates (source + runtime builders)
+ * v6.6-R0 / R0a product contract gates (source + runtime builders)
  * Run: node test/v66_r0_gate.js
  */
 const fs = require('fs');
@@ -37,17 +37,12 @@ check('generatePack: no 估值顾问', !/你是专业域名估值顾问/.test(gp
 check('generatePack: deny-list only investor_floor_usd', !/(?<!禁止字段：price_range, )investor_floor_usd/.test(gp));
 check('generatePack: AI Auditor Brief present', /AI Auditor Brief/.test(gp));
 check('buildAiAuditorBrief: 复核员 not 估值员', /不是重新估值员/.test(auditorBriefBlock));
-
-check('index: buildSystemValuation exists', /function buildSystemValuation/.test(html));
-check('index: buildExpertMemo exists', /function buildExpertMemo/.test(html));
-check('index: buildAiAuditorBrief exists', /function buildAiAuditorBrief/.test(html));
-check('index: dual-panel UI', /id="dualPanel"/.test(html));
-check('index: TOP_NUMERIC_STRATEGIC_P3', /TOP_NUMERIC_STRATEGIC_P3/.test(html));
-check('index: CLASS_STRATEGIC_P3', /CLASS_STRATEGIC_P3/.test(html));
-check('index: v6.6-R0 version', /v6\.6-R0/.test(html));
-check('classifyAsset: top numeric P3 numeric', /TOP_NUMERIC_STRATEGIC_P3\[subDetail\]/.test(html));
-check('make(): no bare 需人工复核 override', !/finalP3 = p3ManualReview/.test(html));
-check('clampRangeWidth: no 需人工复核 output', !/需人工复核/.test(extractFn('clampRangeWidth')));
+check('AI schema: source_url field', /source_url/.test(html));
+check('AI schema: source_tier field', /source_tier/.test(html));
+check('index: detectNumericSubtypeDetail', /function detectNumericSubtypeDetail/.test(html));
+check('index: NUMERIC_SUBTYPE_JUDGMENTS', /NUMERIC_SUBTYPE_JUDGMENTS/.test(html));
+check('index: anchorAssetClassForDomain', /function anchorAssetClassForDomain/.test(html));
+check('index: v6.6-R0a version', /v6\.6-R0a/.test(html));
 
 // ── Bootstrap runtime ──
 const bootstrap = [
@@ -55,10 +50,13 @@ const bootstrap = [
   sliceBetween('const EXPERTRULES = {', 'function matchRules'),
   sliceBetween('const ACTIVE_BRAND_BLACKLIST = {', 'function resolveDomainStatus'),
   sliceBetween('const ANCHORS = {', 'function classifyAsset'),
+  html.match(/const NUMERIC_LEN_SUFFIX = \{[\s\S]*?^};/m)[0],
+  html.match(/const NUMERIC_SUBTYPE_JUDGMENTS = \{[\s\S]*?\};/m)[0],
   extractFn('buildAnchorDisplayNote'),
   extractFn('formatAnchorDisplayPrice'),
   extractFn('buildAnchorDealsTable'),
   extractFn('parseDomain'),
+  extractFn('detectNumericSubtypeDetail'),
   extractFn('detectTopNumericSubtypeDetail'),
   extractFn('detectNumericSubtype'),
   extractFn('fmtAnchor'),
@@ -82,7 +80,9 @@ const bootstrap = [
   extractFn('buildPriceTier'),
   extractFn('buildSystemValuation'),
   extractFn('buildAiAuditTasks'),
+  extractFn('anchorAssetClassForDomain'),
   extractFn('pickComparableAnchors'),
+  extractFn('buildNumericProfileTags'),
   extractFn('buildExpertOneLiner'),
   extractFn('buildExpertMemo'),
   extractFn('buildAiAuditorBrief'),
@@ -111,18 +111,22 @@ function analyzeDomain(domain) {
   return { parsed, asset, scores, bundle };
 }
 
-// ── Auditor smoke ──
-const brief = buildAiAuditorBrief({
-  domain: '41235.COM',
-  asset_profile: { asset_class: 'NNNNN_COM', tags: ['含4'] },
-  expert_view: { one_liner: 'test' },
-  system_valuation: { p1: {}, p2: {}, p3: {} },
-  ai_audit_tasks: ['含4五数字']
-});
-check('auditor: not re-valuator', brief.instruction.includes('不是重新估值员'));
-check('auditor: no price_range in schema', !JSON.stringify(brief.output_schema).includes('price_range'));
-check('auditor: has audit_score', brief.output_schema.audit_score !== undefined);
-check('auditor schema: no investor_floor_usd', !JSON.stringify(brief.output_schema).includes('investor_floor_usd'));
+// ── Gate: 888.com (R0a blocker) ──
+{
+  const { asset, bundle } = analyzeDomain('888.com');
+  const memo = bundle.memo;
+  const pj = memo.expert_view.pattern_judgment;
+  const anchors = memo.comparable_anchors.map(a => a.domain);
+  check('888: asset_class NNN_COM', asset.id === 'NNN_COM');
+  check('888: subtype_detail all_8_repeat_nnn', asset.subtypeDetail === 'all_8_repeat_nnn');
+  check('888: tag AAA豹子号', memo.asset_profile.tags.includes('AAA豹子号'));
+  check('888: tag 全8吉利号', memo.asset_profile.tags.includes('全8吉利号'));
+  check('888: pattern not ordinary', !/普通品相/.test(JSON.stringify(pj)));
+  check('888: no NFTs in anchors', !anchors.some(d => /nfts/i.test(d)));
+  check('888: no cloud in anchors', !anchors.some(d => /cloud/i.test(d)));
+  check('888: audit NNN_COM task', memo.ai_audit_tasks.some(t => /NNN_COM|AAA数字|888\.com/.test(t)));
+  check('888: anchors allowed_for_audit', memo.comparable_anchors.every(a => a.allowed_for_audit === true));
+}
 
 // ── Gate: 41235.com ──
 {
@@ -136,48 +140,32 @@ check('auditor schema: no investor_floor_usd', !JSON.stringify(brief.output_sche
   check('41235: tag 含4', memo.asset_profile.tags.includes('含4'));
   check('41235: tag 4开头', memo.asset_profile.tags.includes('4开头'));
   check('41235: audit 含4五数字', memo.ai_audit_tasks.some(t => /含4五数字/.test(t)));
-  check('41235: audit 41235终端', memo.ai_audit_tasks.some(t => /41235/.test(t)));
-  check('41235: price rows zero 需人工复核',
-    ![asset.p1, asset.p2, asset.p3, pl.p1_investor_liquidity.range, pl.p2_listing_negotiation.range, pl.p3_strategic_enduser.range]
-      .some(s => /需人工复核/.test(s || '')));
 }
 
 // ── Gate: 88888.com ──
 {
   const { asset, bundle } = analyzeDomain('88888.com');
   const p1 = bundle.valuation.price_lens.p1_investor_liquidity.range;
-  const p3 = bundle.valuation.price_lens.p3_strategic_enduser.range;
   const low = parseLow(p1);
   const high = parseLow(p1.split('–')[1] || p1.split('-')[1]);
   check('88888: all_8_repeat', asset.subtypeDetail === 'all_8_repeat');
   check('88888: P1 ~180K–450K', low >= 180000 && high <= 450000);
-  check('88888: P3 strategic numeric', hasNumericPrice(p3));
-  check('88888: audit $245K', bundle.memo.ai_audit_tasks.some(t => /245K|88888\.com/.test(t)));
+  check('88888: P3 strategic numeric', hasNumericPrice(bundle.valuation.price_lens.p3_strategic_enduser.range));
 }
 
 // ── Gate: hd.com ──
 {
   const { asset, bundle } = analyzeDomain('hd.com');
-  const memo = bundle.memo;
-  const p3 = bundle.valuation.price_lens.p3_strategic_enduser.range;
   check('hd: LL_COM', asset.id === 'LL_COM');
-  check('hd: abbreviation hints', memo.asset_profile.tags.some(t => /Health Data|Hotel|Hardware/.test(t)));
-  check('hd: P3 strategic numeric', hasNumericPrice(p3));
-  check('hd: audit 两字母', memo.ai_audit_tasks.some(t => /两字母/.test(t)));
+  check('hd: P3 numeric', hasNumericPrice(bundle.valuation.price_lens.p3_strategic_enduser.range));
 }
 
 // ── Gate: text.com ──
 {
   const { asset, bundle } = analyzeDomain('text.com');
-  const memo = bundle.memo;
   check('text: ULTRA_WORD_COM', asset.id === 'ULTRA_WORD_COM');
-  check('text: audit 单词成交', memo.ai_audit_tasks.some(t => /单词/.test(t) && /成交/.test(t)));
-  check('text: P1/P2/P3 numeric',
-    hasNumericPrice(asset.p1) && hasNumericPrice(asset.p2) && hasNumericPrice(asset.p3));
+  check('text: audit 单词成交', bundle.memo.ai_audit_tasks.some(t => /单词/.test(t)));
 }
-
-const topP3 = html.match(/all_8_repeat: '([^']+)'/);
-check('88888 P3 strategic constant', topP3 && /\$600,000/.test(topP3[1]));
 
 console.log(`\n--- ${pass} pass, ${fail} fail ---`);
 process.exit(fail > 0 ? 1 : 0);

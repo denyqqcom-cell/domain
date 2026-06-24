@@ -8,7 +8,7 @@ const path = require('path');
 
 const html = fs.readFileSync(path.join(__dirname, '../index.html'), 'utf8');
 
-const fn = html.match(/function expertJudgment\(sld, patternInfo, has4\) \{[\s\S]*?^\}/m);
+const fn = html.match(/function expertJudgment\(sld, patternInfo, has4(?:, subtypeDetail)?\) \{[\s\S]*?^\}/m);
 if (!fn) { console.error('ERROR: expertJudgment not found'); process.exit(1); }
 
 const detectFn = html.match(/function detectPattern\(sld\) \{[\s\S]*?^\}/m);
