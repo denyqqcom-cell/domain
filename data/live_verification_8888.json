@@ -1,0 +1,67 @@
+{
+  "domain": "8888.COM",
+  "role": "control_group",
+  "checked_at": "2026-06-24",
+  "checker": "grok-build-live-verification",
+  "live_market_checked": true,
+  "live_market_checked_note": "partial: RDAP/DNS/site/Afternic/Sedo verified; NameBio not attempted",
+  "sources": [
+    {"name": "Verisign RDAP", "url": "https://rdap.verisign.com/com/v1/domain/8888.com", "status": "ok", "fetched_at": "2026-06-24"},
+    {"name": "GoDaddy RDAP", "url": "https://rdap.godaddy.com/v1/domain/8888.COM", "status": "ok", "fetched_at": "2026-06-24"},
+    {"name": "who.is DNS", "url": "https://who.is/dns/8888.com", "status": "ok", "fetched_at": "2026-06-24"},
+    {"name": "who.is Uptime", "url": "https://who.is/uptime/8888.com", "status": "ok", "fetched_at": "2026-06-24"},
+    {"name": "Afternic", "url": "https://www.afternic.com/forsale/8888.com", "status": "ok_no_price", "fetched_at": "2026-06-24"},
+    {"name": "Sedo", "url": "https://sedo.com/search/?q=8888.com", "status": "ok_no_listing", "fetched_at": "2026-06-24"},
+    {"name": "Direct HTTP", "url": "https://8888.com", "status": "ok_http200", "fetched_at": "2026-06-24"}
+  ],
+  "facts": {
+    "registered_on": "1998-03-19",
+    "expires_on": "2034-03-18",
+    "last_changed_registry": "2025-03-03",
+    "registrar": "GoDaddy.com, LLC",
+    "registrant": "Domains By Proxy, LLC",
+    "registrant_privacy": true,
+    "domain_locks": [
+      "clientDeleteProhibited",
+      "clientRenewProhibited",
+      "clientTransferProhibited",
+      "clientUpdateProhibited"
+    ],
+    "nameservers": ["boyd.ns.cloudflare.com", "sima.ns.cloudflare.com"],
+    "a_records": ["104.21.67.88", "172.67.219.34"],
+    "mx_record": "8888-com.mail.protection.outlook.com",
+    "www_cname": null,
+    "http_server": "cloudflare",
+    "http_status": 200,
+    "page_title": null,
+    "afternic_text": "This domain is registered, but may still be available",
+    "afternic_price": null,
+    "sedo_listing": false
+  },
+  "reference_only_anchors": [
+    {
+      "domain": "8888.com",
+      "price": "EUR 400,000 bid",
+      "year": 2013,
+      "source": "https://domainnamewire.com/2013/03/18/8888-com-gets-400000-eur-bid-on-sedo/",
+      "anchor_pricing_use": "reference_only",
+      "anchor_verified": false,
+      "note": "2013 Sedo bid reported by DomainNameWire; not DNJournal/NameBio verified sale"
+    },
+    {
+      "domain": "88.com",
+      "price": "~$12,000,000 est.",
+      "anchor_pricing_use": "manual_review_only",
+      "note": "Different domain (NN_COM vs NNNN_COM); not comparable for auto pricing"
+    }
+  ],
+  "contrast_vs_1888": {
+    "same": ["NNNN_COM class", "GoDaddy registrar", "Domains By Proxy privacy", "4x clientProhibited locks", "Afternic broker-no-price", "Sedo no listing"],
+    "different": [
+      "8888 registered 1998 vs 1888 2001",
+      "8888 has MX/Outlook mail vs 1888 no MX in DNS snapshot",
+      "8888 Cloudflare direct A vs 1888 redirect-js.app parking CNAME",
+      "8888 cultural premium (四八) stronger than 1888 (发发发发) in CN market convention"
+    ]
+  }
+}

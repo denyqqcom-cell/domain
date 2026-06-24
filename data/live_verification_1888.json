@@ -1,0 +1,62 @@
+{
+  "domain": "1888.COM",
+  "checked_at": "2026-06-24",
+  "checker": "grok-build-live-verification",
+  "live_market_checked": true,
+  "live_market_checked_note": "partial: RDAP/DNS/site/Afternic/Sedo verified; NameBio IP blocked",
+  "domain_status": "parked",
+  "acquirable": "unknown",
+  "final_score_locked": 83,
+  "sources": [
+    {"name": "Verisign RDAP", "url": "https://rdap.verisign.com/com/v1/domain/1888.com", "status": "ok", "fetched_at": "2026-06-24"},
+    {"name": "GoDaddy RDAP", "url": "https://rdap.godaddy.com/v1/domain/1888.COM", "status": "ok", "fetched_at": "2026-06-24"},
+    {"name": "who.is DNS", "url": "https://who.is/dns/1888.com", "status": "ok", "fetched_at": "2026-06-24"},
+    {"name": "who.is Uptime", "url": "https://who.is/uptime/1888.com", "status": "ok", "fetched_at": "2026-06-24"},
+    {"name": "Afternic", "url": "https://www.afternic.com/forsale/1888.com", "status": "ok_no_price", "fetched_at": "2026-06-24"},
+    {"name": "Sedo", "url": "https://sedo.com/search/?q=1888.com", "status": "ok_no_listing", "fetched_at": "2026-06-24"},
+    {"name": "NameBio", "url": "https://namebio.com/1888.com", "status": "blocked_ip", "fetched_at": "2026-06-24"},
+    {"name": "Direct HTTP", "url": "http://1888.com", "status": "ok_parking_page", "fetched_at": "2026-06-24"}
+  ],
+  "facts": {
+    "registered_on": "2001-06-01",
+    "expires_on": "2035-06-01",
+    "last_changed_registry": "2025-06-23",
+    "last_changed_registrar": "2025-06-01",
+    "registrar": "GoDaddy.com, LLC",
+    "registrant": "Domains By Proxy, LLC",
+    "registrant_privacy": true,
+    "domain_locks": [
+      "clientDeleteProhibited",
+      "clientRenewProhibited",
+      "clientTransferProhibited",
+      "clientUpdateProhibited"
+    ],
+    "nameservers": ["fred.ns.cloudflare.com", "heather.ns.cloudflare.com"],
+    "a_records": ["192.9.134.65", "147.224.39.162"],
+    "www_cname": "zmcktok0.cname.redirect-js.app",
+    "http_server": "nginx",
+    "http_status": 200,
+    "page_type": "parking_redirect_spinner",
+    "page_title": null,
+    "afternic_text": "This domain is registered, but may still be available",
+    "afternic_price": null,
+    "sedo_listing": false
+  },
+  "reference_only_anchors": [
+    {
+      "domain": "8888.com",
+      "price": "EUR 400,000 bid",
+      "year": 2013,
+      "source": "https://domainnamewire.com/2013/03/18/8888-com-gets-400000-eur-bid-on-sedo/",
+      "anchor_pricing_use": "reference_only",
+      "note": "Different domain; not used for 1888.com pricing"
+    }
+  ],
+  "missing_checks": [
+    "NameBio historical sales (IP blocked)",
+    "DNJournal ranking",
+    "USPTO/WIPO trademark",
+    "Registrant sell willingness",
+    "Active inquiries"
+  ]
+}
