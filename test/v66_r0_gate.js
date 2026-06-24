@@ -50,7 +50,8 @@ check('index: 生成专家估值 CTA', /生成专家估值/.test(html));
 const bootstrap = [
   ...(html.match(/const V65_ENABLE_[^;]+;/g) || []),
   sliceBetween('const EXPERTRULES = {', 'function matchRules'),
-  sliceBetween('const ACTIVE_BRAND_BLACKLIST = {', 'function resolveDomainStatus'),
+  sliceBetween('const ACTIVE_BRAND_BLACKLIST = {', 'const AI_VERIFY_PENDING_NOTE'),
+  'const AI_VERIFY_PENDING_NOTE = ' + html.match(/const AI_VERIFY_PENDING_NOTE = '[^']+';/)[0].split('=').slice(1).join('='),
   sliceBetween('const ANCHORS = {', 'function classifyAsset'),
   html.match(/const NUMERIC_LEN_SUFFIX = \{[\s\S]*?^};/m)[0],
   html.match(/const NUMERIC_SUBTYPE_JUDGMENTS = \{[\s\S]*?\};/m)[0],

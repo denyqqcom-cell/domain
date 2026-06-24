@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>域名投资专家系统 v6.6-R0d</title>
+<title>域名投资专家系统 v6.6-R0d-hotfix</title>
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
 <style>
 /* ── TOKENS ── */
@@ -386,6 +386,12 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
 .auditor-conclusion-card .ac-row { margin-bottom: 4px; }
 .auditor-conclusion-card .ac-label { color: var(--muted); }
 .auditor-conclusion-card .ac-evidence { margin-top: var(--space-2); padding-left: 1rem; color: var(--faint); }
+.auditor-conclusion-card .ac-gate-card {
+  font-size: var(--text-xs); color: var(--gold); background: rgba(232,150,10,0.08);
+  border: 1px solid rgba(232,150,10,0.25); border-radius: var(--radius-md);
+  padding: var(--space-2); margin-bottom: var(--space-2); line-height: 1.45;
+}
+.auditor-conclusion-card .ac-verdict-muted { color: var(--muted); opacity: 0.85; }
 .auditor-json-fold { margin-top: var(--space-2); font-size: var(--text-xs); }
 .auditor-json-raw { font-size: 0.65rem; overflow: auto; max-height: 200px; white-space: pre-wrap; }
 .pack-summary { font-size: var(--text-xs); line-height: 1.55; margin-bottom: var(--space-3); }
@@ -665,7 +671,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <circle cx="27" cy="10" r="4" fill="var(--gold)"/>
       </svg>
       <span class="logo-text">域名估值</span>
-      <span class="logo-version">v6.6-R0d</span>
+      <span class="logo-version">v6.6-R0d-hotfix</span>
     </div>
     <button class="theme-btn" data-theme-toggle aria-label="切换主题">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -860,7 +866,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e8960a" stroke-width="2.5">
           <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
         </svg>
-        专家判断层 Expert Judgment (v6.6-R0d)
+        专家判断层 Expert Judgment (v6.6-R0d-hotfix)
         <span class="expert-version" id="expVersion">67 rules</span>
       </div>
       <!-- Layer Chips -->
@@ -940,7 +946,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   </div>
 
   <footer class="footer">
-    Domain Investment Expert System v6.6-R0d · 系统专家出价 → AI 审计复核 · 估值仅供参考
+    Domain Investment Expert System v6.6-R0d-hotfix · 系统专家出价 → AI 审计复核 · 估值仅供参考
   </footer>
 </div>
 
@@ -1355,9 +1361,14 @@ function resolveDomainStatus(full) {
   return { domain_status: null, status_note: null, source: null };
 }
 
+const AI_VERIFY_PENDING_NOTE = 'AI核验项：建站状态、出售状态、持有人与可转移性待联网核验。';
+
 function resolveAcquirable(statusInfo, anchorMeta) {
   if (statusInfo.domain_status === 'active_operating_site' || statusInfo.domain_status === 'active_brand') {
-    return { acquirable: false, acquirable_note: statusInfo.status_note || '运营中站点，裸域通常不可按 P1/P2/P3 直接收购' };
+    return {
+      acquirable: false,
+      acquirable_note: statusInfo.status_note || '当前为 active_operating_site。系统 P1/P2/P3 仅为 domain-only 组件估值，不构成可执行收购价。'
+    };
   }
   // v6.5-R0e: 疑似企业品牌 → UNVERIFIED_BRAND 红色阻断
   if (statusInfo.domain_status === 'unverified_brand') {
@@ -1372,7 +1383,7 @@ function resolveAcquirable(statusInfo, anchorMeta) {
   if (statusInfo.domain_status === 'investment_inventory') {
     return { acquirable: true, acquirable_note: statusInfo.status_note || '投资人库存，可收购场景' };
   }
-  return { acquirable: 'unknown', acquirable_note: '未核验持有人状态，需人工确认是否可收购' };
+  return { acquirable: 'unknown', acquirable_note: AI_VERIFY_PENDING_NOTE };
 }
 
 function updateDomainStatusHint(raw) {
@@ -1461,6 +1472,16 @@ const ANCHORS = {
   // v6.5-R0f: Top Numeric Price Lens 历史锚点（reference_only — R0f 拆桶定价优先）
   '88888.com':    { usd: 245000,   type: 'sale',          source: 'DNJournal 2013-12-04; DomainNameSales (Domain Holdings)', verified: true, confidence: 'high', anchor_relation: 'exact_domain_historical_sale', pricing_use: 'reference_only',
                     anchor_note: '历史成交 $245,000（2013-12-04，DNJournal 周报 #1）；all_8_repeat 价格锚点，R0f Price Lens 定价优先于锚点机械换算' },
+  '8888.com':     { usd: null,     type: 'reference',     source: 'live verification 2026-06-24: HTTP 200, MX/Outlook, Cloudflare; Afternic broker-no-price; Sedo no listing', verified: false, confidence: 'medium', anchor_relation: 'exact_domain_listing', pricing_use: 'reference_only',
+                    domain_status: 'active_operating_site',
+                    status_note: '8888.com 已建站运营（HTTP 200、企业邮箱 MX）；无公开出售挂牌；P1/P2/P3 为 domain-only 组件估值',
+                    transaction_context: {
+                      website_status: 'active_operating_site',
+                      sale_status: 'not_verified_for_sale',
+                      acquisition_mode: 'website_or_business_acquisition',
+                      domain_only_price_actionable: false
+                    },
+                    anchor_note: '对照组：运营中 NNNN_COM 豹子号；2013 Sedo €400K bid 为 reference_only，不参与自动定价' },
 
   // v6.6-R0b-7a: NNN_COM reference_only 可比轴（无核验成交价，不参与自动定价）
   '888.com':      { usd: null,     type: 'reference',     source: 'AAA all-8 NNN_COM pattern; no verified public sale in DNJournal/NameBio', verified: false, confidence: 'low', anchor_relation: 'exact_domain_listing', pricing_use: 'reference_only',
@@ -2129,7 +2150,7 @@ function getRisks(sld, tld, asset, full) {
   if (tld !== '.com' && tld !== '.ai') risks.push('🔻 非主流后缀，流动性低于 .com，成交周期可能更长');
   if (asset.id === 'GENERIC') risks.push('⚠️ 未识别为稀缺资产类别，建议人工复核');
   if (sld.length > 8) risks.push('📏 域名较长，品牌可塑性受限，终端买家范围缩小');
-  risks.push('📊 缺失：需人工确认当前持有人是否出售、是否有活跃询盘');
+  risks.push('📊 ' + AI_VERIFY_PENDING_NOTE);
   return risks;
 }
 
@@ -2470,8 +2491,8 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
   const auditorJson = JSON.stringify(bundle.auditorBrief, null, 2);
   const v = bundle.valuation;
   const pl = v.price_lens;
-  return `# Expert Memo + AI Auditor Brief (v6.6-R0c)
-> 生成时间：${now} | Domain Investment Expert System v6.6-R0c
+  return `# Expert Memo + AI Auditor Brief (v6.6-R0d-hotfix)
+> 生成时间：${now} | Domain Investment Expert System v6.6-R0d-hotfix
 > 主输出：专家 Memo + AI 审计合同 | Legacy Pack 已降级为附录
 
 ---
@@ -2528,7 +2549,7 @@ ${JSON.stringify(bundle.auditorBrief.output_schema, null, 2)}
 
 > 六维明细、全量锚点表、67 条规则命中见高级展开区 UI。
 
-*v6.6-R0c · Domain Investment Expert System · ${now}*
+*v6.6-R0d-hotfix · Domain Investment Expert System · ${now}*
 `;
 }
 
@@ -2559,7 +2580,7 @@ function renderDualPanel(bundle) {
     acqLine.textContent = '✅ ' + (acq.acquirable_note || '可收购场景');
     acqLine.className = 'dual-meta acquirable-true';
   } else {
-    acqLine.textContent = '⚠️ ' + (acq.acquirable_note || '未核验可收购性');
+    acqLine.textContent = '⚠️ ' + (acq.acquirable_note || AI_VERIFY_PENDING_NOTE);
     acqLine.className = 'dual-meta acquirable-unknown';
   }
 
@@ -2567,7 +2588,7 @@ function renderDualPanel(bundle) {
   const warnEl = document.getElementById('dualTransactionWarn');
   if (tx && tx.domain_only_price_actionable === false) {
     warnEl.style.display = 'block';
-    warnEl.textContent = '当前系统价格为 domain-only 专家估值；若已建站运营且无公开出售，实际交易属于网站/品牌/业务收购，不得直接用 P1/P2/P3 作为可执行买入价。';
+    warnEl.textContent = '交易门禁：当前疑似/已识别为运营站点，P1/P2/P3 仅为域名组件估值，不构成可执行收购价。实际交易属于网站/品牌/业务收购，需先确认出售意愿与权利状态。';
   } else {
     warnEl.style.display = 'none';
     warnEl.textContent = '';
@@ -2579,6 +2600,25 @@ function renderDualPanel(bundle) {
   document.getElementById('dualAuditorPlaceholder').style.display = 'block';
 }
 
+const AUDITOR_ACTIONABLE_VERDICTS = ['偏低', '合理', '偏高'];
+
+function isAuditorTransactionGate(tx) {
+  if (!tx || typeof tx !== 'object') return false;
+  if (tx.domain_only_price_actionable === false) return true;
+  if (tx.website_status === 'active_operating_site') {
+    const ss = tx.sale_status;
+    return ss !== 'listed' && ss !== 'for_sale_listed';
+  }
+  return false;
+}
+
+function formatAuditorVerdict(verdict, gateActive) {
+  if (!gateActive || !AUDITOR_ACTIONABLE_VERDICTS.includes(verdict)) {
+    return escapeHtml(verdict || '—');
+  }
+  return '<span class="ac-verdict-muted">不可判定（交易门禁·原「' + escapeHtml(verdict) + '」已降级）</span>';
+}
+
 function renderAuditorConclusion(data) {
   const forbidden = ['price_range', 'investor_floor_usd'];
   const raw = JSON.stringify(data);
@@ -2587,7 +2627,12 @@ function renderAuditorConclusion(data) {
   }
   const tx = data.transaction_status || {};
   const disp = data.dispute_check || {};
-  let html = '<div class="ac-score">审计分 ' + (data.audit_score ?? '—') + '/100 · ' + (data.confidence || '—') + '</div>';
+  const gateActive = isAuditorTransactionGate(tx);
+  let html = '';
+  if (gateActive) {
+    html += '<div class="ac-gate-card"><strong>交易门禁</strong>：当前疑似/已识别为运营站点，P1/P2/P3 仅为域名组件估值，不构成可执行收购价。实际交易属于网站/品牌/业务收购，需先确认出售意愿与权利状态。</div>';
+  }
+  html += '<div class="ac-score">审计分 ' + (data.audit_score ?? '—') + '/100 · ' + (data.confidence || '—') + '</div>';
   if (tx.website_status) {
     html += '<div class="ac-row"><span class="ac-label">建站状态：</span>' + escapeHtml(tx.website_status) + ' · 出售：' + escapeHtml(tx.sale_status || '—') + '</div>';
     html += '<div class="ac-row"><span class="ac-label">收购模式：</span>' + escapeHtml(tx.acquisition_mode || '—') + '</div>';
@@ -2595,9 +2640,15 @@ function renderAuditorConclusion(data) {
   if (disp.risk_level) {
     html += '<div class="ac-row"><span class="ac-label">争议风险：</span>' + escapeHtml(disp.udrp_status || '—') + ' · ' + escapeHtml(disp.risk_level) + '</div>';
   }
-  html += '<div class="ac-row"><span class="ac-label">P1：</span>' + escapeHtml(data.p1_verdict || '—') + '</div>';
-  html += '<div class="ac-row"><span class="ac-label">P2：</span>' + escapeHtml(data.p2_verdict || '—') + '</div>';
-  html += '<div class="ac-row"><span class="ac-label">P3：</span>' + escapeHtml(data.p3_verdict || '—') + '</div>';
+  if (!gateActive) {
+    html += '<div class="ac-row"><span class="ac-label">P1：</span>' + escapeHtml(data.p1_verdict || '—') + '</div>';
+    html += '<div class="ac-row"><span class="ac-label">P2：</span>' + escapeHtml(data.p2_verdict || '—') + '</div>';
+    html += '<div class="ac-row"><span class="ac-label">P3：</span>' + escapeHtml(data.p3_verdict || '—') + '</div>';
+  } else {
+    html += '<div class="ac-row ac-verdict-muted"><span class="ac-label">P1：</span>' + formatAuditorVerdict(data.p1_verdict, true) + ' · 仅品类参考</div>';
+    html += '<div class="ac-row ac-verdict-muted"><span class="ac-label">P2：</span>' + formatAuditorVerdict(data.p2_verdict, true) + ' · 仅品类参考</div>';
+    html += '<div class="ac-row ac-verdict-muted"><span class="ac-label">P3：</span>' + formatAuditorVerdict(data.p3_verdict, true) + ' · 仅站点/业务收购场景参考</div>';
+  }
   if (data.market_reality_check) {
     html += '<div class="ac-row"><span class="ac-label">核心原因：</span>' + escapeHtml(data.market_reality_check) + '</div>';
   }
@@ -2645,6 +2696,14 @@ function validateAuditorJson(data) {
   }
   if (!data.dispute_check) warnings.push('缺少 dispute_check（UDRP/商标尽调）');
   else if (!data.dispute_check.udrp_status) warnings.push('dispute_check.udrp_status 缺失');
+  if (isAuditorTransactionGate(tx)) {
+    ['p1_verdict', 'p2_verdict', 'p3_verdict'].forEach(k => {
+      const v = data[k];
+      if (AUDITOR_ACTIONABLE_VERDICTS.includes(v)) {
+        errors.push(k + ' 在交易门禁下不得为「' + v + '」，应为不可判定或仅品类参考');
+      }
+    });
+  }
   return { errors, warnings };
 }
 
@@ -3179,8 +3238,8 @@ function renderExpertJudgment(sld, patternInfo, asset, scores) {
 
   // ── Version Badge ──
   document.getElementById('expVersion').textContent = asset.subtypeDetail
-    ? `v6.6-R0d · ${asset.subtypeDetail}`
-    : (ruleHits.length > 0 ? `v6.6-R0d · ${ruleHits.length} hits` : 'v6.6-R0d · buyer persona');
+    ? `v6.6-R0d-hotfix · ${asset.subtypeDetail}`
+    : (ruleHits.length > 0 ? `v6.6-R0d-hotfix · ${ruleHits.length} hits` : 'v6.6-R0d-hotfix · buyer persona');
 
   // ── Pattern Judgment (5-digit or numeric subtype_detail) ──
   const patternGrid = document.getElementById('expertPatternGrid');
