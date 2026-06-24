@@ -78,7 +78,7 @@ function analyze(domain) {
   return buildAnalysisBundle(parsed, asset, scores, conf, risks, getIndustries(parsed.sld));
 }
 
-check('index: v6.6-R0c', /v6\.6-R0c/.test(html));
+check('index: v6.6-R0d', /v6\.6-R0d/.test(html));
 check('index: no 价格口径 card', !/card-label">价格口径/.test(html));
 check('index: 系统专家三档估值', /系统专家三档估值/.test(html));
 check('index: AI_AUDITOR_JSON_v2', /AI_AUDITOR_JSON_v2/.test(html));

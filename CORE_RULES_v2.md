@@ -1,8 +1,8 @@
-# CORE_RULES v2 — Domain Investment Expert System v6.6-R0b
+# CORE_RULES v2 — Domain Investment Expert System v6.6-R0d
 
 > 引擎规则文件 · 2026-06-25  
-> **产品契约（v6.6-R0 LOCK）**：系统输出专家估值 + 三档价格；AI 仅审计，不重估。  
-> **主投喂载体**：Expert Memo + AI Auditor Brief（见 `AGENT_PROMPTS.md`）
+> **产品契约（v6.6-R0 LOCK）**：系统输出专家估值 + 三档价格；AI 先交易/法律尽调再审计 verdict。  
+> **主投喂载体**：Expert Memo + `AI_AUDITOR_JSON_v2`（见 `AGENT_PROMPTS.md`）
 
 ---
 
@@ -11,7 +11,7 @@
 | 角色 | 职责 | 禁止 |
 |------|------|------|
 | **系统** | P1/P2/P3 数值、Expert Memo、同类锚点 | 用户可见「需人工复核」挡价 |
-| **AI** | 联网审计 P1/P2/P3 verdict、audit_score | 重算估值、price_range、investor_floor_usd |
+| **AI** | transaction_status + dispute_check 尽调；审计 P1/P2/P3 verdict | 重算估值、price_range、investor_floor_usd、不可判定前硬估价 |
 | **用户** | 双结论：专家 + AI 复核 | — |
 
 ---

@@ -55,7 +55,7 @@ function analyze(domain) {
   return { asset, personas, hits, memoLabels: personas.map(p => p.label).join('|') };
 }
 
-check('index: v6.6-R0c', /v6\.6-R0c/.test(html));
+check('index: v6.6-R0d', /v6\.6-R0d/.test(html));
 check('index: L2 chip 拼音声母', /L2 拼音声母/.test(html));
 check('index: no infer 中文域名收藏家 in buildBuyerPersonas', !/中文域名收藏家/.test(extractFn('buildBuyerPersonas')));
 check('index: 全球缩写/品牌终端', /全球缩写\/品牌终端/.test(html));

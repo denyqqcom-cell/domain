@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>域名投资专家系统 v6.6-R0c</title>
+<title>域名投资专家系统 v6.6-R0d</title>
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
 <style>
 /* ── TOKENS ── */
@@ -665,7 +665,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <circle cx="27" cy="10" r="4" fill="var(--gold)"/>
       </svg>
       <span class="logo-text">域名估值</span>
-      <span class="logo-version">v6.6-R0c</span>
+      <span class="logo-version">v6.6-R0d</span>
     </div>
     <button class="theme-btn" data-theme-toggle aria-label="切换主题">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -860,7 +860,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e8960a" stroke-width="2.5">
           <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
         </svg>
-        专家判断层 Expert Judgment (v6.6-R0c)
+        专家判断层 Expert Judgment (v6.6-R0d)
         <span class="expert-version" id="expVersion">67 rules</span>
       </div>
       <!-- Layer Chips -->
@@ -940,7 +940,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   </div>
 
   <footer class="footer">
-    Domain Investment Expert System v6.6-R0c · 系统专家出价 → AI 审计复核 · 估值仅供参考
+    Domain Investment Expert System v6.6-R0d · 系统专家出价 → AI 审计复核 · 估值仅供参考
   </footer>
 </div>
 
@@ -2615,24 +2615,73 @@ function renderAuditorConclusion(data) {
   return html;
 }
 
+function stripJsonFences(raw) {
+  let s = (raw || '').trim();
+  const m = s.match(/^```(?:json)?\s*([\s\S]*?)```\s*$/im);
+  if (m) s = m[1].trim();
+  return s;
+}
+
+const AUDITOR_FORBIDDEN_FIELDS = ['price_range', 'investor_floor_usd', 'suggested_price', 'fair_value'];
+
+function validateAuditorJson(data) {
+  const errors = [], warnings = [];
+  const raw = JSON.stringify(data || {});
+  AUDITOR_FORBIDDEN_FIELDS.forEach(f => {
+    if (new RegExp('"' + f + '"\\s*:').test(raw)) errors.push('禁止字段：' + f);
+  });
+  if (!data || typeof data !== 'object') {
+    errors.push('根节点必须是 JSON 对象');
+    return { errors, warnings };
+  }
+  if (data.schema_version && data.schema_version !== 'AI_AUDITOR_JSON_v2') {
+    warnings.push('schema_version 建议为 AI_AUDITOR_JSON_v2');
+  }
+  const tx = data.transaction_status;
+  if (!tx) warnings.push('缺少 transaction_status（应先完成建站/出售核验）');
+  else {
+    if (!tx.website_status || tx.website_status === 'unknown') warnings.push('website_status 未核验');
+    if (!tx.sale_status || tx.sale_status === 'unknown') warnings.push('sale_status 未核验');
+  }
+  if (!data.dispute_check) warnings.push('缺少 dispute_check（UDRP/商标尽调）');
+  else if (!data.dispute_check.udrp_status) warnings.push('dispute_check.udrp_status 缺失');
+  return { errors, warnings };
+}
+
 function applyAuditorJson() {
-  const raw = document.getElementById('auditorJsonInput').value.trim();
+  const raw = document.getElementById('auditorJsonInput').value;
   const ph = document.getElementById('dualAuditorPlaceholder');
   const card = document.getElementById('dualAuditorResult');
   const fold = document.getElementById('auditorJsonFold');
   const pre = document.getElementById('auditorJsonRaw');
-  if (!raw) return;
+  if (!raw || !raw.trim()) return;
   try {
-    const data = JSON.parse(raw);
-    card.innerHTML = renderAuditorConclusion(data);
+    const data = JSON.parse(stripJsonFences(raw));
+    const v = validateAuditorJson(data);
+    if (v.errors.length) {
+      card.innerHTML = '<div style="color:var(--red)"><strong>审计 JSON 不合规</strong><ul>'
+        + v.errors.map(e => '<li>' + escapeHtml(e) + '</li>').join('') + '</ul></div>';
+      card.style.display = 'block';
+      ph.style.display = 'none';
+      fold.style.display = 'none';
+      return;
+    }
+    let html = renderAuditorConclusion(data);
+    if (v.warnings.length) {
+      html += '<div class="ac-warnings" style="margin-top:8px;color:var(--gold);font-size:0.65rem"><strong>契约提示</strong><ul>'
+        + v.warnings.map(w => '<li>' + escapeHtml(w) + '</li>').join('') + '</ul></div>';
+    }
+    card.innerHTML = html;
     card.style.display = 'block';
     ph.style.display = 'none';
     pre.textContent = JSON.stringify(data, null, 2);
     fold.style.display = 'block';
   } catch (e) {
-    card.innerHTML = '<div style="color:var(--red)">JSON 解析失败：' + escapeHtml(e.message) + '</div>';
+    card.innerHTML = '<div style="color:var(--red)"><strong>JSON 解析失败</strong><br>' + escapeHtml(e.message)
+      + '<br><span style="font-size:0.65rem">提示：可粘贴纯 JSON 或 ```json ... ``` 围栏块</span></div>';
     card.style.display = 'block';
     ph.style.display = 'none';
+    fold.style.display = 'none';
   }
 }
 
@@ -2806,11 +2855,41 @@ const NUMERIC_SUBTYPE_JUDGMENTS = {
     cn_market_bias: '双8在华人市场为顶级财富符号',
     relative_position: 'NN_COM第一梯队'
   },
+  all_7_repeat_nn: {
+    pattern_quality: 'AAA豹子号·双7组合·NN_COM 高品相',
+    liquidity_signal: '高流动性·两数字豹子',
+    cn_market_bias: '7豹子在部分华人市场具吉利寓意',
+    relative_position: 'NN_COM高品相层级'
+  },
+  all_lucky_repeat_nn: {
+    pattern_quality: 'AAA豹子号·双6/9吉祥组合',
+    liquidity_signal: '高流动性·两数字收藏级',
+    cn_market_bias: '66/99 等双豹子在华人市场偏好明显',
+    relative_position: 'NN_COM高品相层级'
+  },
   all_8_repeat_nnnn: {
     pattern_quality: '顶级品相·四8豹子·NNNN_COM稀缺',
     liquidity_signal: '高流动性·四数字吉利组合',
     cn_market_bias: '四8叠加，华人市场强溢价',
     relative_position: 'NNNN_COM第一梯队'
+  },
+  all_7_repeat_nnnn: {
+    pattern_quality: 'AAA豹子号·四7组合·NNNN_COM 高品相',
+    liquidity_signal: '高流动性·四数字豹子',
+    cn_market_bias: '7豹子结构在华人市场具收藏偏好',
+    relative_position: 'NNNN_COM高品相层级'
+  },
+  all_lucky_repeat_nnnn: {
+    pattern_quality: 'AAA豹子号·四6/9吉祥组合',
+    liquidity_signal: '高流动性·四数字豹子',
+    cn_market_bias: '6666/9999 等四豹子华人市场认知强',
+    relative_position: 'NNNN_COM高品相层级'
+  },
+  full_sequence_nnnn: {
+    pattern_quality: '全顺子·四数字规律组合',
+    liquidity_signal: '中高流动性·顺子号收藏偏好',
+    cn_market_bias: '顺子寓意顺遂，华人买家偏好',
+    relative_position: 'NNNN_COM高品相层级'
   },
   all_8_repeat: {
     pattern_quality: '顶级品相·五8豹子·全位重复',
@@ -3100,8 +3179,8 @@ function renderExpertJudgment(sld, patternInfo, asset, scores) {
 
   // ── Version Badge ──
   document.getElementById('expVersion').textContent = asset.subtypeDetail
-    ? `v6.6-R0c · ${asset.subtypeDetail}`
-    : (ruleHits.length > 0 ? `v6.6-R0c · ${ruleHits.length} hits` : 'v6.6-R0c · buyer persona');
+    ? `v6.6-R0d · ${asset.subtypeDetail}`
+    : (ruleHits.length > 0 ? `v6.6-R0d · ${ruleHits.length} hits` : 'v6.6-R0d · buyer persona');
 
   // ── Pattern Judgment (5-digit or numeric subtype_detail) ──
   const patternGrid = document.getElementById('expertPatternGrid');

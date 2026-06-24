@@ -42,7 +42,7 @@ check('AI schema: source_tier field', /source_tier/.test(html));
 check('index: detectNumericSubtypeDetail', /function detectNumericSubtypeDetail/.test(html));
 check('index: NUMERIC_SUBTYPE_JUDGMENTS', /NUMERIC_SUBTYPE_JUDGMENTS/.test(html));
 check('index: anchorAssetClassForDomain', /function anchorAssetClassForDomain/.test(html));
-check('index: v6.6-R0c version', /v6\.6-R0c/.test(html));
+check('index: v6.6-R0d version', /v6\.6-R0d/.test(html));
 check('index: no 估值物料包 in hero', !/输入域名，生成可转发给 AI 的估值物料包/.test(html));
 check('index: 生成专家估值 CTA', /生成专家估值/.test(html));
 
