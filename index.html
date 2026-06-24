@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>域名估值物料包生成器 v6.5-R0f</title>
+<title>域名估值物料包生成器 v6.5-R1-pack</title>
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
 <style>
 /* ── TOKENS ── */
@@ -613,7 +613,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <circle cx="27" cy="10" r="4" fill="var(--gold)"/>
       </svg>
       <span class="logo-text">域名估值</span>
-      <span class="logo-version">v6.5-R0f</span>
+      <span class="logo-version">v6.5-R1-pack</span>
     </div>
     <button class="theme-btn" data-theme-toggle aria-label="切换主题">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -870,7 +870,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   </div>
 
   <footer class="footer">
-    静态规则库 CORE_RULES v2 · Domain AI Judge v6.5-R0f · domain_status · acquirable · LLLL_COM · Top Numeric Price Lens · 估值仅供参考，最终价格以实际市场成交为准
+    静态规则库 CORE_RULES v2 · Domain AI Judge v6.5-R1-pack · domain_status · acquirable · Pack Evidence Schema · 估值仅供参考，最终价格以实际市场成交为准
   </footer>
 </div>
 
@@ -2006,15 +2006,18 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
       const has4 = pi ? pi.hasFour : /4/.test(sld);
       const ruleHits = matchRules(sld, asset.id);
       const buyerFit = inferBuyerFit(ruleHits, asset.id);
+      const patternJudgment = expertJudgment(sld, pi, has4);
       return {
-        version: 'v6.5-R0f',
+        version: 'v6.5-R1-pack',
+        evidence_schema: 'pricing_evidence_v1',
         auto_pricing_allowed: false,
         review_level: 'manual_review_only',
         rule_hits: ruleHits.map(r => ({ rule_id: r.id, layer: r.layer, label: r.label, effect: r.effect, reason: r.reason })),
         rule_hit_count: ruleHits.length,
         layers_hit: [...new Set(ruleHits.map(r => r.layer))],
         buyer_fit: buyerFit,
-        pattern_judgment: expertJudgment(sld, pi, has4)
+        pattern_judgment: patternJudgment,
+        pricing_evidence: buildPackPricingEvidence(sld, pi, has4, asset)
       };
     })()
   }, null, 2);
@@ -2024,7 +2027,7 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
     : '';
 
   return `# DOMAIN_VALUATION_PACK.md
-> 生成时间：${now} | 系统：Domain AI Judge v6.5-R0f | 规则：CORE_RULES v2
+> 生成时间：${now} | 系统：Domain AI Judge v6.5-R1-pack | 规则：CORE_RULES v2
 > ⚠️ 本文档为系统初步判断，最终价格以实际市场成交为准
 > 📦 数据来源：静态规则库 / 用户录入 / 待人工复核（live_market_checked: false）
 ${activeBrandBanner}---
@@ -2058,7 +2061,7 @@ ${asset.listingNote ? `| 锚点说明 | ${asset.listingNote} |` : ''}
 |------|------|---------|
 ${anchorTableMd}
 
-### 2.2 当前资产类别价格区间参考（v6.5-R0f Price Lens）
+### 2.2 当前资产类别价格区间参考（v6.5-R1-pack Price Lens）
 
 - **P1 投资人流通价**：${asset.p1 || '需人工估算'}
 - **P2 挂牌/议价参考**：${asset.p2 || '需人工估算'}
@@ -2152,6 +2155,7 @@ ${risks.map(r => '- ' + r).join('\n')}
 14. **Markdown 报告结构**：固定 5 段式输出 — ①价格区间（含定价方法说明）→ ②核心依据（key_reasons 展开）→ ③风险提示 → ④待核实项 → ⑤信息分层（事实 / 推断 / 缺失）
 15. **锚点引用规范**：使用锚点定价时，必须在「核心依据」中明确说明锚点来源（域名、价格、来源）及对当前估值的影响方式
 16. **key_reasons 语言规范**：每条必须为完整自然语言句子（如「该域名为纯数字两位 .com，全球仅 100 个」），不得以 D1_tld: 等代码变量名开头
+17. **pricing_evidence 硬约束**：必须读取 expert_judgment.pricing_evidence 结构化字段，不得从 pattern_judgment 自然语言推断折价比例。has4_discount_evidence==='insufficient' 时禁止输出含4固定折价百分比；verified_comparable_used===false 时禁止声称已使用 verified comparable 定价；auto_pricing_allowed===false 时禁止自动改写 price_reference
 
 **域名材料包：**
 ${materialData}
@@ -2189,7 +2193,7 @@ ${materialData}
 
 ---
 
-*DOMAIN_VALUATION_PACK.md · Domain AI Judge v6.5-R0f · CORE_RULES v2 · 静态规则库 · ${now}*
+*DOMAIN_VALUATION_PACK.md · Domain AI Judge v6.5-R1-pack · CORE_RULES v2 · 静态规则库 · ${now}*
 `;
 }
 
@@ -2333,9 +2337,27 @@ function expertJudgment(sld, patternInfo, has4) {
     liquidity_signal: base.liquidity_signal,
     cn_market_bias: base.cn_market_bias,
     relative_position: base.relative_position,
-    has4_annotation: has4_annotation,
+    has4_annotation: has4_annotation
+  };
+}
+
+// v6.5-R1-pack: AI 投喂专用证据字段（与 UI 自然语言文案分离）
+function buildPackPricingEvidence(sld, patternInfo, has4, asset) {
+  const anchorUsedInPricing = ['anchor_based', 'anchor_floor_adjusted', 'class_floor_guarded'].includes(asset.pricingMethod);
+  const verifiedComparableUsed = !!(anchorUsedInPricing && asset.anchorMeta && asset.anchorMeta.verified === true && asset.anchorMeta.usd);
+  const leadingFour = has4 && sld[0] === '4';
+  const pattern = patternInfo ? patternInfo.pattern : null;
+  return {
+    has4_discount_evidence: has4 ? 'insufficient' : 'not_applicable',
+    verified_comparable_used: verifiedComparableUsed,
+    source_url_v3_coverage: 0,
+    auto_pricing_allowed: false,
     pricing_effect: 'manual_review_only',
-    auto_pricing_allowed: false
+    has4_present: !!has4,
+    leading_four: leadingFour,
+    pattern_ui: pattern,
+    score_modifier_applied_to_final_score: V65_ENABLE_EXPERT_SCORE_MODIFIERS,
+    has4_penalty_applied_to_score: V65_ENABLE_HAS4_PENALTY && !!has4
   };
 }
 
