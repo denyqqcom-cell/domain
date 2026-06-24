@@ -55,11 +55,11 @@ v6.5-R1.1 / R2         暂缓
 
 ## 验收门禁
 
-运行：`node test/v66_r0_gate.js`
+运行：`node test/v66_r0_gate.js`（**42/42**，主门禁）
 
 | 域名 | 关键验收 |
 |------|----------|
-| 888.com | NNN_COM + all_8_repeat_nnn + AAA豹子号；无 NFTs/cloud 跨品类锚点 |
+| 888.com | NNN_COM + all_8_repeat_nnn + AAA豹子号；comparable ≥2；无 NFTs/cloud |
 | 41235.com | NNNNN_COM + 含4 + P1/P2/P3 数值 |
 | 88888.com | all_8_repeat + P1 $180K–$450K |
 | hd.com | LL_COM + 缩写语义 |
