@@ -43,8 +43,8 @@
 
 ```text
 v6.6-R0c     c5d5251   ACCEPTED  Transaction & Legal DD
-v6.6-R0d     CURRENT   文档债 + 2N/4N judgment + paste JSON 抛光
-v6.6-R0e     待启动     API wire（R0d defer）
+v6.6-R0d     ACCEPTED  文档债 + 2N/4N judgment + paste JSON @ b39a3ae
+v6.6-R0e     待启动     API wire
 R1.1 / R2    暂缓
 ```
 
