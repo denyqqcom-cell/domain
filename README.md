@@ -48,8 +48,9 @@ v6.5-R0f / R1-hotfix   ACCEPTED  价格引擎底座
 v6.6-R0                ACCEPTED  产品契约（Expert + Auditor）
 v6.6-R0a               ACCEPTED  数字品相 2N–5N + 锚点过滤
 v6.6-R0b               ACCEPTED  UX/文案/辅文档/NNN reference 锚点
-v6.6-R0c-0             ACCEPTED  Buyer Persona 文案分类（Pages confirmed）
-v6.6-R0c               待启动     Verified anchor + 2N/4N judgment
+v6.6-R0c-0             ACCEPTED  Buyer Persona 文案分类
+v6.6-R0c               ACCEPTED  Transaction & Legal DD @ c5d5251
+v6.6-R0d               待启动     文档债 + anchor_allowed + judgment + API
 v6.5-R1.1 / R2         暂缓
 ```
 
