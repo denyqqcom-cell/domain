@@ -73,8 +73,8 @@
         {
           "rule_id": "L1-R007",
           "label": "含4 taboo_4",
-          "effect": "折价警告⚠️，含4域名在华人市场通常折价30-60%，pricing_effect manual_review_only",
-          "reason": "中国文化中4=死，含4域名需人工判断真实折价幅度，同行品相含4通常大幅折价",
+          "effect": "折价警告⚠️，含4域名华人市场接受度可能减弱，pricing_effect manual_review_only",
+          "reason": "中国文化中4=死，含4域名折价幅度需结合品相、位置、可比成交人工复核",
           "category": "digital_structure",
           "source_basis": "detectPattern hasFour flag + expertJudgment has4_annotation",
           "detect_logic": "digits.includes(4)",

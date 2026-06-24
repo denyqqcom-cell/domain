@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>域名估值物料包生成器 v6.5-R0e</title>
+<title>域名估值物料包生成器 v6.5-R0f</title>
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
 <style>
 /* ── TOKENS ── */
@@ -470,6 +470,26 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
 .expert-has4-icon { font-size: 1.1rem; flex-shrink: 0; }
 .expert-has4-text { font-size: var(--text-xs); color: #e8960a; line-height: 1.5; }
 
+/* v6.5-R1: Expert Score Modifier Preview */
+.expert-score-preview {
+  margin-top: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: rgba(99,102,241,0.08);
+  border: 1px solid rgba(99,102,241,0.25);
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap;
+}
+.expert-score-preview .exp-preview-label {
+  font-size: var(--text-xs); color: var(--muted); text-transform: uppercase;
+  letter-spacing: 0.05em; font-weight: 600;
+}
+.expert-score-preview .exp-preview-value {
+  font-size: var(--text-sm); color: #6366f1; font-weight: 700;
+}
+.expert-score-preview .exp-preview-note {
+  font-size: var(--text-xs); color: var(--faint); font-style: italic;
+}
+
 .expert-empty {
   text-align: center; color: var(--faint); font-size: var(--text-xs);
   padding: var(--space-4); font-style: italic;
@@ -593,7 +613,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <circle cx="27" cy="10" r="4" fill="var(--gold)"/>
       </svg>
       <span class="logo-text">域名估值</span>
-      <span class="logo-version">v6.5-R0e</span>
+      <span class="logo-version">v6.5-R0f</span>
     </div>
     <button class="theme-btn" data-theme-toggle aria-label="切换主题">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -808,6 +828,12 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <span class="exp-has4-icon">⚠️</span>
         <span class="exp-has4-text" id="expHas4Text"></span>
       </div>
+      <!-- v6.5-R1: Expert Score Modifier Preview -->
+      <div class="expert-score-preview" id="expScorePreview" style="display:none;">
+        <span class="exp-preview-label">经验评分预览</span>
+        <span class="exp-preview-value" id="expScorePreviewVal"></span>
+        <span class="exp-preview-note" id="expScorePreviewNote"></span>
+      </div>
     </div>
 
     <div class="pack-section">
@@ -844,7 +870,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   </div>
 
   <footer class="footer">
-    静态规则库 CORE_RULES v2 · Domain AI Judge v6.5-R0e · domain_status · acquirable · LLLL_COM · Price Floor Guard · 估值仅供参考，最终价格以实际市场成交为准
+    静态规则库 CORE_RULES v2 · Domain AI Judge v6.5-R0f · domain_status · acquirable · LLLL_COM · Top Numeric Price Lens · 估值仅供参考，最终价格以实际市场成交为准
   </footer>
 </div>
 
@@ -853,19 +879,20 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
 const V65_ENABLE_PATTERN_IN_PACK = false;
 const V65_ENABLE_HAS4_PENALTY = false;
 const V65_ENABLE_COMPARABLE_ANCHOR_PRICING = false;
+const V65_ENABLE_EXPERT_SCORE_MODIFIERS = false;  // v6.5-R1: expert rule score modifier preview
 
 // ═══════════════════════════════════════════════════════════════
 // v6.5-R0e: EXPERTRULES 内联常量 — 67 条专家规则（5 层）
 // ═══════════════════════════════════════════════════════════════
 const EXPERTRULES = {
   L1_digital_structure: [
-    { id:'L1-R001', cat:'digital_structure', label:'全顺子 full_sequence', trigger:'isFullSeq', effect:'pattern_quality 极稀缺·收藏级，liquidity_signal 高流动性', reason:'5位完全连续数字(12345/54321)，全球认知统一，五数字最高品相' },
+    { id:'L1-R001', cat:'digital_structure', label:'全顺子 full_sequence', trigger:'isFullSeq', effect:'pattern_quality 极稀缺·收藏级，liquidity_signal 高流动性', reason:'5位完全连续递增数字(12345/6789)，全球认知统一，五数字最高品相' },
     { id:'L1-R002', cat:'digital_structure', label:'豹子号 repeat (全同)', trigger:'isRepeat&&!lead0', effect:'pattern_quality 极稀缺·豹子号，liquidity_signal 高流动性·收藏级', reason:'五同号全球仅10个，8豹子88888为终极财富符号' },
     { id:'L1-R003', cat:'digital_structure', label:'前导0豹子 lead0_leopard', trigger:'isRepeat&&lead0', effect:'pattern_quality 稀有·前导0豹子，liquidity_signal 中高流动性', reason:'前导0+尾4同号(08888/09999)，折价0.6-0.8×于全位豹子' },
     { id:'L1-R004', cat:'digital_structure', label:'回文号 palindrome', trigger:'isPalindrome', effect:'pattern_quality 稀缺·回文对称，liquidity_signal 中高流动性', reason:'前后对称结构(12321/98789)，视觉平衡记忆成本低' },
     { id:'L1-R005', cat:'digital_structure', label:'尾顺子 tail_sequence', trigger:'isTailSeq', effect:'pattern_quality 良好·尾顺子，liquidity_signal 中高流动性', reason:'尾部3-4位连续数字(如xxx234/xxx3456)，溢价5-15×' },
     { id:'L1-R006', cat:'digital_structure', label:'吉祥号 lucky', trigger:'isLucky', effect:'pattern_quality 中等·吉祥号，liquidity_signal 中等流动性', reason:'不含0/4且含吉祥数字(6/8/9)，华人市场偏好但供给量大' },
-    { id:'L1-R007', cat:'digital_structure', label:'含4 taboo_4', trigger:'hasFour', effect:'折价警告⚠️ 含4域名华人市场通常折价30-60%', reason:'中国文化中4=死，同行品相含4通常大幅折价' },
+    { id:'L1-R007', cat:'digital_structure', label:'含4 taboo_4', trigger:'hasFour', effect:'折价警告⚠️ 含4域名中文市场接受度可能减弱', reason:'中国文化中4=死，含4域名需结合品相、位置、可比成交人工复核折价幅度' },
     { id:'L1-R008', cat:'digital_structure', label:'含0 has_zero', trigger:'hasZero', effect:'中性标记，含0不一定折价但需注意组合上下文', reason:'0在中文市场中性(非禁忌)，需结合整体数字组合判断' },
     { id:'L1-R009', cat:'digital_structure', label:'普通号 ordinary', trigger:'pattern===ordinary', effect:'pattern_quality 普通品相，liquidity_signal 基础流动性', reason:'无特殊数字结构规律，依靠价格优势非品相驱动' }
   ],
@@ -1265,7 +1292,11 @@ const ANCHORS = {
                     anchor_note: '⚠️ 未核验公开报道：77.com 无独立数据库核验来源，不参与自动定价，仅供参考' },
   // zkp.com：项目方自称买价，非传统域名成交数据库核验，且价格显著高于 LLL_COM 区间
   'zkp.com':      { usd: 5000000,  type: 'reported_sale', source: 'public report / buyer self-reported; materially above LLL_COM class range; not in major sale databases', verified: false, confidence: 'low', anchor_relation: 'exact_domain_historical_sale', pricing_use: 'manual_review_only',
-                    anchor_note: '⚠️ 买方自报价格 $5M，显著高于 LLL_COM 当前区间，无 DNJournal/NameBio 独立核验；不参与自动定价，仅作参考' }
+                    anchor_note: '⚠️ 买方自报价格 $5M，显著高于 LLL_COM 当前区间，无 DNJournal/NameBio 独立核验；不参与自动定价，仅作参考' },
+
+  // v6.5-R0f: Top Numeric Price Lens 历史锚点（reference_only — R0f 拆桶定价优先）
+  '88888.com':    { usd: 245000,   type: 'sale',          source: 'DNJournal 2013-12-04; DomainNameSales (Domain Holdings)', verified: true, confidence: 'high', anchor_relation: 'exact_domain_historical_sale', pricing_use: 'reference_only',
+                    anchor_note: '历史成交 $245,000（2013-12-04，DNJournal 周报 #1）；all_8_repeat 价格锚点，R0f Price Lens 定价优先于锚点机械换算' }
 };
 
 const ULTRA_WORD_LIST = [
@@ -1349,7 +1380,8 @@ const PRICING_BADGE_LABELS = {
   static_class: '类别区间',
   anchor_based: '锚点定价',
   anchor_floor_adjusted: '地板抬升',
-  class_floor_guarded: '类别保护'
+  class_floor_guarded: '类别保护',
+  top_numeric_price_lens: '顶级豹子拆桶'
 };
 
 function applyAnchorFloorGuard(anchorUsd, assetClassId) {
@@ -1500,6 +1532,38 @@ function parseDomain(raw) {
   return { full, tld, sld };
 }
 
+// v6.5-R0f: Top Numeric Price Lens — 顶级豹子拆桶（5N only）
+// 命中则脱离 premium_pattern 大桶，使用独立 P1/P2 区间
+function detectTopNumericSubtypeDetail(sld) {
+  if (sld.length !== 5 || !/^\d{5}$/.test(sld)) return null;
+  if (/^8{5}$/.test(sld)) return 'all_8_repeat';
+  if (/^([689])\1{4}$/.test(sld)) return 'all_lucky_repeat';
+  if (/^0[689]{4}$/.test(sld)) return 'lead0_lucky_repeat';
+  return null;
+}
+
+const TOP_NUMERIC_SUBTYPE_DETAIL = {
+  all_8_repeat: {
+    label: '8豹子（全位）',
+    p1: '$180,000 – $450,000',
+    p2: '$300,000 – $900,000',
+    anchor: '88888.com $245K（DNJournal 2013-12-04）',
+  },
+  all_lucky_repeat: {
+    label: '6/9豹子（全位）',
+    p1: '$80,000 – $240,000',
+    p2: '$150,000 – $450,000',
+    anchor: '666666.com $161K（GNAME / 历史成交）',
+  },
+  lead0_lucky_repeat: {
+    label: '前导0吉祥豹子',
+    p1: '$40,000 – $120,000',
+    p2: '$80,000 – $240,000',
+    anchor: '08888.com 类比（前导0折价 ~50%）',
+  },
+};
+const TOP_NUMERIC_MAX_RATIO = 3; // historical_anchor_reference 硬约束
+
 // ── 纯数字域名子类型检测（v6.5-R0e）──
 // 4 不是 lucky，用 /[68]/ 判断吉利数字
 function detectNumericSubtype(sld) {
@@ -1544,7 +1608,7 @@ const NUMERIC_SUBTYPE_P1 = {
     zero_heavy:      '$2,000 – $10,000',
   },
   NNNNN: {
-    premium_pattern: '$5,000 – $30,000',
+    premium_pattern: '$5,000 – $25,000',
     clean_lucky:     '$3,000 – $15,000',
     neutral_clean:   '$1,000 – $5,000',
     has4_penalty:    '$500 – $3,000',
@@ -1628,6 +1692,25 @@ function classifyAsset(sld, tld, full) {
         `4位纯数字.COM — 全球仅10,000个｜子类型：${subLabel}（参照：1888.com 等吉利数字）`);
     }
     if (isNumeric && len === 5) {
+      const subDetail = detectTopNumericSubtypeDetail(sld);
+      if (subDetail) {
+        const lens = TOP_NUMERIC_SUBTYPE_DETAIL[subDetail];
+        const p1 = clampRangeWidth(lens.p1, TOP_NUMERIC_MAX_RATIO);
+        const p2 = clampRangeWidth(lens.p2, TOP_NUMERIC_MAX_RATIO);
+        return {
+          id: 'NNNNN_COM',
+          priceTag: '投资人流通底价｜顶级数字豹子',
+          scoreFloor: SCORE_FLOOR_MAP.NNNNN_COM ?? 0,
+          p1, p2,
+          p3: '需人工复核；仅限强终端匹配',
+          rationale: `5位纯数字.COM — Top Numeric Price Lens｜${lens.label}（参照：${lens.anchor}）`,
+          subtypeDetail: subDetail,
+          listingNote: referenceNote,
+          anchorMeta: anchor || null,
+          pricingMethod: 'top_numeric_price_lens',
+          anchorNote: guardFallthroughNote || null
+        };
+      }
       const sub = detectNumericSubtype(sld);
       const subLabel = NUMERIC_SUBTYPE_LABEL[sub];
       const subP1 = NUMERIC_SUBTYPE_P1.NNNNN[sub];
@@ -1717,6 +1800,61 @@ function score6D(sld, tld, asset) {
   const final = Math.max(asset.scoreFloor || 0, Math.round(weighted));
 
   return { d1, d2, d3, d4, d5, d6, final, has4, has4Penalty };
+}
+
+// ── v6.5-R1: Expert Score Modifier (preview only) ──
+const EXPERT_SCORE_MODIFIERS = {
+  NUM_FULL_SEQUENCE: +6,
+  NUM_REPEAT:        +6,
+  NUM_PALINDROME:    +4,
+  NUM_TAIL_SEQUENCE: +2,
+  NUM_CLEAN_LUCKY:   +2,
+  CN_HAS4:           -4,
+  CN_LEADING_4:      -6,
+  NUM_ZERO_HEAVY:    -3,
+  NUM_DESCENDING:    0,   // guard already in R0e-hotfix
+};
+const SCORE_MODIFIER_CAP = 8;     // max positive modifier
+const SCORE_MODIFIER_FLOOR = -8;  // max negative modifier
+
+function calcExpertScoreModifier(sld, patternInfo, asset) {
+  if (!V65_ENABLE_EXPERT_SCORE_MODIFIERS) {
+    return { delta: 0, reason: '', rules: [] };
+  }
+  let delta = 0;
+  const reasons = [];
+  const len = sld.length;
+
+  // 5-digit pattern rules (need patternInfo)
+  if (patternInfo && len === 5) {
+    if (patternInfo.isFullSeq)    { delta += EXPERT_SCORE_MODIFIERS.NUM_FULL_SEQUENCE; reasons.push('NUM_FULL_SEQUENCE'); }
+    if (patternInfo.isRepeat)     { delta += EXPERT_SCORE_MODIFIERS.NUM_REPEAT;        reasons.push('NUM_REPEAT'); }
+    if (patternInfo.isPalindrome) { delta += EXPERT_SCORE_MODIFIERS.NUM_PALINDROME;    reasons.push('NUM_PALINDROME'); }
+    if (patternInfo.isTailSeq)    { delta += EXPERT_SCORE_MODIFIERS.NUM_TAIL_SEQUENCE; reasons.push('NUM_TAIL_SEQUENCE'); }
+    if (patternInfo.isLucky)      { delta += EXPERT_SCORE_MODIFIERS.NUM_CLEAN_LUCKY;   reasons.push('NUM_CLEAN_LUCKY'); }
+    if (patternInfo.isDescSeq)    { delta += EXPERT_SCORE_MODIFIERS.NUM_DESCENDING;    reasons.push('NUM_DESCENDING'); }
+  }
+
+  // has4 / leading4 / zero_heavy (any numeric domain)
+  if (len >= 4 && /^\d+$/.test(sld)) {
+    if (sld.includes('4')) {
+      delta += EXPERT_SCORE_MODIFIERS.CN_HAS4;
+      reasons.push('CN_HAS4');
+    }
+    if (sld[0] === '4') {
+      delta += EXPERT_SCORE_MODIFIERS.CN_LEADING_4;
+      reasons.push('CN_LEADING_4');
+    }
+    const zeroCount = (sld.match(/0/g) || []).length;
+    if (zeroCount >= 2) {
+      delta += EXPERT_SCORE_MODIFIERS.NUM_ZERO_HEAVY;
+      reasons.push('NUM_ZERO_HEAVY');
+    }
+  }
+
+  // clamp
+  delta = Math.max(SCORE_MODIFIER_FLOOR, Math.min(SCORE_MODIFIER_CAP, delta));
+  return { delta, reason: reasons.join(' + '), rules: reasons };
 }
 
 function getRisks(sld, tld, asset, full) {
@@ -1819,6 +1957,19 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
     final_score: scores.final,
     score_explanation: scores.final >= 90 ? '顶级资产' : scores.final >= 80 ? '优质资产' : scores.final >= 70 ? '良好资产' : '普通域名',
     score_floor: asset.scoreFloor || 0,
+    // v6.5-R1: expert score modifier preview (output only, never feeds pricing)
+    ...(V65_ENABLE_EXPERT_SCORE_MODIFIERS ? (() => {
+      const mod = calcExpertScoreModifier(parsed.sld, detectPattern(parsed.sld), asset);
+      return {
+        expert_adjusted_score: Math.max(0, Math.min(100, scores.final + mod.delta)),
+        score_modifier_enabled: true,
+        score_modifier_preview: { delta: mod.delta, reason: mod.reason },
+      };
+    })() : {
+      expert_adjusted_score: null,
+      score_modifier_enabled: false,
+      score_modifier_preview: null,
+    }),
     price_tag: asset.priceTag,
     pricing_method: pricingMethod,
     anchor_deal_used: ['anchor_based', 'anchor_floor_adjusted', 'class_floor_guarded'].includes(pricingMethod),
@@ -1856,7 +2007,7 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
       const ruleHits = matchRules(sld, asset.id);
       const buyerFit = inferBuyerFit(ruleHits, asset.id);
       return {
-        version: 'v6.5-R0e',
+        version: 'v6.5-R0f',
         auto_pricing_allowed: false,
         review_level: 'manual_review_only',
         rule_hits: ruleHits.map(r => ({ rule_id: r.id, layer: r.layer, label: r.label, effect: r.effect, reason: r.reason })),
@@ -1873,7 +2024,7 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
     : '';
 
   return `# DOMAIN_VALUATION_PACK.md
-> 生成时间：${now} | 系统：Domain AI Judge v6.5-R0e | 规则：CORE_RULES v2
+> 生成时间：${now} | 系统：Domain AI Judge v6.5-R0f | 规则：CORE_RULES v2
 > ⚠️ 本文档为系统初步判断，最终价格以实际市场成交为准
 > 📦 数据来源：静态规则库 / 用户录入 / 待人工复核（live_market_checked: false）
 ${activeBrandBanner}---
@@ -1907,7 +2058,7 @@ ${asset.listingNote ? `| 锚点说明 | ${asset.listingNote} |` : ''}
 |------|------|---------|
 ${anchorTableMd}
 
-### 2.2 当前资产类别价格区间参考（v6.5-R0e Price Lens）
+### 2.2 当前资产类别价格区间参考（v6.5-R0f Price Lens）
 
 - **P1 投资人流通价**：${asset.p1 || '需人工估算'}
 - **P2 挂牌/议价参考**：${asset.p2 || '需人工估算'}
@@ -2038,7 +2189,7 @@ ${materialData}
 
 ---
 
-*DOMAIN_VALUATION_PACK.md · Domain AI Judge v6.5-R0e · CORE_RULES v2 · 静态规则库 · ${now}*
+*DOMAIN_VALUATION_PACK.md · Domain AI Judge v6.5-R0f · CORE_RULES v2 · 静态规则库 · ${now}*
 `;
 }
 
@@ -2054,15 +2205,18 @@ function detectPattern(sld) {
   const hasZero = digits.includes(0);
   const digitSet = new Set(digits);
 
-  // Check full_sequence: all 5 digits form consecutive sequence (ascending or descending)
+  // v6.5-R0e-hotfix: full_sequence = ascending ONLY. Descending is NOT premium.
   const isFullSeq = (() => {
-    let asc = true, desc = true;
+    let asc = true;
     for (let i = 1; i < 5; i++) {
       if (digits[i] !== digits[i-1] + 1) asc = false;
-      if (digits[i] !== digits[i-1] - 1) desc = false;
     }
-    return asc || desc;
+    return asc;
   })();
+  // v6.5-R0e-hotfix: detect descending for hard guard (ordinary override)
+  const isDescSeq = !isFullSeq && sld.length >= 3 && sld.split('').every(
+    (d, i) => i === 0 || Number(d) === Number(sld[i-1]) - 1
+  );
 
   // Check repeat: all digits same, OR leading 0 + trailing 4 same digits (lead0 leopard)
   const isRepeat = digitSet.size === 1 ||
@@ -2087,8 +2241,9 @@ function detectPattern(sld) {
 
   // Determine pattern
   let pattern, patternBorder, fourBorder;
-  // When full_sequence is true, suppress tail_sequence (full seq already contains tail seq)
-  const effectiveIsTailSeq = isTailSeq && !isFullSeq;
+  // v6.5-R0e-hotfix: descending suppresses tail_sequence AND lucky (hard ordinary guard)
+  const effectiveIsTailSeq = isTailSeq && !isFullSeq && !isDescSeq;
+  const effectiveIsLucky = isLucky && !isDescSeq;
   
   if (isFullSeq) {
     pattern = 'full_sequence';
@@ -2102,11 +2257,16 @@ function detectPattern(sld) {
     pattern = 'palindrome';
     patternBorder = true;
     fourBorder = hasFour;
+  } else if (isDescSeq) {
+    // v6.5-R0e-hotfix: descending → ordinary (NOT premium)
+    pattern = 'ordinary';
+    patternBorder = false;
+    fourBorder = hasFour;
   } else if (effectiveIsTailSeq) {
     pattern = 'tail_sequence';
     patternBorder = true;
     fourBorder = hasFour;
-  } else if (isLucky) {
+  } else if (effectiveIsLucky) {
     pattern = 'lucky';
     patternBorder = false;
     fourBorder = false;
@@ -2116,16 +2276,16 @@ function detectPattern(sld) {
     fourBorder = hasFour;
   }
 
-  return { pattern, hasFour, hasZero, patternBorder, fourBorder, isFullSeq, isRepeat, isPalindrome, isTailSeq: effectiveIsTailSeq, isLucky, digits };
+  return { pattern, hasFour, hasZero, patternBorder, fourBorder, isFullSeq, isRepeat, isPalindrome, isTailSeq: effectiveIsTailSeq, isLucky: effectiveIsLucky, isDescSeq, digits };
 }
 
 // ── v6.5-R0e: Expert Judgment Layer ──
 function expertJudgment(sld, patternInfo, has4) {
   const judgments = {
     full_sequence: {
-      pattern_quality: '纯顺子·极稀缺——五数字最高品相，12345/54321等完全顺子全球认知统一，流通性顶级',
+      pattern_quality: '纯顺子·极稀缺——五数字最高品相，12345/6789等递增完全顺子全球认知统一，流通性顶级',
       liquidity_signal: '高流动性·收藏级——全顺子为数字域名硬通货，国内外买家共识强，变现周期短',
-      cn_market_bias: '中国买家偏好顺子号·硬通货——顺子在中国文化中代表"顺遂"，12345为典型象征，溢价空间大',
+      cn_market_bias: '中国买家偏好顺子号·硬通货——顺子在中国文化中代表"顺遂"，12345为典型象征；若含4则强信号与风险并存，系统仅在评分预览中做规则抵扣，不代表真实成交折价',
       relative_position: '全顺子为五数字最优品相层级，高于尾顺子/豹子号/回文/吉祥/普通'
     },
     repeat: {
@@ -2156,7 +2316,7 @@ function expertJudgment(sld, patternInfo, has4) {
       pattern_quality: '普通品相——无特殊数字结构规律，记忆成本中等',
       liquidity_signal: '基础流动性——普通号供给量大，依靠价格优势而非品相驱动流通',
       cn_market_bias: '普通品相·无特殊溢价——需依靠系统规则定价，品相本身不产生额外市场加成',
-      relative_position: '普通号为五数字基础品相层级，所有结构规律品种均高于此'
+      relative_position: '普通号为五数字基础品相层级，所有结构规律品种均高于此；4开头+普通结构在中文市场接受度较弱，仅作专家判断提示，不自动改价'
     }
   };
 
@@ -2165,7 +2325,7 @@ function expertJudgment(sld, patternInfo, has4) {
 
   let has4_annotation = null;
   if (has4) {
-    has4_annotation = '⚠️ 含数字4·在中国市场中4被视为不吉利数字，同类品相中含4域名通常折价30-60%，需人工判断真实折价幅度';
+    has4_annotation = '⚠️ 含数字4·中文市场对数字4存在避讳，可能削弱部分买家接受度；具体折价幅度需结合品相、位置、可比成交人工复核。当前不自动改价。';
   }
 
   return {
@@ -2286,8 +2446,9 @@ function renderPattern(sld, patternInfo) {
   if (pi.pattern === 'ordinary') {
     status6.textContent = '✓ 命中';
     status6.className = 'pat-status active';
-    sub6.textContent = pi.hasFour ? '含4' : '';
-    sub6.className = 'pat-sub' + (pi.fourBorder ? ' orange-sub' : '');
+    // v6.5-R0e-hotfix: ordinary block shows NO "含4" annotation
+    sub6.textContent = '';
+    sub6.className = 'pat-sub';
     block6.className = 'pattern-block' + ((pi.pattern === 'ordinary' && pi.hasFour) ? ' orange-border' : '');
   } else {
     status6.textContent = '✗';
@@ -2300,7 +2461,7 @@ function renderPattern(sld, patternInfo) {
 
 // ── v6.5-R0e: Expert Judgment UI Render ──
 // 5-layer chips + rule_hits + buyer_fit cards
-function renderExpertJudgment(sld, patternInfo, asset) {
+function renderExpertJudgment(sld, patternInfo, asset, scores) {
   const section = document.getElementById('expertSection');
   
   // Always show for all domains (not just 5-digit)
@@ -2371,6 +2532,27 @@ function renderExpertJudgment(sld, patternInfo, asset) {
   } else {
     patternGrid.style.display = 'none';
     document.getElementById('expHas4').style.display = 'none';
+  }
+
+  // ── v6.5-R1: Expert Score Modifier Preview ──
+  const previewEl = document.getElementById('expScorePreview');
+  const previewVal = document.getElementById('expScorePreviewVal');
+  const previewNote = document.getElementById('expScorePreviewNote');
+  if (scores) {
+    const mod = calcExpertScoreModifier(sld, patternInfo, asset);
+    if (V65_ENABLE_EXPERT_SCORE_MODIFIERS) {
+      // live mode: show adjusted score
+      const adjusted = Math.max(0, Math.min(100, scores.final + mod.delta));
+      previewEl.style.display = 'flex';
+      previewVal.textContent = `${scores.final} → ${adjusted}`;
+      previewNote.textContent = mod.reason ? `(${mod.reason})` : '(无修正)';
+    } else {
+      // preview mode: show delta only, score unchanged
+      previewEl.style.display = mod.delta !== 0 ? 'flex' : 'none';
+      const sign = mod.delta > 0 ? '+' : '';
+      previewVal.textContent = `${sign}${mod.delta}（未启用）`;
+      previewNote.textContent = mod.reason ? `规则: ${mod.reason}` : '';
+    }
   }
 }
 
@@ -2455,7 +2637,7 @@ function analyze() {
       const patternInfo = detectPattern(parsed.sld);
       renderPattern(parsed.sld, patternInfo);
       // v6.5-R0e: Expert Judgment (5-layer chips + rule_hits + buyer_fit)
-      renderExpertJudgment(parsed.sld, patternInfo, asset);
+      renderExpertJudgment(parsed.sld, patternInfo, asset, scores);
 
     } catch(e) { document.getElementById('results').classList.add('visible'); }
 
