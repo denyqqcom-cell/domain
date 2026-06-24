@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>域名投资专家系统 v6.6-R0d-hotfix</title>
+<title>域名投资专家系统 v6.6-R0d-hotfix2</title>
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
 <style>
 /* ── TOKENS ── */
@@ -671,7 +671,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <circle cx="27" cy="10" r="4" fill="var(--gold)"/>
       </svg>
       <span class="logo-text">域名估值</span>
-      <span class="logo-version">v6.6-R0d-hotfix</span>
+      <span class="logo-version">v6.6-R0d-hotfix2</span>
     </div>
     <button class="theme-btn" data-theme-toggle aria-label="切换主题">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -866,7 +866,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e8960a" stroke-width="2.5">
           <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
         </svg>
-        专家判断层 Expert Judgment (v6.6-R0d-hotfix)
+        专家判断层 Expert Judgment (v6.6-R0d-hotfix2)
         <span class="expert-version" id="expVersion">67 rules</span>
       </div>
       <!-- Layer Chips -->
@@ -946,7 +946,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   </div>
 
   <footer class="footer">
-    Domain Investment Expert System v6.6-R0d-hotfix · 系统专家出价 → AI 审计复核 · 估值仅供参考
+    Domain Investment Expert System v6.6-R0d-hotfix2 · 系统专家出价 → AI 审计复核 · 估值仅供参考
   </footer>
 </div>
 
@@ -1482,6 +1482,16 @@ const ANCHORS = {
                       domain_only_price_actionable: false
                     },
                     anchor_note: '对照组：运营中 NNNN_COM 豹子号；2013 Sedo €400K bid 为 reference_only，不参与自动定价' },
+  'bn.com':       { usd: null,     type: 'reference',     source: 'live verification: HTTP redirect to barnesandnoble.com active brand site', verified: false, confidence: 'medium', anchor_relation: 'exact_domain_listing', pricing_use: 'reference_only',
+                    domain_status: 'active_operating_site',
+                    status_note: 'BN.com 跳转至 Barnes & Noble 运营站点；未发现公开出售；P1/P2/P3 为 domain-only 组件估值',
+                    transaction_context: {
+                      website_status: 'active_operating_site',
+                      sale_status: 'not_verified_for_sale',
+                      acquisition_mode: 'website_or_business_acquisition',
+                      domain_only_price_actionable: false
+                    },
+                    anchor_note: 'B2 对照：跳转至第三方品牌站；reference_only，不参与自动定价' },
 
   // v6.6-R0b-7a: NNN_COM reference_only 可比轴（无核验成交价，不参与自动定价）
   '888.com':      { usd: null,     type: 'reference',     source: 'AAA all-8 NNN_COM pattern; no verified public sale in DNJournal/NameBio', verified: false, confidence: 'low', anchor_relation: 'exact_domain_listing', pricing_use: 'reference_only',
@@ -2192,6 +2202,17 @@ function getConfidence(asset) {
 // ═══════════════════════════════════════════════════════════════
 const AI_AUDITOR_OUTPUT_SCHEMA = {
   schema_version: 'AI_AUDITOR_JSON_v2',
+  website_check: {
+    attempted: true,
+    input_url: 'https://example.com/',
+    final_url: 'https://www.example.com/',
+    redirect_detected: false,
+    final_host: 'www.example.com',
+    page_title_or_brand: '',
+    site_type: 'active_brand_site | active_operating_site | parked | for_sale_page | unknown',
+    for_sale_signal_found: false,
+    evidence_source: 'live_website'
+  },
   transaction_status: {
     website_status: 'active_operating_site | parked | for_sale_listed | unknown',
     sale_status: 'not_verified_for_sale | listed | sold_history_only | unknown',
@@ -2249,6 +2270,7 @@ function buildTransactionContext(parsed, statusInfo, anchorMeta) {
 
 function buildDdAuditTasks(transactionContext) {
   return [
+    'Live website 核验：访问 input URL，记录 final_url / redirect / page_title_or_brand（website_check）',
     '核验当前是否建站运营（website_status）',
     '核验是否有公开出售页或 marketplace listing（sale_status）',
     '核验 RDAP/Whois 注册状态与转移限制',
@@ -2442,6 +2464,7 @@ function buildAiAuditorBrief(expertMemo) {
     role: 'AI Domain Market Auditor',
     instruction: '你是域名市场复核员，不是重新估值员。必须先完成交易与法律尽调，再审计系统 P1/P2/P3。不得重新从零估值，不得输出 price_range 或 investor_floor_usd。',
     pre_checks: [
+      '0. Live website 跳转核验（website_check.attempted:true，记录 input_url → final_url）',
       '1. 当前是否建站运营（website_status）',
       '2. 是否有公开出售页或 marketplace listing（sale_status）',
       '3. RDAP/Whois 状态是否可见',
@@ -2449,6 +2472,8 @@ function buildAiAuditorBrief(expertMemo) {
       '5. 同名商标或行业冲突'
     ],
     requirements: [
+      '无 website_check.attempted:true 不得输出 P1/P2/P3 审计结论（unknown 仅可 WARNING + 不可判定）',
+      'input host 与 final host 不一致且 final 为品牌/电商/业务站：必须标 active_operating_site，domain_only_price_actionable:false',
       '未完成 website_status 或 sale_status 核验：P1/P2/P3 只能「不可判定」',
       'active_operating_site 且无出售状态：不得将 P1/P2/P3 评为可执行购买价',
       'pending UDRP 或 transfer ordered：audit_score ≤50，confidence 不得 high',
@@ -2491,8 +2516,8 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
   const auditorJson = JSON.stringify(bundle.auditorBrief, null, 2);
   const v = bundle.valuation;
   const pl = v.price_lens;
-  return `# Expert Memo + AI Auditor Brief (v6.6-R0d-hotfix)
-> 生成时间：${now} | Domain Investment Expert System v6.6-R0d-hotfix
+  return `# Expert Memo + AI Auditor Brief (v6.6-R0d-hotfix2)
+> 生成时间：${now} | Domain Investment Expert System v6.6-R0d-hotfix2
 > 主输出：专家 Memo + AI 审计合同 | Legacy Pack 已降级为附录
 
 ---
@@ -2549,7 +2574,7 @@ ${JSON.stringify(bundle.auditorBrief.output_schema, null, 2)}
 
 > 六维明细、全量锚点表、67 条规则命中见高级展开区 UI。
 
-*v6.6-R0d-hotfix · Domain Investment Expert System · ${now}*
+*v6.6-R0d-hotfix2 · Domain Investment Expert System · ${now}*
 `;
 }
 
@@ -2601,6 +2626,30 @@ function renderDualPanel(bundle) {
 }
 
 const AUDITOR_ACTIONABLE_VERDICTS = ['偏低', '合理', '偏高'];
+const AUDITOR_NON_ACTIONABLE_VERDICTS = ['不可判定', '数据不足', '仅品类参考'];
+const REDIRECT_ACTIVE_SITE_TYPES = new Set([
+  'active_brand_site', 'active_operating_site', 'ecommerce_site', 'business_site', 'brand_site'
+]);
+
+function hostFromUrl(url) {
+  try {
+    const u = new URL((url || '').startsWith('http') ? url : 'https://' + url);
+    return u.hostname.toLowerCase().replace(/^www\./, '');
+  } catch (e) { return null; }
+}
+
+function hasAnyAuditorVerdict(data) {
+  return ['p1_verdict', 'p2_verdict', 'p3_verdict'].some(k => {
+    const v = data[k];
+    return v && String(v).trim() && v !== '—';
+  });
+}
+
+function isRedirectActiveBrandSite(wc) {
+  if (!wc || wc.attempted !== true || !wc.redirect_detected) return false;
+  if (REDIRECT_ACTIVE_SITE_TYPES.has(wc.site_type)) return true;
+  return !!(wc.final_host && wc.page_title_or_brand);
+}
 
 function isAuditorTransactionGate(tx) {
   if (!tx || typeof tx !== 'object') return false;
@@ -2629,8 +2678,20 @@ function renderAuditorConclusion(data) {
   const disp = data.dispute_check || {};
   const gateActive = isAuditorTransactionGate(tx);
   let html = '';
+  const wc = data.website_check || {};
   if (gateActive) {
     html += '<div class="ac-gate-card"><strong>交易门禁</strong>：当前疑似/已识别为运营站点，P1/P2/P3 仅为域名组件估值，不构成可执行收购价。实际交易属于网站/品牌/业务收购，需先确认出售意愿与权利状态。</div>';
+  }
+  if (wc.attempted === true) {
+    let wcLine = '<div class="ac-row"><span class="ac-label">网站核验：</span>';
+    if (wc.redirect_detected && wc.final_url) {
+      wcLine += '跳转至 ' + escapeHtml(wc.final_host || hostFromUrl(wc.final_url) || wc.final_url);
+      if (wc.page_title_or_brand) wcLine += ' · ' + escapeHtml(wc.page_title_or_brand);
+      wcLine += ' · domain-only 组件估值，非可执行收购价';
+    } else {
+      wcLine += escapeHtml(wc.site_type || '已访问') + (wc.final_url ? ' · ' + escapeHtml(wc.final_url) : '');
+    }
+    html += wcLine + '</div>';
   }
   html += '<div class="ac-score">审计分 ' + (data.audit_score ?? '—') + '/100 · ' + (data.confidence || '—') + '</div>';
   if (tx.website_status) {
@@ -2696,6 +2757,46 @@ function validateAuditorJson(data) {
   }
   if (!data.dispute_check) warnings.push('缺少 dispute_check（UDRP/商标尽调）');
   else if (!data.dispute_check.udrp_status) warnings.push('dispute_check.udrp_status 缺失');
+
+  const wc = data.website_check;
+  const attempted = wc && wc.attempted === true;
+  if (!attempted) {
+    if (!hasAnyAuditorVerdict(data)) {
+      warnings.push('未完成网站核验（website_check.attempted 缺失）');
+    } else {
+      const verdicts = ['p1_verdict', 'p2_verdict', 'p3_verdict']
+        .map(k => data[k]).filter(v => v && String(v).trim() && v !== '—');
+      const txUnknown = !tx || !tx.website_status || tx.website_status === 'unknown';
+      const allNonActionable = verdicts.length > 0 && verdicts.every(v =>
+        AUDITOR_NON_ACTIONABLE_VERDICTS.includes(v) || !AUDITOR_ACTIONABLE_VERDICTS.includes(v));
+      if (allNonActionable && txUnknown) {
+        warnings.push('未完成网站核验（website_check.attempted 缺失）；当前 verdict 仅为不可判定/数据不足');
+      } else {
+        errors.push('未完成 website_check（attempted:true）不得输出 P1/P2/P3 审计结论');
+      }
+    }
+  } else if (isRedirectActiveBrandSite(wc)) {
+    if (!tx || (tx.website_status !== 'active_operating_site' && tx.website_status !== 'active_brand')) {
+      errors.push('检测到跳转至品牌/运营站点，website_status 必须为 active_operating_site');
+    }
+    if (tx && tx.domain_only_price_actionable === true) {
+      errors.push('跳转至运营站点时 domain_only_price_actionable 必须为 false');
+    }
+    const inputHost = hostFromUrl(wc.input_url);
+    const finalHost = (wc.final_host || hostFromUrl(wc.final_url) || '').toLowerCase().replace(/^www\./, '');
+    if (inputHost && finalHost && inputHost !== finalHost && tx && tx.domain_only_price_actionable === true) {
+      errors.push('input/final host 不一致且为运营站点时 domain_only_price_actionable 必须为 false');
+    }
+  }
+
+  if (tx && (tx.website_status === 'unknown' || !tx.website_status) && !attempted && hasAnyAuditorVerdict(data)) {
+    const hasActionable = ['p1_verdict', 'p2_verdict', 'p3_verdict'].some(k =>
+      AUDITOR_ACTIONABLE_VERDICTS.includes(data[k]));
+    if (hasActionable) {
+      errors.push('website_status 为 unknown 且无 website_check，不得进入价格审计');
+    }
+  }
+
   if (isAuditorTransactionGate(tx)) {
     ['p1_verdict', 'p2_verdict', 'p3_verdict'].forEach(k => {
       const v = data[k];
@@ -3238,8 +3339,8 @@ function renderExpertJudgment(sld, patternInfo, asset, scores) {
 
   // ── Version Badge ──
   document.getElementById('expVersion').textContent = asset.subtypeDetail
-    ? `v6.6-R0d-hotfix · ${asset.subtypeDetail}`
-    : (ruleHits.length > 0 ? `v6.6-R0d-hotfix · ${ruleHits.length} hits` : 'v6.6-R0d-hotfix · buyer persona');
+    ? `v6.6-R0d-hotfix2 · ${asset.subtypeDetail}`
+    : (ruleHits.length > 0 ? `v6.6-R0d-hotfix2 · ${ruleHits.length} hits` : 'v6.6-R0d-hotfix2 · buyer persona');
 
   // ── Pattern Judgment (5-digit or numeric subtype_detail) ──
   const patternGrid = document.getElementById('expertPatternGrid');

@@ -35,6 +35,11 @@ const bootstrap = [
   html.match(/const LL_ABBREVIATION_HINTS = \{[\s\S]*?\};/m)[0],
   html.match(/const AUDITOR_FORBIDDEN_FIELDS = \[[\s\S]*?\];/m)[0],
   html.match(/const AUDITOR_ACTIONABLE_VERDICTS = \[[\s\S]*?\];/m)[0],
+  html.match(/const AUDITOR_NON_ACTIONABLE_VERDICTS = \[[\s\S]*?\];/m)[0],
+  html.match(/const REDIRECT_ACTIVE_SITE_TYPES = new Set\(\[[\s\S]*?\]\);/m)[0],
+  extractFn('hostFromUrl'),
+  extractFn('hasAnyAuditorVerdict'),
+  extractFn('isRedirectActiveBrandSite'),
   extractFn('isAuditorTransactionGate'),
   extractFn('formatAuditorVerdict'),
   extractFn('parseDomain'),
@@ -98,7 +103,7 @@ FORBIDDEN_USER_COPY.forEach(phrase => {
   check('forbidden copy absent: ' + phrase, !html.includes(phrase));
 });
 
-check('index: v6.6-R0d-hotfix', /v6\.6-R0d-hotfix/.test(html));
+check('index: v6.6-R0d-hotfix2', /v6\.6-R0d-hotfix2/.test(html));
 check('index: isAuditorTransactionGate', /function isAuditorTransactionGate/.test(html));
 check('index: ac-gate-card CSS', /\.ac-gate-card/.test(html));
 check('index: 8888.com anchor', /'8888\.com':/.test(html));
@@ -130,7 +135,19 @@ check('index: AI_VERIFY_PENDING_NOTE', /AI核验项：建站状态、出售状�
   check('55.csah: AI verify note', /AI核验项/.test(b.acquirableInfo.acquirable_note || ''));
 }
 
+const wcStub = {
+  attempted: true,
+  input_url: 'https://8888.com/',
+  final_url: 'https://8888.com/',
+  redirect_detected: false,
+  final_host: '8888.com',
+  site_type: 'active_operating_site',
+  for_sale_signal_found: false,
+  evidence_source: 'live_website'
+};
+
 const badJson = {
+  website_check: wcStub,
   transaction_status: {
     website_status: 'active_operating_site',
     sale_status: 'not_verified_for_sale',
@@ -151,9 +168,7 @@ const goodJson = {
 };
 
 const missingTxJson = {
-  p1_verdict: '合理',
-  p2_verdict: '合理',
-  p3_verdict: '合理'
+  dispute_check: { udrp_status: 'unknown', risk_level: 'low' }
 };
 
 {
