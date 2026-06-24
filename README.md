@@ -1,4 +1,4 @@
-# Domain Investment Expert System v6.6-R0a
+# Domain Investment Expert System v6.6-R0b
 
 > 域名投资专家系统 · 系统专家出价 → AI 审计复核 · 资产类别优先
 
@@ -24,6 +24,7 @@
 | 六维评分框架 | TLD强度 / 终端匹配 / 域名品质 / 市场定价 / 市场热度 / Outbound |
 | 三档价格输出 | P1 投资人流通 / P2 挂牌议价 / P3 战略终端假设价（始终数值区间） |
 | Top Numeric 拆桶 | 2N–5N 数字品相（888.com → `all_8_repeat_nnn`；88888.com → `all_8_repeat`） |
+| NNN reference 锚点 | 888/666/777/999/168 `reference_only` 入库（R0b-7a） |
 | 可比锚点过滤 | `comparable_anchors` 按 asset_class 强过滤，`allowed_for_audit: true` |
 | Expert Memo | `DOMAIN_EXPERT_MEMO_v1` + `ai_audit_tasks[]` |
 | AI Auditor Contract | `AI_AUDITOR_JSON_v1`（含 source_url / source_tier / verified_status） |
@@ -34,8 +35,8 @@
 ## 快速使用
 
 1. 打开在线页面，输入域名（如 `888.com`、`41235.com`、`hd.com`）
-2. 查看左栏系统专家估值（P1/P2/P3 + 专家一句话 + AI核验项）
-3. 复制「Expert Memo + AI Auditor Brief」投喂 AI 复核员
+2. 点击「生成专家估值」，查看左栏系统专家估值（P1/P2/P3 + 专家一句话 + AI核验项）
+3. 复制「AI 审计合同」投喂 AI 复核员（见 `AGENT_PROMPTS.md`）
 4. AI 输出审计 JSON，填入右栏（联网能力后续接入）
 
 ---
@@ -45,7 +46,8 @@
 ```text
 v6.5-R0f / R1-hotfix   ACCEPTED  价格引擎底座
 v6.6-R0                ACCEPTED  产品契约（Expert + Auditor）
-v6.6-R0a               CURRENT   数字品相 2N–5N + 锚点过滤
+v6.6-R0a               ACCEPTED  数字品相 2N–5N + 锚点过滤
+v6.6-R0b               CURRENT   UX/文案/辅文档/NNN reference 锚点
 v6.5-R1.1 / R2         暂缓
 ```
 
@@ -67,5 +69,6 @@ v6.5-R1.1 / R2         暂缓
 
 ## 发布说明
 
-- **GitHub main** `index.html` 标题应为 `v6.6-R0a`
+- **GitHub main** `index.html` 标题应为 `v6.6-R0b`
+- **主门禁**：`node test/v66_r0_gate.js`（`v64_regression.js` 为 @legacy 仅供参考）
 - **GitHub Pages** 若仍显示旧版，检查 Pages 分支/缓存（硬刷新 Ctrl+Shift+R）

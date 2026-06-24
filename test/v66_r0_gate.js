@@ -42,7 +42,9 @@ check('AI schema: source_tier field', /source_tier/.test(html));
 check('index: detectNumericSubtypeDetail', /function detectNumericSubtypeDetail/.test(html));
 check('index: NUMERIC_SUBTYPE_JUDGMENTS', /NUMERIC_SUBTYPE_JUDGMENTS/.test(html));
 check('index: anchorAssetClassForDomain', /function anchorAssetClassForDomain/.test(html));
-check('index: v6.6-R0a version', /v6\.6-R0a/.test(html));
+check('index: v6.6-R0b version', /v6\.6-R0b/.test(html));
+check('index: no 估值物料包 in hero', !/输入域名，生成可转发给 AI 的估值物料包/.test(html));
+check('index: 生成专家估值 CTA', /生成专家估值/.test(html));
 
 // ── Bootstrap runtime ──
 const bootstrap = [
@@ -126,6 +128,8 @@ function analyzeDomain(domain) {
   check('888: no cloud in anchors', !anchors.some(d => /cloud/i.test(d)));
   check('888: audit NNN_COM task', memo.ai_audit_tasks.some(t => /NNN_COM|AAA数字|888\.com/.test(t)));
   check('888: anchors allowed_for_audit', memo.comparable_anchors.every(a => a.allowed_for_audit === true));
+  check('888: comparable >= 2 NNN', memo.comparable_anchors.length >= 2);
+  check('888: has 888.com anchor', anchors.some(d => /888\.com/i.test(d)));
 }
 
 // ── Gate: 100.com (MiMo anchor-path blocker) ──

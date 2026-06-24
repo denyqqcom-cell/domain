@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>域名投资专家系统 v6.6-R0a</title>
+<title>域名投资专家系统 v6.6-R0b</title>
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
 <style>
 /* ── TOKENS ── */
@@ -634,7 +634,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <circle cx="27" cy="10" r="4" fill="var(--gold)"/>
       </svg>
       <span class="logo-text">域名估值</span>
-      <span class="logo-version">v6.6-R0a</span>
+      <span class="logo-version">v6.6-R0b</span>
     </div>
     <button class="theme-btn" data-theme-toggle aria-label="切换主题">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -649,7 +649,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
         <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
       </svg>
-      输入域名，生成可转发给 AI 的估值物料包
+      输入域名，获取系统专家估值与 AI 审计合同
     </div>
     <div class="input-row">
       <input
@@ -657,7 +657,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         type="text" placeholder="例如：62.com"
         autocomplete="off" autocapitalize="off" spellcheck="false"
       />
-      <button class="analyze-btn" id="analyzeBtn" onclick="analyze()">生成估值包</button>
+      <button class="analyze-btn" id="analyzeBtn" onclick="analyze()">生成专家估值</button>
     </div>
     <hr class="batch-divider">
     <div class="batch-label">
@@ -830,7 +830,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e8960a" stroke-width="2.5">
           <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
         </svg>
-        专家判断层 Expert Judgment (v6.5-R0e)
+        专家判断层 Expert Judgment (v6.6-R0b)
         <span class="expert-version" id="expVersion">67 rules</span>
       </div>
       <!-- Layer Chips -->
@@ -910,7 +910,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   </div>
 
   <footer class="footer">
-    Domain Investment Expert System v6.6-R0a · 系统专家出价 → AI 审计复核 · 估值仅供参考
+    Domain Investment Expert System v6.6-R0b · 系统专家出价 → AI 审计复核 · 估值仅供参考
   </footer>
 </div>
 
@@ -1336,7 +1336,19 @@ const ANCHORS = {
 
   // v6.5-R0f: Top Numeric Price Lens 历史锚点（reference_only — R0f 拆桶定价优先）
   '88888.com':    { usd: 245000,   type: 'sale',          source: 'DNJournal 2013-12-04; DomainNameSales (Domain Holdings)', verified: true, confidence: 'high', anchor_relation: 'exact_domain_historical_sale', pricing_use: 'reference_only',
-                    anchor_note: '历史成交 $245,000（2013-12-04，DNJournal 周报 #1）；all_8_repeat 价格锚点，R0f Price Lens 定价优先于锚点机械换算' }
+                    anchor_note: '历史成交 $245,000（2013-12-04，DNJournal 周报 #1）；all_8_repeat 价格锚点，R0f Price Lens 定价优先于锚点机械换算' },
+
+  // v6.6-R0b-7a: NNN_COM reference_only 可比轴（无核验成交价，不参与自动定价）
+  '888.com':      { usd: null,     type: 'reference',     source: 'AAA all-8 NNN_COM pattern; no verified public sale in DNJournal/NameBio', verified: false, confidence: 'low', anchor_relation: 'exact_domain_listing', pricing_use: 'reference_only',
+                    anchor_note: 'AAA豹子·全8三数字参照轴；reference_only，供 AI 审计同类 NNN 豹子结构，不参与系统自动定价' },
+  '666.com':      { usd: null,     type: 'reference',     source: 'AAA all-6 NNN_COM pattern; cultural premium signal, no verified sale', verified: false, confidence: 'low', anchor_relation: 'exact_domain_listing', pricing_use: 'reference_only',
+                    anchor_note: 'AAA豹子·6豹子参照轴；reference_only，不参与自动定价' },
+  '777.com':      { usd: null,     type: 'reference',     source: 'AAA all-7 NNN_COM pattern; no verified sale in major databases', verified: false, confidence: 'low', anchor_relation: 'exact_domain_listing', pricing_use: 'reference_only',
+                    anchor_note: 'AAA豹子·7豹子参照轴；reference_only，不参与自动定价' },
+  '999.com':      { usd: null,     type: 'reference',     source: 'AAA all-9 NNN_COM pattern; no verified sale in major databases', verified: false, confidence: 'low', anchor_relation: 'exact_domain_listing', pricing_use: 'reference_only',
+                    anchor_note: 'AAA豹子·9豹子参照轴；reference_only，不参与自动定价' },
+  '168.com':      { usd: null,     type: 'reference',     source: 'lucky_168_nnn pattern; CN market 一路发 signal, no verified sale', verified: false, confidence: 'low', anchor_relation: 'exact_domain_listing', pricing_use: 'reference_only',
+                    anchor_note: '168一路发吉祥组合参照轴；reference_only，不参与自动定价' }
 };
 
 const ULTRA_WORD_LIST = [
@@ -2251,7 +2263,7 @@ function buildAnalysisBundle(parsed, asset, scores, conf, risks, industries) {
   return { valuation, memo, auditorBrief, statusInfo, acquirableInfo };
 }
 
-/** @deprecated v6.6-R0a — legacy Markdown export; use buildAnalysisBundle() */
+/** @deprecated v6.6-R0b — legacy Markdown export; use buildAnalysisBundle() */
 function generatePack(parsed, asset, scores, conf, risks, industries) {
   const now = new Date().toISOString().split('T')[0];
   const bundle = buildAnalysisBundle(parsed, asset, scores, conf, risks, industries);
@@ -2259,8 +2271,8 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
   const auditorJson = JSON.stringify(bundle.auditorBrief, null, 2);
   const v = bundle.valuation;
   const pl = v.price_lens;
-  return `# Expert Memo + AI Auditor Brief (v6.6-R0a)
-> 生成时间：${now} | Domain Investment Expert System v6.6-R0a
+  return `# Expert Memo + AI Auditor Brief (v6.6-R0b)
+> 生成时间：${now} | Domain Investment Expert System v6.6-R0b
 > 主输出：专家 Memo + AI 审计合同 | Legacy Pack 已降级为附录
 
 ---
@@ -2317,7 +2329,7 @@ ${JSON.stringify(bundle.auditorBrief.output_schema, null, 2)}
 
 > 六维明细、全量锚点表、67 条规则命中见高级展开区 UI。
 
-*v6.6-R0a · Domain Investment Expert System · ${now}*
+*v6.6-R0b · Domain Investment Expert System · ${now}*
 `;
 }
 
@@ -2340,9 +2352,37 @@ function renderDualPanel(bundle) {
     .map(t => '<li>' + t + '</li>').join('');
 }
 
+const COPY_ICON = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+const COPY_OK_ICON = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+
+function copyWithFeedback(btn, text, defaultLabel) {
+  if (!btn || !text) return;
+  navigator.clipboard.writeText(text)
+    .then(() => {
+      btn.classList.add('copied');
+      btn.innerHTML = COPY_OK_ICON + ' 已复制！';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = COPY_ICON + ' ' + defaultLabel;
+      }, 2000);
+    })
+    .catch(() => {
+      btn.classList.add('failed');
+      btn.innerHTML = '⚠️ 复制失败，请手动复制';
+      setTimeout(() => {
+        btn.classList.remove('failed');
+        btn.innerHTML = COPY_ICON + ' ' + defaultLabel;
+      }, 3000);
+    });
+}
+
 function copyAuditorBrief() {
   if (!currentAuditorBrief) return;
-  navigator.clipboard.writeText(JSON.stringify(currentAuditorBrief, null, 2));
+  copyWithFeedback(
+    document.getElementById('copyAuditorBtn'),
+    JSON.stringify(currentAuditorBrief, null, 2),
+    '复制 AI 审计合同'
+  );
 }
 
 // ── Stage1b: Pattern Detection for 5-digit numeric domains ──
@@ -2739,6 +2779,13 @@ function renderExpertJudgment(sld, patternInfo, asset, scores) {
         <div class="hit-effect">${r.effect}</div>
       </div>`
     ).join('');
+  } else if (asset.subtypeDetail && NUMERIC_SUBTYPE_JUDGMENTS[asset.subtypeDetail]) {
+    const nj = NUMERIC_SUBTYPE_JUDGMENTS[asset.subtypeDetail];
+    ruleHitsEl.innerHTML = `<div class="expert-rule-hit">
+      <span class="hit-layer">L1</span><span class="hit-id">numeric_pattern</span>
+      <div class="hit-label">数字品相 · ${asset.subtypeDetail}</div>
+      <div class="hit-effect">${nj.pattern_quality}</div>
+    </div>`;
   } else {
     ruleHitsEl.innerHTML = '<div class="expert-empty">无专家规则命中 — 该域名未匹配任何已知模式</div>';
   }
@@ -2754,7 +2801,9 @@ function renderExpertJudgment(sld, patternInfo, asset, scores) {
   ).join('');
 
   // ── Version Badge ──
-  document.getElementById('expVersion').textContent = ruleHits.length > 0 ? `${ruleHits.length} hits / 67 rules` : '67 rules';
+  document.getElementById('expVersion').textContent = asset.subtypeDetail
+    ? `v6.6-R0b · ${asset.subtypeDetail}`
+    : (ruleHits.length > 0 ? `v6.6-R0b · ${ruleHits.length} hits` : 'v6.6-R0b · 67 rules');
 
   // ── Pattern Judgment (5-digit or numeric subtype_detail) ──
   const patternGrid = document.getElementById('expertPatternGrid');
@@ -2992,27 +3041,7 @@ function escapeHtml(str) {
 
 function copyPack() {
   if (!currentPack) return;
-  const btn = document.getElementById('copyBtn');
-  const iconCopy = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
-  const iconOk = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
-
-  navigator.clipboard.writeText(currentPack)
-    .then(() => {
-      btn.classList.add('copied');
-      btn.innerHTML = iconOk + ' 已复制！';
-      setTimeout(() => {
-        btn.classList.remove('copied');
-        btn.innerHTML = iconCopy + ' 复制管理层报告';
-      }, 2000);
-    })
-    .catch(() => {
-      btn.classList.add('failed');
-      btn.innerHTML = '⚠️ 复制失败，请手动复制';
-      setTimeout(() => {
-        btn.classList.remove('failed');
-        btn.innerHTML = iconCopy + ' 复制管理层报告';
-      }, 3000);
-    });
+  copyWithFeedback(document.getElementById('copyBtn'), currentPack, '复制完整导出');
 }
 
 document.getElementById('domainInput').addEventListener('keydown', e => {
