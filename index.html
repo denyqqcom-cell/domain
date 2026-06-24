@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>域名投资专家系统 v6.6-R0c-0</title>
+<title>域名投资专家系统 v6.6-R0c</title>
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
 <style>
 /* ── TOKENS ── */
@@ -366,6 +366,31 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
 .dual-audit-title { font-size: var(--text-xs); color: var(--gold); font-weight: 600; margin-top: var(--space-2); }
 .dual-audit-list { margin: var(--space-2) 0 0; padding-left: 1.2rem; font-size: var(--text-xs); color: var(--muted); }
 .dual-audit-placeholder { font-size: var(--text-xs); color: var(--muted); line-height: 1.6; }
+.dual-meta { font-size: var(--text-xs); color: var(--muted); margin: var(--space-2) 0; line-height: 1.4; }
+.dual-transaction-warn {
+  font-size: var(--text-xs); color: var(--gold); background: rgba(232,150,10,0.08);
+  border: 1px solid rgba(232,150,10,0.25); border-radius: var(--radius-md);
+  padding: var(--space-2); margin: var(--space-2) 0; line-height: 1.45;
+}
+.auditor-json-input {
+  width: 100%; font-size: var(--text-xs); font-family: var(--font-mono);
+  background: var(--surface-3); border: 1px solid var(--border); border-radius: var(--radius-md);
+  padding: var(--space-2); margin-bottom: var(--space-2); color: var(--text); resize: vertical;
+}
+.auditor-apply-btn { width: 100%; margin-bottom: var(--space-3); font-size: var(--text-xs); padding: 8px; }
+.auditor-conclusion-card {
+  font-size: var(--text-xs); line-height: 1.5; background: var(--surface-3);
+  border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-3);
+}
+.auditor-conclusion-card .ac-score { font-size: var(--text-lg); font-weight: 700; color: var(--accent); margin-bottom: var(--space-2); }
+.auditor-conclusion-card .ac-row { margin-bottom: 4px; }
+.auditor-conclusion-card .ac-label { color: var(--muted); }
+.auditor-conclusion-card .ac-evidence { margin-top: var(--space-2); padding-left: 1rem; color: var(--faint); }
+.auditor-json-fold { margin-top: var(--space-2); font-size: var(--text-xs); }
+.auditor-json-raw { font-size: 0.65rem; overflow: auto; max-height: 200px; white-space: pre-wrap; }
+.pack-summary { font-size: var(--text-xs); line-height: 1.55; margin-bottom: var(--space-3); }
+.pack-details summary { cursor: pointer; color: var(--accent); font-size: var(--text-xs); margin-top: var(--space-2); }
+.pack-details pre { font-size: 0.65rem; overflow: auto; max-height: 240px; white-space: pre-wrap; }
 
 /* ── v6.5-R0e Expert Judgment ── */
 .expert-section {
@@ -640,7 +665,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <circle cx="27" cy="10" r="4" fill="var(--gold)"/>
       </svg>
       <span class="logo-text">域名估值</span>
-      <span class="logo-version">v6.6-R0c-0</span>
+      <span class="logo-version">v6.6-R0c</span>
     </div>
     <button class="theme-btn" data-theme-toggle aria-label="切换主题">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -749,15 +774,6 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <div class="card-sub" id="cardScoreLabel">—</div>
       </div>
       <div class="result-card">
-        <div class="card-label-row">
-          <div class="card-label">价格口径</div>
-          <span class="pricing-badge badge-static_class" id="cardPricingBadge"></span>
-        </div>
-        <div class="price-tier" id="cardPriceTier">—</div>
-        <div class="anchor-note-line" id="cardAnchorNote"></div>
-        <div class="acquirable-line" id="cardAcquirable"></div>
-      </div>
-      <div class="result-card">
         <div class="card-label">置信度</div>
         <div class="card-value" id="cardConf">—</div>
         <div class="conf-bar-wrap"><div class="conf-bar" id="confBar" style="width:0%"></div></div>
@@ -765,26 +781,34 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
       </div>
     </div>
 
-    <!-- v6.6-R0: 双栏 — 系统专家 vs AI 复核 -->
+    <!-- v6.6-R0c: 双栏 — 系统专家三档估值 vs AI 复核结论卡 -->
     <div class="dual-panel" id="dualPanel">
       <div class="dual-col dual-expert">
-        <div class="dual-col-title">系统专家估值</div>
+        <div class="dual-col-title">系统专家三档估值</div>
         <div class="dual-domain" id="dualDomain">—</div>
         <div class="dual-row"><span>资产类别</span><strong id="dualClass">—</strong></div>
         <div class="dual-row"><span>系统评分</span><strong id="dualScore">—</strong></div>
         <div class="dual-row"><span>P1 投资人流通</span><strong id="dualP1">—</strong></div>
         <div class="dual-row"><span>P2 挂牌议价</span><strong id="dualP2">—</strong></div>
-        <div class="dual-row"><span>P3 战略终端</span><strong id="dualP3">—</strong></div>
+        <div class="dual-row"><span>P3 战略假设</span><strong id="dualP3">—</strong></div>
+        <div class="dual-meta" id="dualAcquirableLine"></div>
+        <div class="dual-transaction-warn" id="dualTransactionWarn" style="display:none;"></div>
         <div class="dual-oneliner" id="dualOneLiner">—</div>
-        <div class="dual-audit-title">AI核验项</div>
+        <div class="dual-audit-title">AI核验项（含交易/法律尽调）</div>
         <ul class="dual-audit-list" id="dualAuditTasks"></ul>
       </div>
       <div class="dual-col dual-auditor">
-        <div class="dual-col-title">AI 联网复核 <span class="dual-placeholder-tag">占位</span></div>
+        <div class="dual-col-title">AI 联网复核</div>
+        <textarea class="auditor-json-input" id="auditorJsonInput" rows="3" placeholder="粘贴 AI 返回的 JSON，点击「渲染复核结论」"></textarea>
+        <button type="button" class="analyze-btn auditor-apply-btn" onclick="applyAuditorJson()">渲染复核结论</button>
         <div class="dual-audit-placeholder" id="dualAuditorPlaceholder">
-          将「复制 AI 审计合同」内容投喂复核 AI，联网核验后在此回填 audit_score 与 P1/P2/P3 verdict。
+          复制「AI 审计合同」投喂复核 AI；将返回 JSON 粘贴上方并渲染为人类可读结论卡。
         </div>
-        <div class="dual-audit-result" id="dualAuditorResult" style="display:none;"></div>
+        <div class="auditor-conclusion-card" id="dualAuditorResult" style="display:none;"></div>
+        <details class="auditor-json-fold" id="auditorJsonFold" style="display:none;">
+          <summary>机器 JSON</summary>
+          <pre class="auditor-json-raw" id="auditorJsonRaw"></pre>
+        </details>
       </div>
     </div>
 
@@ -836,7 +860,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e8960a" stroke-width="2.5">
           <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
         </svg>
-        专家判断层 Expert Judgment (v6.6-R0c-0)
+        专家判断层 Expert Judgment (v6.6-R0c)
         <span class="expert-version" id="expVersion">67 rules</span>
       </div>
       <!-- Layer Chips -->
@@ -916,7 +940,7 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
   </div>
 
   <footer class="footer">
-    Domain Investment Expert System v6.6-R0c-0 · 系统专家出价 → AI 审计复核 · 估值仅供参考
+    Domain Investment Expert System v6.6-R0c · 系统专家出价 → AI 审计复核 · 估值仅供参考
   </footer>
 </div>
 
@@ -1332,8 +1356,8 @@ function resolveDomainStatus(full) {
 }
 
 function resolveAcquirable(statusInfo, anchorMeta) {
-  if (statusInfo.domain_status === 'active_brand') {
-    return { acquirable: false, acquirable_note: statusInfo.status_note || '活跃品牌域名，通常不在二级市场流通' };
+  if (statusInfo.domain_status === 'active_operating_site' || statusInfo.domain_status === 'active_brand') {
+    return { acquirable: false, acquirable_note: statusInfo.status_note || '运营中站点，裸域通常不可按 P1/P2/P3 直接收购' };
   }
   // v6.5-R0e: 疑似企业品牌 → UNVERIFIED_BRAND 红色阻断
   if (statusInfo.domain_status === 'unverified_brand') {
@@ -1358,8 +1382,8 @@ function updateDomainStatusHint(raw) {
   if (!trimmed) { hint.classList.remove('visible'); hint.textContent = ''; return; }
   const parsed = parseDomain(trimmed);
   const status = resolveDomainStatus(parsed.full);
-  if (status.domain_status === 'active_brand') {
-    hint.textContent = '⚠️ 该域名为活跃品牌网站（' + status.domain_status + '），估值仅供学术/类别参考，不代表当前可收购。' + (status.status_note ? ' ' + status.status_note : '');
+  if (status.domain_status === 'active_operating_site' || status.domain_status === 'active_brand') {
+    hint.textContent = '⚠️ 运营中站点：系统价格为 domain-only 专家估值，非可执行收购价。' + (status.status_note ? ' ' + status.status_note : '');
     hint.classList.add('visible');
   } else if (status.domain_status === 'unverified_brand') {
     hint.textContent = '⚠️ 疑似运营品牌域名 — 该SLD匹配已知企业品牌词，存在运营中企业，通常不在二级市场流通。' + (status.status_note ? ' ' + status.status_note : '');
@@ -1379,6 +1403,14 @@ const ANCHORS = {
                     anchor_note: '$15M 为 2022 年成交价（Escrow.com verified），成交后域名已建站运营，当前不在二级市场流通。该价格作为 LLLL_COM 类别基准参考，不代表当前可收购。' },
   'derm.com':     { usd: 825000,   type: 'sale',          source: 'DNJournal',                        verified: true,  confidence: 'high',   anchor_relation: 'exact_domain_historical_sale',   pricing_use: 'anchor_allowed' },
   'goka.com':     { usd: 399995,   type: 'sale',          source: 'DNJournal',                        verified: true,  confidence: 'high',   anchor_relation: 'exact_domain_historical_sale',   pricing_use: 'anchor_allowed',
+                    domain_status: 'active_operating_site',
+                    status_note: 'GOKA 体育/博彩终端已建站运营；$399,995 为历史成交，不代表当前裸域可收购',
+                    transaction_context: {
+                      website_status: 'active_operating_site',
+                      sale_status: 'not_verified_for_sale',
+                      acquisition_mode: 'website_or_business_acquisition',
+                      domain_only_price_actionable: false
+                    },
                     anchor_note: '该锚点为本域名历史成交记录，不是独立相似域名样本；可作为历史价格参考，但仍需结合当前市场与买家情况复核' },
   'gunar.com':    { usd: 175000,   type: 'sale',          source: 'NameBio',                          verified: true,  confidence: 'high',   anchor_relation: 'exact_domain_historical_sale',   pricing_use: 'anchor_allowed' },
   'balaena.com':  { usd: 89000,    type: 'sale',          source: 'NameBio',                          verified: true,  confidence: 'high',   anchor_relation: 'exact_domain_historical_sale',   pricing_use: 'anchor_allowed' },
@@ -2056,6 +2088,9 @@ function calcExpertScoreModifier(sld, patternInfo, asset) {
 function getRisks(sld, tld, asset, full) {
   const risks = [];
   const statusInfo = resolveDomainStatus(full || (sld + tld));
+  if (statusInfo.domain_status === 'active_operating_site') {
+    risks.push('🚫 active_operating_site：建站运营中，未发现公开出售；P1/P2/P3 为 domain-only 假设，实际交易可能为网站/品牌/业务收购');
+  }
   if (statusInfo.domain_status === 'active_brand') {
     risks.push('🚫 active_brand：该域名已被终端建站运营，通常不可收购；估值仅供类别/学术参考');
   }
@@ -2135,20 +2170,71 @@ function getConfidence(asset) {
 // v6.6-R0a: Expert Memo + AI Auditor Contract + Numeric 2N–5N
 // ═══════════════════════════════════════════════════════════════
 const AI_AUDITOR_OUTPUT_SCHEMA = {
+  schema_version: 'AI_AUDITOR_JSON_v2',
+  transaction_status: {
+    website_status: 'active_operating_site | parked | for_sale_listed | unknown',
+    sale_status: 'not_verified_for_sale | listed | sold_history_only | unknown',
+    acquisition_mode: 'domain_only | website_or_business_acquisition | domain_only_hypothetical',
+    domain_only_price_actionable: false
+  },
+  dispute_check: {
+    udrp_status: 'none_found | pending | decided_transfer | decided_denied | unknown',
+    providers_checked: ['WIPO', 'ADNDRC', 'Forum', 'CAC', 'CIIDRC'],
+    matched_cases: [],
+    trademark_conflict: 'none | possible | likely | unknown',
+    risk_level: 'low | medium | high | critical'
+  },
   audit_score: 0,
-  p1_verdict: '偏低 | 合理 | 偏高 | 数据不足',
-  p2_verdict: '偏低 | 合理 | 偏高 | 数据不足',
-  p3_verdict: '偏低 | 合理 | 偏高 | 数据不足',
+  p1_verdict: '偏低 | 合理 | 偏高 | 数据不足 | 不可判定',
+  p2_verdict: '偏低 | 合理 | 偏高 | 数据不足 | 不可判定',
+  p3_verdict: '偏低 | 合理 | 偏高 | 数据不足 | 不可判定',
   market_reality_check: '',
   top_evidence: [{
     domain: '', price: '', source: '', source_url: '',
-    source_tier: 'verified_sale | marketplace_listing | forum_claim | unverified',
+    source_tier: 'verified_sale | marketplace_listing | secondary_report | legal_record | website_evidence | unverified_claim',
     verified_status: 'verified | partial | unverified',
     year: '', relevance: ''
   }],
   correction_suggestion: '',
   confidence: 'high | medium | low'
 };
+
+function buildTransactionContext(parsed, statusInfo, anchorMeta) {
+  if (anchorMeta?.transaction_context) return { ...anchorMeta.transaction_context };
+  const ds = statusInfo.domain_status;
+  if (ds === 'active_operating_site' || ds === 'active_brand') {
+    return {
+      website_status: 'active_operating_site',
+      sale_status: 'not_verified_for_sale',
+      acquisition_mode: 'website_or_business_acquisition',
+      domain_only_price_actionable: false
+    };
+  }
+  if (ds === 'parked') {
+    return {
+      website_status: 'parked',
+      sale_status: 'unknown',
+      acquisition_mode: 'domain_only_hypothetical',
+      domain_only_price_actionable: true
+    };
+  }
+  return {
+    website_status: 'unknown',
+    sale_status: 'unknown',
+    acquisition_mode: 'domain_only_hypothetical',
+    domain_only_price_actionable: true
+  };
+}
+
+function buildDdAuditTasks(transactionContext) {
+  return [
+    '核验当前是否建站运营（website_status）',
+    '核验是否有公开出售页或 marketplace listing（sale_status）',
+    '核验 RDAP/Whois 注册状态与转移限制',
+    '检索 UDRP/ADNDRC/WIPO/Forum/CAC/CIIDRC 争议记录',
+    '检索同名商标或行业冲突（USPTO/WIPO）'
+  ];
+}
 
 const LL_ABBREVIATION_HINTS = {
   hd: ['High Definition', 'Health Data', 'Hotel', 'Hardware', '华东(拼音)'],
@@ -2195,12 +2281,12 @@ function buildSystemValuation(parsed, asset, scores, conf, context) {
   };
 }
 
-function buildAiAuditTasks(sld, asset, patternInfo) {
-  const tasks = [
+function buildAiAuditTasks(sld, asset, patternInfo, transactionContext) {
+  const tasks = [...buildDdAuditTasks(transactionContext)];
+  tasks.push(
     '核实 NameBio/DNJournal/NamePros 近年同类成交',
-    '核实 Afternic/Sedo/Dan.com 当前挂牌价',
-    '核实 RDAP/Whois 持有人与可收购性',
-  ];
+    '核实 Afternic/Sedo/Dan.com 当前挂牌价'
+  );
   if (/4/.test(sld) && asset.id === 'NNNNN_COM') {
     tasks.push('核实含4五数字.COM 近两年成交是否支持系统折价假设');
     if (sld[0] === '4') tasks.push('核实4开头普通五数字流动性与买家池');
@@ -2230,9 +2316,11 @@ function anchorAssetClassForDomain(domain) {
   return detectAssetClassId(sld, tld, true);
 }
 
-function pickComparableAnchors(assetClass, limit) {
+function pickComparableAnchors(assetClass, limit, excludeDomain) {
   const auditRows = [];
+  const ex = (excludeDomain || '').toLowerCase();
   for (const [domain, anchor] of Object.entries(ANCHORS)) {
+    if (ex && domain.toLowerCase() === ex) continue;
     const cls = anchorAssetClassForDomain(domain);
     if (cls !== assetClass) continue;
     auditRows.push({
@@ -2278,7 +2366,7 @@ function buildNumericProfileTags(sld, asset) {
   return tags;
 }
 
-function buildExpertMemo(parsed, asset, scores, valuation, ruleHits, patternInfo, risks) {
+function buildExpertMemo(parsed, asset, scores, valuation, ruleHits, patternInfo, risks, transactionContext) {
   const { sld } = parsed;
   const pi = patternInfo;
   const has4 = pi ? pi.hasFour : /4/.test(sld);
@@ -2300,8 +2388,11 @@ function buildExpertMemo(parsed, asset, scores, valuation, ruleHits, patternInfo
   const personaAudits = buyerPersonas
     .map(p => p.ai_audit_task)
     .filter(t => t && t !== '—');
-  const aiTasks = [...buildAiAuditTasks(sld, asset, pi)];
+  const aiTasks = [...buildAiAuditTasks(sld, asset, pi, transactionContext)];
   personaAudits.forEach(t => { if (!aiTasks.includes(t)) aiTasks.push(t); });
+  if (transactionContext && !transactionContext.domain_only_price_actionable) {
+    aiTasks.unshift('⚠️ domain-only 估值不可当作可执行收购价；须先确认出售状态与收购模式');
+  }
   return {
     memo_type: 'DOMAIN_EXPERT_MEMO_v1',
     expert_role: 'Domain Investment Expert System',
@@ -2316,9 +2407,10 @@ function buildExpertMemo(parsed, asset, scores, valuation, ruleHits, patternInfo
       enduser_fit: '见 buyer_personas'
     },
     buyer_personas: buyerPersonas,
+    transaction_context: transactionContext,
     system_valuation: valuation.price_lens,
     valuation_assumptions: assumptions,
-    comparable_anchors: pickComparableAnchors(asset.id, 5),
+    comparable_anchors: pickComparableAnchors(asset.id, 5, parsed.full),
     ai_audit_tasks: aiTasks,
     risk_flags: risks
   };
@@ -2327,21 +2419,28 @@ function buildExpertMemo(parsed, asset, scores, valuation, ruleHits, patternInfo
 function buildAiAuditorBrief(expertMemo) {
   return {
     role: 'AI Domain Market Auditor',
-    instruction: '你是域名市场复核员，不是重新估值员。请审计系统专家估值 Memo，判断 P1/P2/P3 偏低/合理/偏高。不得重新从零估值，不得输出 price_range 或 investor_floor_usd。',
+    instruction: '你是域名市场复核员，不是重新估值员。必须先完成交易与法律尽调，再审计系统 P1/P2/P3。不得重新从零估值，不得输出 price_range 或 investor_floor_usd。',
+    pre_checks: [
+      '1. 当前是否建站运营（website_status）',
+      '2. 是否有公开出售页或 marketplace listing（sale_status）',
+      '3. RDAP/Whois 状态是否可见',
+      '4. UDRP/ADNDRC/WIPO/Forum/CAC/CIIDRC 争议记录',
+      '5. 同名商标或行业冲突'
+    ],
     requirements: [
-      '必须联网搜索 NameBio、DNJournal、NamePros、Sedo、Afternic 或公开成交记录',
-      '不得复述系统规则',
-      '不得输出长篇报告（≤300字）',
-      '不得使用无来源百分比',
+      '未完成 website_status 或 sale_status 核验：P1/P2/P3 只能「不可判定」',
+      'active_operating_site 且无出售状态：不得将 P1/P2/P3 评为可执行购买价',
+      'pending UDRP 或 transfer ordered：audit_score ≤50，confidence 不得 high',
+      'verified_sale 仅限 NameBio/DNJournal/Escrow/交易平台官方成交；不得把挂牌/新闻写成 verified_sale',
+      'source_tier: marketplace_listing/secondary_report 不得标 verified_sale',
       '不得输出独立 price_range；只能给 p1/p2/p3_verdict 与 correction_suggestion',
       'top_evidence 每条必须含 source_url、source_tier、verified_status',
       '无 source_url 不得 confidence: high',
-      'source_tier 为 forum_claim / unverified 不得作为主要价格锚点',
       '仅使用 comparable_anchors 中 allowed_for_audit: true 的锚点',
-      '数据不足时降低 confidence 并标注数据不足'
+      '输出 ≤300 字 JSON（AI_AUDITOR_JSON_v2）'
     ],
     expert_memo: expertMemo,
-    output_contract: 'AI_AUDITOR_JSON_v1',
+    output_contract: 'AI_AUDITOR_JSON_v2',
     output_schema: AI_AUDITOR_OUTPUT_SCHEMA
   };
 }
@@ -2356,13 +2455,14 @@ function buildAnalysisBundle(parsed, asset, scores, conf, risks, industries) {
     acquirable: acquirableInfo.acquirable,
     domain_status: statusInfo.domain_status
   };
+  const transactionContext = buildTransactionContext(parsed, statusInfo, asset.anchorMeta);
   const valuation = buildSystemValuation(parsed, asset, scores, conf, context);
-  const memo = buildExpertMemo(parsed, asset, scores, valuation, ruleHits, patternInfo, risks);
+  const memo = buildExpertMemo(parsed, asset, scores, valuation, ruleHits, patternInfo, risks, transactionContext);
   const auditorBrief = buildAiAuditorBrief(memo);
-  return { valuation, memo, auditorBrief, statusInfo, acquirableInfo };
+  return { valuation, memo, auditorBrief, statusInfo, acquirableInfo, transactionContext };
 }
 
-/** @deprecated v6.6-R0c-0 — legacy Markdown export; use buildAnalysisBundle() */
+/** @deprecated v6.6-R0c — legacy Markdown export; use buildAnalysisBundle() */
 function generatePack(parsed, asset, scores, conf, risks, industries) {
   const now = new Date().toISOString().split('T')[0];
   const bundle = buildAnalysisBundle(parsed, asset, scores, conf, risks, industries);
@@ -2370,8 +2470,8 @@ function generatePack(parsed, asset, scores, conf, risks, industries) {
   const auditorJson = JSON.stringify(bundle.auditorBrief, null, 2);
   const v = bundle.valuation;
   const pl = v.price_lens;
-  return `# Expert Memo + AI Auditor Brief (v6.6-R0c-0)
-> 生成时间：${now} | Domain Investment Expert System v6.6-R0c-0
+  return `# Expert Memo + AI Auditor Brief (v6.6-R0c)
+> 生成时间：${now} | Domain Investment Expert System v6.6-R0c
 > 主输出：专家 Memo + AI 审计合同 | Legacy Pack 已降级为附录
 
 ---
@@ -2428,7 +2528,7 @@ ${JSON.stringify(bundle.auditorBrief.output_schema, null, 2)}
 
 > 六维明细、全量锚点表、67 条规则命中见高级展开区 UI。
 
-*v6.6-R0c-0 · Domain Investment Expert System · ${now}*
+*v6.6-R0c · Domain Investment Expert System · ${now}*
 `;
 }
 
@@ -2448,7 +2548,102 @@ function renderDualPanel(bundle) {
   document.getElementById('dualP3').textContent = pl.p3_strategic_enduser.range;
   document.getElementById('dualOneLiner').textContent = bundle.memo.expert_view.one_liner;
   document.getElementById('dualAuditTasks').innerHTML = bundle.memo.ai_audit_tasks
-    .map(t => '<li>' + t + '</li>').join('');
+    .map(t => '<li>' + escapeHtml(t) + '</li>').join('');
+
+  const acq = bundle.acquirableInfo;
+  const acqLine = document.getElementById('dualAcquirableLine');
+  if (acq.acquirable === false) {
+    acqLine.textContent = '🚫 ' + (acq.acquirable_note || '不可收购');
+    acqLine.className = 'dual-meta acquirable-false';
+  } else if (acq.acquirable === true) {
+    acqLine.textContent = '✅ ' + (acq.acquirable_note || '可收购场景');
+    acqLine.className = 'dual-meta acquirable-true';
+  } else {
+    acqLine.textContent = '⚠️ ' + (acq.acquirable_note || '未核验可收购性');
+    acqLine.className = 'dual-meta acquirable-unknown';
+  }
+
+  const tx = bundle.memo.transaction_context;
+  const warnEl = document.getElementById('dualTransactionWarn');
+  if (tx && tx.domain_only_price_actionable === false) {
+    warnEl.style.display = 'block';
+    warnEl.textContent = '当前系统价格为 domain-only 专家估值；若已建站运营且无公开出售，实际交易属于网站/品牌/业务收购，不得直接用 P1/P2/P3 作为可执行买入价。';
+  } else {
+    warnEl.style.display = 'none';
+    warnEl.textContent = '';
+  }
+
+  document.getElementById('auditorJsonInput').value = '';
+  document.getElementById('dualAuditorResult').style.display = 'none';
+  document.getElementById('auditorJsonFold').style.display = 'none';
+  document.getElementById('dualAuditorPlaceholder').style.display = 'block';
+}
+
+function renderAuditorConclusion(data) {
+  const forbidden = ['price_range', 'investor_floor_usd'];
+  const raw = JSON.stringify(data);
+  if (forbidden.some(f => raw.includes('"' + f + '"'))) {
+    return '<div class="ac-row" style="color:var(--red)">⚠️ JSON 含禁止字段，非合规审计输出</div>';
+  }
+  const tx = data.transaction_status || {};
+  const disp = data.dispute_check || {};
+  let html = '<div class="ac-score">审计分 ' + (data.audit_score ?? '—') + '/100 · ' + (data.confidence || '—') + '</div>';
+  if (tx.website_status) {
+    html += '<div class="ac-row"><span class="ac-label">建站状态：</span>' + escapeHtml(tx.website_status) + ' · 出售：' + escapeHtml(tx.sale_status || '—') + '</div>';
+    html += '<div class="ac-row"><span class="ac-label">收购模式：</span>' + escapeHtml(tx.acquisition_mode || '—') + '</div>';
+  }
+  if (disp.risk_level) {
+    html += '<div class="ac-row"><span class="ac-label">争议风险：</span>' + escapeHtml(disp.udrp_status || '—') + ' · ' + escapeHtml(disp.risk_level) + '</div>';
+  }
+  html += '<div class="ac-row"><span class="ac-label">P1：</span>' + escapeHtml(data.p1_verdict || '—') + '</div>';
+  html += '<div class="ac-row"><span class="ac-label">P2：</span>' + escapeHtml(data.p2_verdict || '—') + '</div>';
+  html += '<div class="ac-row"><span class="ac-label">P3：</span>' + escapeHtml(data.p3_verdict || '—') + '</div>';
+  if (data.market_reality_check) {
+    html += '<div class="ac-row"><span class="ac-label">核心原因：</span>' + escapeHtml(data.market_reality_check) + '</div>';
+  }
+  if (data.correction_suggestion) {
+    html += '<div class="ac-row"><span class="ac-label">修正建议：</span>' + escapeHtml(data.correction_suggestion) + '</div>';
+  }
+  const ev = (data.top_evidence || []).filter(e => e && (e.domain || e.source));
+  if (ev.length) {
+    html += '<div class="ac-evidence"><strong>关键证据</strong><ol>';
+    ev.slice(0, 5).forEach((e, i) => {
+      html += '<li>' + escapeHtml([e.domain, e.price, e.source, e.source_tier].filter(Boolean).join(' · ')) + '</li>';
+    });
+    html += '</ol></div>';
+  }
+  return html;
+}
+
+function applyAuditorJson() {
+  const raw = document.getElementById('auditorJsonInput').value.trim();
+  const ph = document.getElementById('dualAuditorPlaceholder');
+  const card = document.getElementById('dualAuditorResult');
+  const fold = document.getElementById('auditorJsonFold');
+  const pre = document.getElementById('auditorJsonRaw');
+  if (!raw) return;
+  try {
+    const data = JSON.parse(raw);
+    card.innerHTML = renderAuditorConclusion(data);
+    card.style.display = 'block';
+    ph.style.display = 'none';
+    pre.textContent = JSON.stringify(data, null, 2);
+    fold.style.display = 'block';
+  } catch (e) {
+    card.innerHTML = '<div style="color:var(--red)">JSON 解析失败：' + escapeHtml(e.message) + '</div>';
+    card.style.display = 'block';
+    ph.style.display = 'none';
+  }
+}
+
+function buildPackDisplayHtml(bundle) {
+  const m = bundle.memo;
+  let html = '<div class="pack-summary"><strong>Expert Memo 摘要</strong><br>';
+  html += escapeHtml(m.domain) + ' · ' + escapeHtml(m.asset_profile.asset_class) + '<br>';
+  html += escapeHtml(m.expert_view.one_liner) + '</div>';
+  html += '<details class="pack-details"><summary>Expert Memo JSON</summary><pre>' + escapeHtml(JSON.stringify(m, null, 2)) + '</pre></details>';
+  html += '<details class="pack-details"><summary>AI Auditor Brief JSON</summary><pre>' + escapeHtml(JSON.stringify(bundle.auditorBrief, null, 2)) + '</pre></details>';
+  return html;
 }
 
 const COPY_ICON = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
@@ -2905,8 +3100,8 @@ function renderExpertJudgment(sld, patternInfo, asset, scores) {
 
   // ── Version Badge ──
   document.getElementById('expVersion').textContent = asset.subtypeDetail
-    ? `v6.6-R0c-0 · ${asset.subtypeDetail}`
-    : (ruleHits.length > 0 ? `v6.6-R0c-0 · ${ruleHits.length} hits` : 'v6.6-R0c-0 · buyer persona');
+    ? `v6.6-R0c · ${asset.subtypeDetail}`
+    : (ruleHits.length > 0 ? `v6.6-R0c · ${ruleHits.length} hits` : 'v6.6-R0c · buyer persona');
 
   // ── Pattern Judgment (5-digit or numeric subtype_detail) ──
   const patternGrid = document.getElementById('expertPatternGrid');
@@ -2981,38 +3176,6 @@ function analyze() {
       document.getElementById('cardScore').textContent = scores.final;
       document.getElementById('cardScoreLabel').textContent = scores.final >= 90 ? '顶级资产' : scores.final >= 80 ? '优质资产' : scores.final >= 70 ? '良好资产' : '普通域名';
 
-      const isReferenceOnly = asset.anchorMeta?.pricing_use === 'reference_only';
-      const anchorCustomP1 = asset.anchorMeta?.p1Label;
-      const anchorCustomP3 = asset.anchorMeta?.p3Label;
-      const p1Label = anchorCustomP1 || (isReferenceOnly ? '投资人参考区间' : '投资人流通价');
-      const p3Label = anchorCustomP3 || 'P3 战略终端假设价';
-      document.getElementById('cardPriceTier').innerHTML = [
-        { label: p1Label, val: asset.p1 || '—' },
-        { label: 'P2 挂牌/议价参考', val: asset.p2 || '—' },
-        { label: p3Label, val: asset.p3 || '—' }
-      ].map(r => `<div class="price-row"><span class="price-tier-label">${r.label}</span><span class="price-tier-val">${r.val}</span></div>`).join('');
-
-      const pm = asset.pricingMethod || 'static_class';
-      const badge = document.getElementById('cardPricingBadge');
-      badge.textContent = PRICING_BADGE_LABELS[pm] || pm;
-      badge.className = 'pricing-badge badge-' + pm;
-      document.getElementById('cardAnchorNote').textContent = asset.anchorNote || '';
-
-      const acqEl = document.getElementById('cardAcquirable');
-      if (acquirableInfo.acquirable === false) {
-        acqEl.textContent = '🚫 ' + (acquirableInfo.acquirable_note || '不可收购，估值仅供类别参考');
-        acqEl.className = 'acquirable-line acquirable-false';
-      } else if (acquirableInfo.acquirable === 'UNVERIFIED_BRAND') {
-        acqEl.textContent = '⚠️ ' + (acquirableInfo.acquirable_note || '疑似运营品牌域名，不可收购');
-        acqEl.className = 'acquirable-line acquirable-unverified_brand';
-      } else if (acquirableInfo.acquirable === true) {
-        acqEl.textContent = '✅ ' + (acquirableInfo.acquirable_note || '可收购场景');
-        acqEl.className = 'acquirable-line acquirable-true';
-      } else {
-        acqEl.textContent = '⚠️ ' + (acquirableInfo.acquirable_note || '未核验是否可收购');
-        acqEl.className = 'acquirable-line acquirable-unknown';
-      }
-
       document.getElementById('cardConf').textContent = conf.label;
       document.getElementById('confBar').style.width = conf.pct + '%';
       document.getElementById('cardConfNote').textContent = conf.note;
@@ -3023,7 +3186,7 @@ function analyze() {
       renderDualPanel(bundle);
       const pack = generatePack(parsed, asset, scores, conf, risks, industries);
       currentPack = pack;
-      document.getElementById('packBody').textContent = pack;
+      document.getElementById('packBody').innerHTML = buildPackDisplayHtml(bundle);
 
       document.getElementById('dimGrid').innerHTML = [
         { name: 'D1 TLD强度', score: scores.d1, weight: '20%' },
