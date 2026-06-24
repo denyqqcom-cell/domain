@@ -1582,6 +1582,7 @@ function detectNumericSubtypeDetail(sld) {
   const suf = NUMERIC_LEN_SUFFIX[len];
 
   if (/^8+$/.test(sld)) return len === 5 ? 'all_8_repeat' : 'all_8_repeat' + suf;
+  if (/^7+$/.test(sld) && len >= 2 && len <= 4) return 'all_7_repeat' + suf;
   if (/^([689])\1+$/.test(sld)) return len === 5 ? 'all_lucky_repeat' : 'all_lucky_repeat' + suf;
   if (len === 5 && /^0[689]{4}$/.test(sld)) return 'lead0_lucky_repeat';
 
@@ -1705,7 +1706,8 @@ function classifyAsset(sld, tld, full) {
       const p1 = clampRangeWidth(fmtAnchor(guard.p1Low) + ' – ' + fmtAnchor(guard.p1High), maxRatio);
       const p2 = clampRangeWidth(fmtAnchor(guard.p2Low) + ' – ' + fmtAnchor(guard.p2High), maxRatio);
       const p3 = p3ManualReview(cls) ? (CLASS_STRATEGIC_P3[cls] || fmtAnchor(guard.p3Low) + '+') : fmtAnchor(guard.p3Low) + '+';
-      return {
+      const subDetail = detectNumericSubtypeDetail(sld);
+      const out = {
         id: cls,
         priceTag: '投资人底价｜参照已知成交锚点',
         scoreFloor, p1, p2, p3,
@@ -1714,6 +1716,8 @@ function classifyAsset(sld, tld, full) {
         pricingMethod: guard.method,
         anchorNote: guard.anchor_note
       };
+      if (subDetail) out.subtypeDetail = subDetail;
+      return out;
     }
     guardFallthroughNote = guard.anchor_note;
   }
@@ -2143,6 +2147,9 @@ function buildExpertOneLiner(sld, asset, patternInfo) {
   if (asset.subtypeDetail === 'all_8_repeat_nnn') return 'AAA全8三数字豹子，NNN_COM 第一梯队品相，华人市场硬通货。';
   if (asset.subtypeDetail === 'all_8_repeat') return '全8五数字豹子，中文市场顶级数字品相，投资人收货看二十万美元量级。';
   if (asset.subtypeDetail === 'all_lucky_repeat_nnn') return 'AAA豹子三数字，6/9 吉祥组合，NNN_COM 高流动性品类。';
+  if (asset.subtypeDetail === 'lucky_168_nnn') return '168一路发三数字，华人商业吉祥号，终端与投资人双池偏好。';
+  if (asset.subtypeDetail === 'round_hundred_nnn') return '整百号三数字，企业编号/品牌极简记忆，投资人硬通货品类。';
+  if (asset.subtypeDetail === 'all_7_repeat_nnn') return 'AAA全7三数字豹子，七星吉利寓意，NNN_COM 高品相层级。';
   if (asset.id === 'NNNNN_COM' && /4/.test(sld)) return '含4五数字普通结构' + (sld[0] === '4' ? '且4开头' : '') + '，系统折价假设已计入，宜捡漏收货。';
   if (asset.id === 'LL_COM') return '两字母.COM稀缺缩写，终端语义依赖具体字母组合。';
   if (asset.id === 'ULTRA_WORD_COM') return '顶级英文单词.COM，行业覆盖广，战略终端溢价显著。';
@@ -2452,6 +2459,12 @@ const NUMERIC_SUBTYPE_JUDGMENTS = {
     liquidity_signal: '中高流动性·商业/贸易终端偏好',
     cn_market_bias: '168=一路发，华人商业文化强信号',
     relative_position: 'NNN_COM吉祥号第一梯队'
+  },
+  all_7_repeat_nnn: {
+    pattern_quality: 'AAA豹子号·全7组合·七星/吉利寓意',
+    liquidity_signal: '高流动性·三数字豹子硬通货',
+    cn_market_bias: '7在部分华人语境为吉利数字，豹子结构溢价显著',
+    relative_position: 'NNN_COM第一梯队数字品相'
   },
   all_8_repeat_nn: {
     pattern_quality: '顶级品相·双8豹子·NN_COM稀缺',

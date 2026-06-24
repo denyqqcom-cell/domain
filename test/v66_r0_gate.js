@@ -128,6 +128,23 @@ function analyzeDomain(domain) {
   check('888: anchors allowed_for_audit', memo.comparable_anchors.every(a => a.allowed_for_audit === true));
 }
 
+// ── Gate: 100.com (MiMo anchor-path blocker) ──
+{
+  const { asset, bundle } = analyzeDomain('100.com');
+  const pj = bundle.memo.expert_view.pattern_judgment;
+  check('100: NNN_COM', asset.id === 'NNN_COM');
+  check('100: subtype round_hundred_nnn', asset.subtypeDetail === 'round_hundred_nnn');
+  check('100: pattern not ordinary', !/普通品相/.test(JSON.stringify(pj)));
+}
+
+// ── Gate: 777.com (MiMo 7豹子) ──
+{
+  const { asset, bundle } = analyzeDomain('777.com');
+  const pj = bundle.memo.expert_view.pattern_judgment;
+  check('777: subtype all_7_repeat_nnn', asset.subtypeDetail === 'all_7_repeat_nnn');
+  check('777: pattern not ordinary', !/普通品相/.test(JSON.stringify(pj)));
+}
+
 // ── Gate: 41235.com ──
 {
   const { asset, bundle } = analyzeDomain('41235.com');
