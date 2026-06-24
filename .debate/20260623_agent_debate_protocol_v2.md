@@ -54,8 +54,16 @@ Round 3 — 锁版审阅（实现后）
 1. **TIMEOUT = ABSTAIN** — 不得无标注代录为已表决
 2. **缺票计入统计** — 共识表必须显示 ABSTAIN/TIMEOUT 列
 3. **Grok 禁止** — 伪造 `*_review.md`、未经 R3 就 push
-4. **Hermes SIGTERM** — 连续 2 次超时后，记 ABSTAIN，3/4 多数可推进（需 Joe 确认）
-5. **版本锁** — push 前 `index.html` 版本号 == `CORE_RULES_v2.md` 页眉
+4. **Hermes SIGTERM** — 连续 2 次超时后，记 ABSTAIN，3/4  Majority可推进（需 Joe 确认）
+5. **版本锁** — push 前 `index.html` 版本号与 README 一致
+
+## 多 Agent 上下文污染防护（v6.6+ 增补，Joe 2026-06-25）
+
+1. **子 Agent 隔离** — 并行 Task 各带独立 prompt；不得把会话 summary 当投票
+2. **FINAL 仅合并磁盘文件** — 无 `*_live_review.md` = 无票；Grok 总结 ≠ APPROVED
+3. **禁止「规格已清楚」跳 Live** — 即使 Joe 裁决详尽，也须 retrospective 或先行 Live
+4. **Grok Skill 强制** — 见 `~/.grok/skills/supergrok-debate/SKILL.md` + `domain/.grok/skills/supergrok-debate/SKILL.md`
+5. **补救** — 独干后必须补 retrospective 四 Agent + `PROCESS_VIOLATION` 记录
 
 ---
 
