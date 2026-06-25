@@ -18,7 +18,7 @@
 ## 状态
 
 ```yaml
-v6.6-R0d-hotfix3_runtime: PENDING_JOE_SIGNOFF
-B3_AI_Auditor_Report_Renderer: CLOSED_PENDING_SIGNOFF
+v6.6-R0d-hotfix3_runtime: ACCEPTED
+B3_AI_Auditor_Report_Renderer: CLOSED
 live_review: 4/4 APPROVED
 ```
