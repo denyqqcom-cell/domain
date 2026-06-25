@@ -77,6 +77,14 @@ const bootstrap = [
   extractFn('buildExpertMemo'),
   extractFn('buildAiAuditorBrief'),
   extractFn('buildAnalysisBundle'),
+  html.match(/const AUDITOR_ENUM_ZH = \{[\s\S]*?\};/m)[0],
+  extractFn('zhEnum'),
+  extractFn('auditorDomainLabel'),
+  extractFn('buildAuditorReportHeadline'),
+  extractFn('formatAuditorProse'),
+  extractFn('formatPriceAuditLine'),
+  extractFn('formatEvidenceHuman'),
+  extractFn('renderAuditorReportSections'),
   extractFn('validateAuditorJson'),
   extractFn('renderAuditorConclusion'),
 ].join('\n').replace(/^const /gm, 'var ');
@@ -106,7 +114,7 @@ FORBIDDEN_USER_COPY.forEach(phrase => {
   check('forbidden copy absent: ' + phrase, !html.includes(phrase));
 });
 
-check('index: v6.6-R0d-hotfix2', /v6\.6-R0d-hotfix2/.test(html));
+check('index: v6.6-R0d-hotfix3', /v6\.6-R0d-hotfix3/.test(html));
 check('index: isAuditorTransactionGate', /function isAuditorTransactionGate/.test(html));
 check('index: ac-gate-card CSS', /\.ac-gate-card/.test(html));
 check('index: 8888.com anchor', /'8888\.com':/.test(html));
@@ -197,8 +205,8 @@ const missingTxJson = {
 
 {
   const htmlOut = renderAuditorConclusion(goodJson);
-  check('render: gate card', /交易门禁/.test(htmlOut));
-  check('render: domain-only hint', /域名组件估值/.test(htmlOut));
+  check('render: gate card', /一、交易状态|裸域名收购价不可执行/.test(htmlOut));
+  check('render: domain-only hint', /组件估值|domain-only/.test(htmlOut));
   check('render: 不可判定 shown', /不可判定/.test(htmlOut));
 }
 

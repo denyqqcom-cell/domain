@@ -81,6 +81,14 @@ const bootstrap = [
   extractFn('buildExpertMemo'),
   extractFn('buildAiAuditorBrief'),
   extractFn('buildAnalysisBundle'),
+  html.match(/const AUDITOR_ENUM_ZH = \{[\s\S]*?\};/m)[0],
+  extractFn('zhEnum'),
+  extractFn('auditorDomainLabel'),
+  extractFn('buildAuditorReportHeadline'),
+  extractFn('formatAuditorProse'),
+  extractFn('formatPriceAuditLine'),
+  extractFn('formatEvidenceHuman'),
+  extractFn('renderAuditorReportSections'),
   extractFn('validateAuditorJson'),
   extractFn('renderAuditorConclusion'),
 ].join('\n').replace(/^const /gm, 'var ');
@@ -115,7 +123,7 @@ const bnTxActive = {
   domain_only_price_actionable: false
 };
 
-check('index: v6.6-R0d-hotfix2', /v6\.6-R0d-hotfix2/.test(html));
+check('index: v6.6-R0d-hotfix3', /v6\.6-R0d-hotfix3/.test(html));
 check('index: website_check schema', /website_check/.test(html));
 check('index: bn.com anchor', /'bn\.com':/.test(html));
 check('index: Live website audit task', /Live website 核验/.test(html));
@@ -258,7 +266,7 @@ function briefJson(domain) {
   });
   check('BN render: 跳转', /跳转至/.test(htmlOut));
   check('BN render: domain-only', /domain-only 组件估值/.test(htmlOut));
-  check('BN render: 非可执行收购价', /非可执行收购价|交易门禁/.test(htmlOut));
+  check('BN render: 非可执行收购价', /裸域名收购价不可执行|不具备裸域名|非可执行收购价/.test(htmlOut));
 }
 
 // system bn.com
