@@ -486,6 +486,10 @@ button { cursor: pointer; border: none; background: none; font: inherit; color: 
 .expert-buyer-card .bf-fit.medium {
   background: rgba(79,152,163,0.12); color: var(--accent);
 }
+.expert-buyer-card .bf-fit.medium-high {
+  background: rgba(109,170,69,0.1); color: var(--green);
+  border: 1px solid rgba(109,170,69,0.2);
+}
 .expert-buyer-card .bf-fit.low {
   background: rgba(122,121,119,0.1); color: var(--muted);
 }
@@ -1085,7 +1089,7 @@ function matchRules(sld, assetClass) {
     }
   }
 
-  // ── L2: 中文域名识别层 ──
+  // ── L2: 拼音声母识别层 ──
   for (const r of EXPERTRULES.L2_chinese_domain) {
     if (r.trigger === 'shuangpin') continue; // skip fuzzy — needs dictionary
     if (r.trigger instanceof RegExp && r.trigger.test(sldLower)) {
@@ -1173,11 +1177,11 @@ function buildBuyerPersonas(sld, asset, ruleHits) {
     return [
       buyerPersona('三字母短域投资人', 'high', 'LLL.COM 属高流通短资产，投资人市场有稳定承接',
         '核实近12个月 LLL.COM 成交与 Afternic/Sedo 挂牌', '主要支撑 P1/P2'),
-      buyerPersona('华语市场短字母投资人', 'medium', '三字母 .COM 在华语短域市场有流通性；' + pinyinNote,
+      buyerPersona('华语市场短字母投资人', 'medium-high', '三字母 .COM 在华语短域市场有流通性；' + pinyinNote,
         '核实华语买家池对该字母组合的接受度与挂牌', '影响 P1/P2'),
       buyerPersona('全球缩写/品牌终端', 'medium', up + ' 可作企业/产品/组织缩写，但需确认真实终端存在',
         '搜索 ' + up + ' company / brand / product / trademark（USPTO/WIPO）', '仅真实终端时支撑 P3'),
-      buyerPersona('域名经纪/交易商', 'medium', 'LLL.COM 属可经纪流通资产',
+      buyerPersona('域名经纪/交易商', 'medium-high', 'LLL.COM 属可经纪流通资产',
         '核实经纪人挂牌与同品类成交价', '支撑 P2'),
       ...aiWeb3Personas(sl, ruleHits)
     ];
@@ -3381,7 +3385,9 @@ function renderExpertJudgment(sld, patternInfo, asset, scores) {
   // ── Buyer Fit ──
   const buyerFitEl = document.getElementById('expertBuyerFit');
   buyerFitEl.innerHTML = buyerFit.map(bf => {
-    const fitLabel = bf.fit === 'high' ? '高适配' : bf.fit === 'medium' ? '中适配' : '低适配';
+    const fitLabel = bf.fit === 'high' ? '高适配'
+      : bf.fit === 'medium-high' ? '中高适配'
+      : bf.fit === 'medium' ? '中适配' : '低适配';
     const audit = bf.ai_audit_task && bf.ai_audit_task !== '—'
       ? `<div class="bf-audit">AI核验：${bf.ai_audit_task}</div>` : '';
     const impact = bf.price_impact ? `<div class="bf-impact">价格影响：${bf.price_impact}</div>` : '';

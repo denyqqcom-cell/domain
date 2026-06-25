@@ -57,6 +57,9 @@ function analyze(domain) {
 
 check('index: v6.6-R0d', /v6\.6-R0d/.test(html));
 check('index: L2 chip 拼音声母', /L2 拼音声母/.test(html));
+check('index: L2 dev 拼音声母识别层', /L2: 拼音声母识别层/.test(html));
+check('index: no L2 中文域名识别层 dev comment', !/L2: 中文域名识别层/.test(html));
+check('index: medium-high fit in UI', /medium-high/.test(html) && /中高适配/.test(html));
 check('index: no infer 中文域名收藏家 in buildBuyerPersonas', !/中文域名收藏家/.test(extractFn('buildBuyerPersonas')));
 check('index: 全球缩写/品牌终端', /全球缩写\/品牌终端/.test(html));
 
@@ -67,6 +70,8 @@ check('index: 全球缩写/品牌终端', /全球缩写\/品牌终端/.test(html
   check('vjn: LLL_COM', asset.id === 'LLL_COM');
   FORBIDDEN.forEach(re => check('vjn: forbidden ' + re, !re.test(blob)));
   check('vjn: 三字母短域投资人', personas.some(p => p.label === '三字母短域投资人' && p.fit === 'high'));
+  check('vjn: 华语短字母 medium-high', personas.some(p => p.label === '华语市场短字母投资人' && p.fit === 'medium-high'));
+  check('vjn: 域名经纪 medium-high', personas.some(p => p.label === '域名经纪/交易商' && p.fit === 'medium-high'));
   check('vjn: 全球缩写/品牌终端 + audit', personas.some(p => /全球缩写/.test(p.label) && /trademark/i.test(p.ai_audit_task)));
   check('vjn: AI low', personas.some(p => p.label === 'AI创业公司' && p.fit === 'low'));
   check('vjn: Web3 low', personas.some(p => p.label === 'Web3/加密项目' && p.fit === 'low'));
