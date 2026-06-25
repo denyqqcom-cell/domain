@@ -40,7 +40,10 @@ const bootstrap = [
   html.match(/const AUDITOR_FORBIDDEN_FIELDS = \[[\s\S]*?\];/m)[0],
   html.match(/const AUDITOR_ACTIONABLE_VERDICTS = \[[\s\S]*?\];/m)[0],
   html.match(/const AUDITOR_NON_ACTIONABLE_VERDICTS = \[[\s\S]*?\];/m)[0],
+  html.match(/const AUDITOR_TRANSACTION_GATE_RULES = \[[\s\S]*?\];/m)[0],
   html.match(/const REDIRECT_ACTIVE_SITE_TYPES = new Set\(\[[\s\S]*?\]\);/m)[0],
+  extractFn('isNumericPatternDomain'),
+  extractFn('buildAssetClassJudgment'),
   extractFn('hostFromUrl'),
   extractFn('hasAnyAuditorVerdict'),
   extractFn('isRedirectActiveBrandSite'),
@@ -116,6 +119,57 @@ check('index: v6.6-R0d-hotfix2', /v6\.6-R0d-hotfix2/.test(html));
 check('index: website_check schema', /website_check/.test(html));
 check('index: bn.com anchor', /'bn\.com':/.test(html));
 check('index: Live website audit task', /Live website 核验/.test(html));
+check('index: transaction_gate_rules', /transaction_gate_rules/.test(html));
+check('index: class_reference_note schema', /class_reference_note/.test(html));
+check('index: 仅品类参考 verdict', /仅品类参考/.test(html));
+check('index: pending_live_check', /pending_live_check/.test(html));
+
+function briefJson(domain) {
+  const b = analyze(domain);
+  return JSON.stringify(b.auditorBrief);
+}
+
+// P0: copyAuditorBrief contract — QQ.com
+{
+  const j = briefJson('qq.com');
+  check('QQ brief: website_check', /website_check/.test(j));
+  check('QQ brief: attempted field', /"attempted"/.test(j));
+  check('QQ brief: final_url field', /"final_url"/.test(j));
+  check('QQ brief: redirect_detected', /"redirect_detected"/.test(j));
+  check('QQ brief: final_host', /"final_host"/.test(j));
+  check('QQ brief: for_sale_signal_found', /"for_sale_signal_found"/.test(j));
+  check('QQ brief: gate rule no check', /无 website_check\.attempted:true/.test(j));
+  check('QQ brief: gate rule forbid 合理', /不得为偏低\/合理\/偏高/.test(j));
+  check('QQ brief: transaction_gate_rules', /transaction_gate_rules/.test(j));
+  check('QQ brief: default actionable false', /"domain_only_price_actionable"\s*:\s*false/.test(j));
+  check('QQ brief: pending_live_check', /pending_live_check/.test(j));
+  check('QQ brief: component valuation true', /"domain_only_component_valuation_available"\s*:\s*true/.test(j));
+  const b = analyze('qq.com');
+  const memo = JSON.stringify(b.memo);
+  check('QQ memo: no 五数字 leak', !/五数字/.test(memo));
+  check('QQ memo: no 4开头 leak', !/4开头/.test(memo));
+  check('QQ memo: asset_class_judgment', /asset_class_judgment/.test(memo));
+  check('QQ memo: pattern_judgment null', b.memo.expert_view.pattern_judgment === null);
+  check('QQ memo: LL_COM quality', /两字母\.COM/.test(memo));
+}
+
+// P0: copyAuditorBrief contract — BN.com
+{
+  const j = briefJson('bn.com');
+  check('BN brief: website_check', /website_check/.test(j));
+  check('BN brief: gate rules', /transaction_gate_rules/.test(j));
+  check('BN brief: domain_only false', /"domain_only_price_actionable"\s*:\s*false/.test(j));
+}
+
+// unknown + domain_only_price_actionable:true in AI output
+{
+  const v = validateAuditorJson({
+    transaction_status: { website_status: 'unknown', sale_status: 'unknown', domain_only_price_actionable: true },
+    dispute_check: { udrp_status: 'none_found', risk_level: 'low' },
+    p1_verdict: '不可判定', p2_verdict: '不可判定', p3_verdict: '不可判定'
+  });
+  check('unknown + actionable:true → error', v.errors.some(e => /domain_only_price_actionable/.test(e)));
+}
 
 // BN.com — missing website_check
 {
@@ -171,6 +225,28 @@ check('index: Live website audit task', /Live website 核验/.test(html));
   check('BN: active + 不可判定 → pass', v.errors.length === 0);
 }
 
+// active + 仅品类参考
+{
+  const v = validateAuditorJson({
+    website_check: bnWebsiteCheck,
+    transaction_status: bnTxActive,
+    dispute_check: { udrp_status: 'none_found', risk_level: 'low' },
+    p1_verdict: '仅品类参考', p2_verdict: '仅品类参考', p3_verdict: '不可判定',
+    class_reference_note: 'LLL 品类估值可作组件参考，非可执行收购价'
+  });
+  check('BN: active + 仅品类参考 → pass', v.errors.length === 0);
+}
+
+// no website_check + 仅品类参考 → error
+{
+  const v = validateAuditorJson({
+    transaction_status: { website_status: 'unknown', sale_status: 'unknown', domain_only_price_actionable: false },
+    dispute_check: { udrp_status: 'none_found', risk_level: 'low' },
+    p1_verdict: '仅品类参考', p2_verdict: '仅品类参考', p3_verdict: '不可判定'
+  });
+  check('no check + 仅品类参考 → error', v.errors.length >= 1);
+}
+
 // render redirect messaging
 {
   const htmlOut = renderAuditorConclusion({
@@ -193,6 +269,15 @@ check('index: Live website audit task', /Live website 核验/.test(html));
   check('bn.com: domain_only false', b.memo.transaction_context.domain_only_price_actionable === false);
 }
 
+// system qq.com default context
+{
+  const b = analyze('qq.com');
+  check('qq.com: LL_COM', b.valuation.asset_class === 'LL_COM');
+  check('qq.com: default actionable false', b.memo.transaction_context.domain_only_price_actionable === false);
+  check('qq.com: pending_live_check', b.memo.transaction_context.acquisition_mode === 'pending_live_check');
+  check('qq.com: component valuation available', b.memo.transaction_context.domain_only_component_valuation_available === true);
+}
+
 // 8888 regression
 {
   const b = analyze('8888.com');
@@ -213,7 +298,7 @@ check('index: Live website audit task', /Live website 核验/.test(html));
   check('55.csah: not active', b.statusInfo.domain_status !== 'active_operating_site');
   check('55.csah: unknown', b.acquirableInfo.acquirable === 'unknown');
   const v = validateAuditorJson({
-    transaction_status: { website_status: 'unknown', sale_status: 'unknown', domain_only_price_actionable: true },
+    transaction_status: { website_status: 'unknown', sale_status: 'unknown', domain_only_price_actionable: false },
     dispute_check: { udrp_status: 'unknown', risk_level: 'low' },
     p1_verdict: '不可判定', p2_verdict: '不可判定', p3_verdict: '不可判定'
   });

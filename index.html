@@ -2204,19 +2204,19 @@ const AI_AUDITOR_OUTPUT_SCHEMA = {
   schema_version: 'AI_AUDITOR_JSON_v2',
   website_check: {
     attempted: true,
-    input_url: 'https://example.com/',
-    final_url: 'https://www.example.com/',
+    input_url: '',
+    final_url: '',
     redirect_detected: false,
-    final_host: 'www.example.com',
+    final_host: '',
     page_title_or_brand: '',
-    site_type: 'active_brand_site | active_operating_site | parked | for_sale_page | unknown',
+    site_type: 'active_brand_site | ecommerce_site | parked | for_sale_page | error | unknown',
     for_sale_signal_found: false,
     evidence_source: 'live_website'
   },
   transaction_status: {
     website_status: 'active_operating_site | parked | for_sale_listed | unknown',
     sale_status: 'not_verified_for_sale | listed | sold_history_only | unknown',
-    acquisition_mode: 'domain_only | website_or_business_acquisition | domain_only_hypothetical',
+    acquisition_mode: 'domain_only | website_or_business_acquisition | domain_only_hypothetical | pending_live_check',
     domain_only_price_actionable: false
   },
   dispute_check: {
@@ -2227,9 +2227,10 @@ const AI_AUDITOR_OUTPUT_SCHEMA = {
     risk_level: 'low | medium | high | critical'
   },
   audit_score: 0,
-  p1_verdict: '偏低 | 合理 | 偏高 | 数据不足 | 不可判定',
-  p2_verdict: '偏低 | 合理 | 偏高 | 数据不足 | 不可判定',
-  p3_verdict: '偏低 | 合理 | 偏高 | 数据不足 | 不可判定',
+  p1_verdict: '偏低 | 合理 | 偏高 | 数据不足 | 不可判定 | 仅品类参考',
+  p2_verdict: '偏低 | 合理 | 偏高 | 数据不足 | 不可判定 | 仅品类参考',
+  p3_verdict: '偏低 | 合理 | 偏高 | 数据不足 | 不可判定 | 仅品类参考',
+  class_reference_note: '',
   market_reality_check: '',
   top_evidence: [{
     domain: '', price: '', source: '', source_url: '',
@@ -2241,6 +2242,14 @@ const AI_AUDITOR_OUTPUT_SCHEMA = {
   confidence: 'high | medium | low'
 };
 
+const AUDITOR_TRANSACTION_GATE_RULES = [
+  '1. 你必须先完成 website_check。',
+  '2. 如果 website_check.attempted 不是 true，p1_verdict / p2_verdict / p3_verdict 必须全部为「不可判定」。',
+  '3. 如果发现跳转到品牌站、运营站、电商站、App/平台站，必须设置：website_status=active_operating_site，sale_status=not_verified_for_sale，acquisition_mode=website_or_business_acquisition，domain_only_price_actionable=false。',
+  '4. 当 domain_only_price_actionable=false 时：p1_verdict / p2_verdict / p3_verdict 不得为「偏低」「合理」「偏高」，只能为「不可判定」「仅品类参考」或「数据不足」。',
+  '5. 若认为系统 LL_COM / NNN_COM / ULTRA_WORD_COM 品类估值本身合理，只能写入 class_reference_note 或 market_reality_check，不得写入 p1_verdict / p2_verdict / p3_verdict 为可执行购买价。'
+];
+
 function buildTransactionContext(parsed, statusInfo, anchorMeta) {
   if (anchorMeta?.transaction_context) return { ...anchorMeta.transaction_context };
   const ds = statusInfo.domain_status;
@@ -2249,22 +2258,25 @@ function buildTransactionContext(parsed, statusInfo, anchorMeta) {
       website_status: 'active_operating_site',
       sale_status: 'not_verified_for_sale',
       acquisition_mode: 'website_or_business_acquisition',
-      domain_only_price_actionable: false
+      domain_only_price_actionable: false,
+      domain_only_component_valuation_available: true
     };
   }
   if (ds === 'parked') {
     return {
       website_status: 'parked',
       sale_status: 'unknown',
-      acquisition_mode: 'domain_only_hypothetical',
-      domain_only_price_actionable: true
+      acquisition_mode: 'pending_live_check',
+      domain_only_price_actionable: false,
+      domain_only_component_valuation_available: true
     };
   }
   return {
     website_status: 'unknown',
     sale_status: 'unknown',
-    acquisition_mode: 'domain_only_hypothetical',
-    domain_only_price_actionable: true
+    acquisition_mode: 'pending_live_check',
+    domain_only_price_actionable: false,
+    domain_only_component_valuation_available: true
   };
 }
 
@@ -2409,11 +2421,46 @@ function buildNumericProfileTags(sld, asset) {
   return tags;
 }
 
+function isNumericPatternDomain(sld, asset, patternInfo) {
+  return /^\d+$/.test(sld) && (patternInfo || asset.subtypeDetail || /^NN/.test(asset.id));
+}
+
+function buildAssetClassJudgment(asset, sld) {
+  const up = sld.toUpperCase();
+  if (asset.id === 'LL_COM') {
+    return {
+      quality: '两字母.COM 顶级稀缺短域',
+      liquidity_signal: '高流通性，短域投资市场核心资产',
+      enduser_signal: '强品牌缩写潜力，但需核验是否已绑定现有品牌',
+      relative_position: 'LL_COM 顶级资产类别，具体价值取决于字母组合与终端绑定'
+    };
+  }
+  if (asset.id === 'LLL_COM') {
+    return {
+      quality: '三字母.COM 高流通短域',
+      liquidity_signal: '投资人市场稳定承接，经纪流通性好',
+      enduser_signal: up + ' 可作企业/产品缩写，需核验真实终端',
+      relative_position: 'LLL_COM 品类层级，具体溢价取决于字母组合与终端绑定'
+    };
+  }
+  if (asset.id === 'ULTRA_WORD_COM') {
+    return {
+      quality: '顶级英文单词.COM',
+      liquidity_signal: '全球品牌终端与精品流通资产',
+      enduser_signal: '单词语义直接匹配品牌/产品命名',
+      relative_position: 'ULTRA_WORD_COM 顶级品类，P3 依赖终端确认'
+    };
+  }
+  return null;
+}
+
 function buildExpertMemo(parsed, asset, scores, valuation, ruleHits, patternInfo, risks, transactionContext) {
   const { sld } = parsed;
   const pi = patternInfo;
   const has4 = pi ? pi.hasFour : /4/.test(sld);
-  const pj = expertJudgment(sld, pi, has4, asset.subtypeDetail);
+  const numericPattern = isNumericPatternDomain(sld, asset, pi);
+  const acj = numericPattern ? null : buildAssetClassJudgment(asset, sld);
+  const pj = numericPattern ? expertJudgment(sld, pi, has4, asset.subtypeDetail) : null;
   const tags = [asset.id, ...buildNumericProfileTags(sld, asset)];
   if (asset.subtypeDetail && !tags.includes(asset.subtypeDetail)) tags.push(asset.subtypeDetail);
   if (has4) tags.push('含4');
@@ -2445,9 +2492,10 @@ function buildExpertMemo(parsed, asset, scores, valuation, ruleHits, patternInfo
       system_score: scores.final,
       one_liner: buildExpertOneLiner(sld, asset, pi),
       pattern_judgment: pj,
-      quality: pj.pattern_quality,
-      liquidity: pj.liquidity_signal,
-      enduser_fit: '见 buyer_personas'
+      asset_class_judgment: acj,
+      quality: acj ? acj.quality : (pj ? pj.pattern_quality : null),
+      liquidity: acj ? acj.liquidity_signal : (pj ? pj.liquidity_signal : null),
+      enduser_fit: acj ? acj.enduser_signal : '见 buyer_personas'
     },
     buyer_personas: buyerPersonas,
     transaction_context: transactionContext,
@@ -2462,7 +2510,7 @@ function buildExpertMemo(parsed, asset, scores, valuation, ruleHits, patternInfo
 function buildAiAuditorBrief(expertMemo) {
   return {
     role: 'AI Domain Market Auditor',
-    instruction: '你是域名市场复核员，不是重新估值员。必须先完成交易与法律尽调，再审计系统 P1/P2/P3。不得重新从零估值，不得输出 price_range 或 investor_floor_usd。',
+    instruction: '你是域名市场复核员，不是重新估值员。系统 P1/P2/P3 仅为 domain-only 组件估值参考；在完成 website_check 与交易尽调前，不得将其当作可执行收购价。不得重新从零估值，不得输出 price_range 或 investor_floor_usd。',
     pre_checks: [
       '0. Live website 跳转核验（website_check.attempted:true，记录 input_url → final_url）',
       '1. 当前是否建站运营（website_status）',
@@ -2471,11 +2519,13 @@ function buildAiAuditorBrief(expertMemo) {
       '4. UDRP/ADNDRC/WIPO/Forum/CAC/CIIDRC 争议记录',
       '5. 同名商标或行业冲突'
     ],
+    transaction_gate_rules: AUDITOR_TRANSACTION_GATE_RULES,
     requirements: [
-      '无 website_check.attempted:true 不得输出 P1/P2/P3 审计结论（unknown 仅可 WARNING + 不可判定）',
+      '无 website_check.attempted:true 时，p1_verdict / p2_verdict / p3_verdict 必须全部为「不可判定」',
       'input host 与 final host 不一致且 final 为品牌/电商/业务站：必须标 active_operating_site，domain_only_price_actionable:false',
-      '未完成 website_status 或 sale_status 核验：P1/P2/P3 只能「不可判定」',
-      'active_operating_site 且无出售状态：不得将 P1/P2/P3 评为可执行购买价',
+      'website_status 为 unknown 时，domain_only_price_actionable 必须为 false',
+      'domain_only_price_actionable=false 时：p1/p2/p3_verdict 不得为偏低/合理/偏高，只能为不可判定/仅品类参考/数据不足',
+      '品类估值合理性只能写入 class_reference_note 或 market_reality_check，不得写成可执行 P1/P2/P3 购买价',
       'pending UDRP 或 transfer ordered：audit_score ≤50，confidence 不得 high',
       'verified_sale 仅限 NameBio/DNJournal/Escrow/交易平台官方成交；不得把挂牌/新闻写成 verified_sale',
       'source_tier: marketplace_listing/secondary_report 不得标 verified_sale',
@@ -2710,6 +2760,9 @@ function renderAuditorConclusion(data) {
     html += '<div class="ac-row ac-verdict-muted"><span class="ac-label">P2：</span>' + formatAuditorVerdict(data.p2_verdict, true) + ' · 仅品类参考</div>';
     html += '<div class="ac-row ac-verdict-muted"><span class="ac-label">P3：</span>' + formatAuditorVerdict(data.p3_verdict, true) + ' · 仅站点/业务收购场景参考</div>';
   }
+  if (data.class_reference_note) {
+    html += '<div class="ac-row"><span class="ac-label">品类参考：</span>' + escapeHtml(data.class_reference_note) + '</div>';
+  }
   if (data.market_reality_check) {
     html += '<div class="ac-row"><span class="ac-label">核心原因：</span>' + escapeHtml(data.market_reality_check) + '</div>';
   }
@@ -2758,6 +2811,10 @@ function validateAuditorJson(data) {
   if (!data.dispute_check) warnings.push('缺少 dispute_check（UDRP/商标尽调）');
   else if (!data.dispute_check.udrp_status) warnings.push('dispute_check.udrp_status 缺失');
 
+  if (tx && (tx.website_status === 'unknown' || !tx.website_status) && tx.domain_only_price_actionable === true) {
+    errors.push('website_status 为 unknown 时 domain_only_price_actionable 不得为 true');
+  }
+
   const wc = data.website_check;
   const attempted = wc && wc.attempted === true;
   if (!attempted) {
@@ -2766,13 +2823,11 @@ function validateAuditorJson(data) {
     } else {
       const verdicts = ['p1_verdict', 'p2_verdict', 'p3_verdict']
         .map(k => data[k]).filter(v => v && String(v).trim() && v !== '—');
-      const txUnknown = !tx || !tx.website_status || tx.website_status === 'unknown';
-      const allNonActionable = verdicts.length > 0 && verdicts.every(v =>
-        AUDITOR_NON_ACTIONABLE_VERDICTS.includes(v) || !AUDITOR_ACTIONABLE_VERDICTS.includes(v));
-      if (allNonActionable && txUnknown) {
-        warnings.push('未完成网站核验（website_check.attempted 缺失）；当前 verdict 仅为不可判定/数据不足');
+      const allUndetermined = verdicts.length > 0 && verdicts.every(v => v === '不可判定');
+      if (allUndetermined) {
+        warnings.push('未完成网站核验（website_check.attempted 缺失）；verdict 已降级为不可判定');
       } else {
-        errors.push('未完成 website_check（attempted:true）不得输出 P1/P2/P3 审计结论');
+        errors.push('未完成 website_check（attempted:true）时 verdict 必须全部为「不可判定」');
       }
     }
   } else if (isRedirectActiveBrandSite(wc)) {
